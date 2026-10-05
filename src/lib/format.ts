@@ -54,3 +54,15 @@ export function minutesToHuman(min?: number | null) {
   if (h < 24) return `${h.toFixed(1).replace('.', ',')} h`;
   return `${(h / 24).toFixed(1).replace('.', ',')} dias`;
 }
+
+/**
+ * Link "Adicionar ao Google Agenda": abre a agenda da própria pessoa com o evento preenchido.
+ * Não usa API nem login no sistema — quem confirma e salva é o consultor, na conta Google dele.
+ */
+export function googleCalendarUrl(e: { title: string; start: Date | string; minutes?: number; details?: string }) {
+  const stamp = (d: Date) => d.toISOString().replace(/[-:]|\.\d{3}/g, ''); // 20261006T130000Z
+  const start = new Date(e.start);
+  const end = new Date(start.getTime() + (e.minutes ?? 30) * 60_000);
+  const q = new URLSearchParams({ action: 'TEMPLATE', text: e.title, dates: `${stamp(start)}/${stamp(end)}`, ...(e.details ? { details: e.details } : {}) });
+  return `https://calendar.google.com/calendar/render?${q}`;
+}

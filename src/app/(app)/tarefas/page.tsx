@@ -4,7 +4,9 @@ import { can } from '@/modules/auth/context';
 import { listTasks, TASK_TYPES, PRIORITIES } from '@/modules/tasks/task.service';
 import { Badge, Card, Empty, PageHeader, cx } from '@/components/ui';
 import { ActionButton } from '@/components/client';
-import { dateTime } from '@/lib/format';
+import { dateTime, googleCalendarUrl } from '@/lib/format';
+import { buttonClass } from '@/components/ui';
+import { env } from '@/lib/env';
 
 export const metadata = { title: 'Tarefas' };
 
@@ -65,6 +67,20 @@ export default async function TasksPage({ searchParams }: { searchParams: Promis
                     </div>
                   </div>
                   <span className={cx('text-xs tabular', late ? 'text-bad font-semibold' : 'text-muted')}>{late ? 'Atrasada · ' : ''}{dateTime(t.dueAt)}</span>
+                  {t.status === 'OPEN' && (
+                    <a
+                      className={buttonClass('secondary', 'sm')}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      href={googleCalendarUrl({
+                        title: t.lead ? `${t.title} · ${t.lead.name}` : t.title,
+                        start: t.dueAt,
+                        details: `${TASK_TYPES[t.type as keyof typeof TASK_TYPES]}${t.lead ? `\nLead: ${env.APP_URL}/leads/${t.lead.id}` : ''}`,
+                      })}
+                    >
+                      + Google Agenda
+                    </a>
+                  )}
                   {t.status === 'OPEN' && can(ctx, 'task.update') && (
                     <ActionButton size="sm" path={`/tasks/${t.id}`} method="PATCH" body={{ status: 'DONE' }} success="Tarefa concluída.">
                       Concluir
