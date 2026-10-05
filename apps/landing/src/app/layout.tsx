@@ -5,7 +5,7 @@ import './globals.css';
 // Fonte arredondada próxima da identidade da marca (troque pela fonte oficial quando houver o arquivo).
 const brandFont = Geist({ subsets: ['latin'], variable: '--font-brand', display: 'swap' });
 
-export const metadata: Metadata = { title: 'Simulação de consórcio', robots: { index: true, follow: true } };
+export const metadata: Metadata = { title: 'Simulação de consórcio', robots: { index: true, follow: true }, icons: { icon: '/icon.png', apple: '/icon.png' } };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (

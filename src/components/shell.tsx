@@ -1,6 +1,5 @@
 'use client';
 
-import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
@@ -10,6 +9,7 @@ import type { NavGroup } from './nav';
 import { api } from '@/lib/client';
 import { CommandPalette, type PaletteAction } from './command-palette';
 import { RealtimeBridge } from './realtime';
+import { Logo } from './logo';
 
 // Layout da aplicação: sidebar (responsiva) + topbar com busca, notificações e usuário.
 
@@ -36,7 +36,7 @@ export function Shell({ nav, user, appName, actions, children }: { nav: NavGroup
       >
         <div className="flex items-center gap-2.5 px-5 pt-5 pb-3 shrink-0">
           <Link href="/" className="min-w-0 flex-1" aria-label={appName}>
-            <Image src="/logo.png" alt={appName} width={1080} height={96} unoptimized priority className="h-[15px] w-auto" />
+            <Logo className="h-[15px]" />
             <small className="hidden lg:block text-[11px] text-faint mt-1.5">Ademicon · Prospecção · IA</small>
           </Link>
           <button onClick={() => setOpen(false)} className="lg:hidden size-9 grid place-items-center text-ink text-lg" aria-label="Fechar menu">

@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation';
 import { headers } from 'next/headers';
 import { getCtx } from '@/modules/auth/session';
 import { resolveDeepLink } from '@/modules/devices/device.service';
+import { Logo } from '@/components/logo';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Abrir no celular', robots: { index: false } };
@@ -23,7 +24,8 @@ export default async function DeepLinkPage({ params }: { params: Promise<{ code:
   const [title, text] = MSG[r.reason];
   return (
     <main className="min-h-screen grid place-items-center p-6">
-      <div className="max-w-sm text-center bg-white border border-line rounded-2xl p-6 shadow-sm">
+      <div className="max-w-sm text-center bg-white border border-line rounded-3xl p-7">
+        <Logo className="h-4 mx-auto mb-6" />
         <div className="mx-auto size-12 rounded-full bg-warn-50 grid place-items-center text-warn text-xl mb-3" aria-hidden>
           !
         </div>

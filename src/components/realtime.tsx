@@ -64,7 +64,7 @@ function showDesktop(n: RtNotification) {
   // Com a aba visível e focada, o sino basta — exceto para alta prioridade.
   if (document.visibilityState === 'visible' && document.hasFocus() && !['HIGH', 'CRITICAL'].includes(n.priority)) return;
   try {
-    const notif = new Notification(n.title, { body: n.body ?? '', tag: n.id, icon: '/icon.svg', requireInteraction: n.priority === 'CRITICAL' });
+    const notif = new Notification(n.title, { body: n.body ?? '', tag: n.id, icon: '/icon.png', requireInteraction: n.priority === 'CRITICAL' });
     notif.onclick = () => {
       window.focus();
       if (n.link) window.location.href = `${n.link}${n.link.includes('?') ? '&' : '?'}via=desktop`;

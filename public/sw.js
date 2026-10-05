@@ -14,8 +14,8 @@ self.addEventListener('push', (event) => {
   event.waitUntil(
     self.registration.showNotification(data.title || 'Nova notificação', {
       body: data.body || '',
-      icon: '/icon.svg',
-      badge: '/icon.svg',
+      icon: '/icon.png',
+      badge: '/icon.png',
       tag: data.tag || undefined,
       renotify: !!data.tag,
       requireInteraction: data.priority === 'CRITICAL',

@@ -10,7 +10,7 @@ export const metadata: Metadata = {
   title: { default: env.APP_NAME, template: `%s · ${env.APP_NAME}` },
   description: 'Plataforma de prospecção, aquisição, IA e gestão comercial.',
   manifest: '/manifest.webmanifest',
-  icons: { icon: '/icon.svg', apple: '/icon.svg' },
+  icons: { icon: '/icon.png', apple: '/icon.png' },
   appleWebApp: { capable: true, title: 'Prospect AI', statusBarStyle: 'default' },
 };
 

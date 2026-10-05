@@ -7,6 +7,7 @@ import { can } from '@/modules/auth/context';
 import { SimulatorWidget } from '@/components/public/simulator-widget';
 import { LandingTracker } from '@/components/public/tracker';
 import { productLabel } from '@/modules/leads/catalog';
+import { Logo } from '@/components/logo';
 import { cookies, headers } from 'next/headers';
 import { assignVariant } from '@/modules/experiments/experiment.service';
 
@@ -57,8 +58,8 @@ export default async function PublicLanding({ params, searchParams }: Props) {
       <header className="bg-chrome border-b border-line">
         <div className="max-w-[1400px] mx-auto px-4 sm:px-8 h-[68px] flex items-center justify-between gap-4">
           <div className="flex items-center gap-3 min-w-0">
-            <span className="grid place-items-center size-9 rounded-[10px] bg-ink text-lime font-bold text-xs shrink-0">{brand.name.slice(0, 2).toUpperCase()}</span>
-            <b className="tracking-tight truncate">{brand.name}</b>
+            <Logo className="h-4 shrink-0" />
+            <span className="hidden sm:block border-l border-line pl-3 text-sm text-muted truncate">{brand.name}</span>
           </div>
           <span className="text-sm text-muted text-right">{brand.tagline}</span>
         </div>

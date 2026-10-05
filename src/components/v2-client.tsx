@@ -228,7 +228,7 @@ export function DesktopPermissionButton() {
       onClick={async () => {
         const p = await Notification.requestPermission();
         setPerm(p);
-        if (p === 'granted') new Notification('Notificações ativadas', { body: 'Você será avisado de leads quentes, mensagens e SLA.', icon: '/icon.svg' });
+        if (p === 'granted') new Notification('Notificações ativadas', { body: 'Você será avisado de leads quentes, mensagens e SLA.', icon: '/icon.png' });
       }}
     >
       Ativar notificações no computador

@@ -1,6 +1,7 @@
 import { gestao, type Unit } from '@/lib/gestao';
 import { partnerLoginUrl, unitUrl } from '@/lib/links';
 import { Icon } from '@/components/icon';
+import { BrandLogo } from '@/components/brand-logo';
 
 export const dynamic = 'force-dynamic';
 
@@ -24,7 +25,7 @@ export default async function Units() {
     <div className="min-h-screen flex flex-col">
       <header className="bg-night text-white">
         <div className="mx-auto max-w-5xl px-4 sm:px-6 h-16 flex items-center justify-between">
-          <b className="text-lg">{brandName}</b>
+          <BrandLogo name={brandName} inverted />
           <a href={partnerLoginUrl()} className="text-sm text-white/80 hover:text-white">
             Área do parceiro
           </a>
