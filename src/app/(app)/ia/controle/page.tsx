@@ -22,7 +22,7 @@ export default async function AiControlPage({ searchParams }: { searchParams: Pr
       <PageHeader crumb="IA" title="AI Control Center" subtitle="Chamadas, custo, latência, erros, handoffs, confiança, lacunas de conhecimento, agentes, prompts e modelos." />
       {env.AI_PROVIDER === 'mock' && (
         <Notice tone="amber" title="Provider de IA em modo MOCK.">
-          As respostas vêm do motor determinístico de demonstração: não há tokens nem custo. Com AI_PROVIDER=anthropic, tokens e custo estimado passam a ser registrados por execução.
+          As respostas vêm do motor determinístico de demonstração: não há tokens nem custo. Com um provedor real (Claude ou Gemini), tokens e custo estimado passam a ser registrados por execução.
         </Notice>
       )}
       <FilterBar className="my-4" fields={[{ name: 'period', label: 'Período', options: [{ value: '7d', label: '7 dias' }, { value: '30d', label: '30 dias' }, { value: '90d', label: '90 dias' }] }]} />

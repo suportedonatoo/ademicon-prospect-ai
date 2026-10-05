@@ -14,7 +14,7 @@ const OVERALL: Record<Level, string> = { OK: 'Tudo funcionando', WARN: 'Funciona
 
 const OPTIONS = [
   { href: '/admin/equipe', icon: 'users', title: 'Adicionar colaborador', text: 'Login, Instagram e de 1 a 7 números de WhatsApp. Já começa a receber leads em partes iguais.' },
-  { href: '/superadmin/apis', icon: 'plug', title: 'Configurar APIs', text: 'WhatsApp oficial, IA (Claude), Google Ads, Meta Ads e Mapas. Chaves criptografadas.' },
+  { href: '/superadmin/apis', icon: 'plug', title: 'Configurar APIs', text: 'WhatsApp oficial, IA (Claude ou Gemini), Google Ads, Meta Ads e Mapas. Chaves criptografadas.' },
   { href: '/superadmin/saude', icon: 'activity', title: 'Saúde do sistema', text: 'Banco, filas, IA, WhatsApp, leads entrando, distribuição e anúncios — medido agora.' },
   { href: '/superadmin/anuncios', icon: 'megaphone', title: 'Google Ads e Meta Ads', text: 'Conexão, campanhas, métricas e leads dos formulários entrando direto na distribuição.' },
 ] as const;

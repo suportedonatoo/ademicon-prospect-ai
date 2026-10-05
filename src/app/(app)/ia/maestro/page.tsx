@@ -25,8 +25,8 @@ export default async function MaestroPage({ searchParams }: { searchParams: Prom
   return (
     <>
       <PageHeader title="Maestro" crumb="IA · Observabilidade" subtitle="Orquestra contexto, memória, Knowledge Base, regras, agente, supervisor e handoff em cada mensagem." />
-      <Notice tone={ai.name === 'mock' ? 'amber' : 'green'} title={`Provider: ${ai.name === 'mock' ? 'MockAIProvider' : 'Anthropic'} (${ai.model}).`}>
-        {ai.name === 'mock' ? 'Respostas por regras + Knowledge Base, sem LLM. Defina AI_PROVIDER=anthropic e AI_API_KEY para IA real — o domínio não muda.' : 'IA real ativa, com fallback automático para o mock em caso de falha.'}
+      <Notice tone={ai.name === 'mock' ? 'amber' : 'green'} title={`Provider: ${ai.name === 'mock' ? 'MockAIProvider' : ai.name === 'gemini' ? 'Google Gemini' : 'Anthropic'} (${ai.model}).`}>
+        {ai.name === 'mock' ? 'Respostas por regras + Knowledge Base, sem LLM. Configure o provedor (Claude ou Gemini) e a chave em Configurar APIs para IA real — o domínio não muda.' : 'IA real ativa, com fallback automático para o mock em caso de falha.'}
       </Notice>
       <Card className="my-4">
         <ol className="flex flex-wrap items-center gap-1.5 text-xs">

@@ -9,7 +9,7 @@ const schema = z.object({
   DATABASE_URL: z.string(),
   REDIS_URL: z.string().optional(),
   QUEUE_DRIVER: z.enum(['inline', 'bullmq']).default('inline'),
-  AI_PROVIDER: z.enum(['mock', 'anthropic']).default('mock'),
+  AI_PROVIDER: z.enum(['mock', 'anthropic', 'gemini']).default('mock'),
   AI_API_KEY: z.string().optional(),
   AI_MODEL: z.string().default('claude-opus-5-5'),
   /** Chat anônimo da página: roteiro (grátis, padrão) ou ia (usa a IA paga também para visitantes). */

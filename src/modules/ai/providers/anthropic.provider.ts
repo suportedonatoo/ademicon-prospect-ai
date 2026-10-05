@@ -20,7 +20,7 @@ const FALLBACK_BETA = 'server-side-fallback-2026-07-01';
  */
 const isHaiku = (model: string) => model.startsWith('claude-haiku');
 
-const TurnSchema = z.object({
+export const TurnSchema = z.object({
   reply: z.string(),
   extracted: z.object({
     product: z.enum(['IMOVEL', 'VEICULO', 'MOTO', 'SERVICOS', 'BENS_MOVEIS']).nullable(),
@@ -40,7 +40,7 @@ const TurnSchema = z.object({
   usedKnowledgeIds: z.array(z.string()),
 });
 
-function systemPrompt(i: AgentTurnInput): string {
+export function systemPrompt(i: AgentTurnInput): string {
   const facts = [
     i.lead.name && `Nome: ${i.lead.name}`,
     i.lead.product && `Produto: ${productLabel(i.lead.product)}`,

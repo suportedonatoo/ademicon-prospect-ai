@@ -27,3 +27,4 @@ equipe-consultores.csv
 .env.supabase
 hostinger.env
 acessos-consultores.txt
+hostinger-minimo.env

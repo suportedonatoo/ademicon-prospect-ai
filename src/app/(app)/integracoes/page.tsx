@@ -13,7 +13,7 @@ const ENV: Record<string, string> = {
   bing_maps: 'BING_MAPS_API_KEY',
   company_registry: 'COMPANY_REGISTRY_API_URL / COMPANY_REGISTRY_API_KEY',
   whatsapp: 'WHATSAPP_PROVIDER=cloud-api / WHATSAPP_API_URL / WHATSAPP_API_TOKEN',
-  ai: 'AI_PROVIDER=anthropic / AI_API_KEY / AI_MODEL',
+  ai: 'AI_PROVIDER=anthropic|gemini / AI_API_KEY / AI_MODEL',
   storage: 'STORAGE_PROVIDER=s3 / STORAGE_BUCKET',
   newcon: 'Documentação oficial + credenciais autorizadas',
   comercialnet: 'Documentação oficial + credenciais autorizadas',

@@ -84,7 +84,7 @@ export interface SummaryInput {
 }
 
 export interface AIProvider {
-  name: 'mock' | 'anthropic';
+  name: 'mock' | 'anthropic' | 'gemini';
   model: string;
   generateTurn(input: AgentTurnInput): Promise<AgentTurnOutput>;
   summarize(input: SummaryInput): Promise<string>;

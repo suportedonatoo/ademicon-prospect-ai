@@ -55,14 +55,14 @@ export const CREDENTIAL_GROUPS: CredentialGroup[] = [
   },
   {
     id: 'ai',
-    title: 'Inteligência Artificial (Claude)',
+    title: 'Inteligência Artificial (Claude ou Gemini)',
     description: 'Respostas da IA nas conversas. Sem chave (modo mock), o chatbot funciona por roteiro, de graça: responde pela Knowledge Base e passa o lead ao consultor.',
-    docs: 'https://docs.claude.com',
+    docs: 'https://ai.google.dev/gemini-api/docs/api-key',
     fields: [
-      { key: 'AI_PROVIDER', label: 'Modo', secret: false, options: ['mock', 'anthropic'] },
+      { key: 'AI_PROVIDER', label: 'Modo', secret: false, options: ['mock', 'anthropic', 'gemini'], hint: 'mock = roteiro grátis · anthropic = Claude · gemini = Google (chave do AI Studio)' },
       { key: 'AI_API_KEY', label: 'API key', secret: true },
       { key: 'AI_VISITOR_MODE', label: 'Chat da página (visitante anônimo)', secret: false, options: ['roteiro', 'ia'], hint: 'roteiro = grátis · ia = usa a IA paga também aqui' },
-      { key: 'AI_MODEL', label: 'Modelo', secret: false, options: ['claude-haiku-4-5', 'claude-sonnet-5-5', 'claude-opus-5-5'], hint: 'Haiku = mais barato · Sonnet = equilíbrio · Opus = mais capaz' },
+      { key: 'AI_MODEL', label: 'Modelo', secret: false, hint: 'Gemini: gemini-2.5-flash · Claude: claude-haiku-4-5, claude-sonnet-5-5 ou claude-opus-5-5. O botão Testar conexão confere se o modelo existe.' },
     ],
   },
   {
