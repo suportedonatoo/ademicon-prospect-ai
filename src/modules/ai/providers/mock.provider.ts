@@ -66,7 +66,7 @@ export class MockAIProvider implements AIProvider {
   model = 'mock-rules-v1';
 
   async healthCheck() {
-    return { ok: true, mode: 'mock' as const, detail: 'Respostas por regras + Knowledge Base (sem LLM). Configure AI_PROVIDER=anthropic para IA real.' };
+    return { ok: true, mode: 'mock' as const, detail: 'Respostas por regras + Knowledge Base (sem LLM). Sem API key salva, a IA real não é usada: escolha o modo (Claude ou Gemini), cole a chave e salve.' };
   }
 
   async generateTurn(i: AgentTurnInput): Promise<AgentTurnOutput> {
