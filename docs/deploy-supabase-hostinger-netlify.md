@@ -66,7 +66,7 @@ Precisa de um plano com **Node.js Web Apps**: **Business** ou **Cloud**.
    APP_ENV=production
    APP_NAME=Ademicon Prospect AI
    APP_URL=https://gestao.seudominio.com.br
-   DATABASE_URL=<a URL do Session pooler do passo 1.3>
+   DATABASE_URL=<a URL do Transaction pooler: mesma do passo 1.3, com a porta 6543 e ?pgbouncer=true&connection_limit=5 no final>
    SESSION_SECRET=<texto aleatório longo — 48+ caracteres>
    CREDENTIALS_KEY=<outro texto aleatório longo>
    QUEUE_DRIVER=inline
@@ -81,6 +81,7 @@ Precisa de um plano com **Node.js Web Apps**: **Business** ou **Cloud**.
    EMAIL_PROVIDER=log
    COMPANY_REGISTRY_PROVIDER=brasilapi
    ```
+   - **Banco:** no servidor use o *Transaction pooler* (porta 6543, com `pgbouncer=true`). O Session pooler (5432) só aceita 15 conexões no plano Free; com mais de uma instância do app ele esgota e as páginas dão "Application error". O Session pooler continua valendo para rodar migrations a partir do seu PC.
    - Não tem Redis nem worker. Com `QUEUE_DRIVER=inline`, as rotinas automáticas rodam dentro do próprio servidor: follow-up, SLA, notificações e a virada diária dos contadores do WhatsApp.
    - O sistema **se recusa a subir** se faltar `SESSION_SECRET` ou se algum endereço estiver como `localhost`. É de propósito.
 4. **Domínio:** ligue `gestao.seudominio.com.br` ao app. Se o domínio está na própria Hostinger, ela cria o DNS e o HTTPS.
