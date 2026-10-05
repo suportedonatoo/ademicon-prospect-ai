@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import { redirect } from 'next/navigation';
 import { getCtx } from '@/modules/auth/session';
 import { env } from '@/lib/env';
@@ -28,8 +29,7 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
     <div className="min-h-screen grid lg:grid-cols-[1.4fr_1fr] bg-chrome">
       <aside className="hidden lg:flex flex-col justify-between bg-ink text-white p-14 relative overflow-hidden">
         <div className="flex items-center gap-2.5">
-          <span className="grid place-items-center size-10 rounded-xl bg-lime text-ink font-bold text-sm">AP</span>
-          <b className="text-lg tracking-tight">{env.APP_NAME}</b>
+          <Image src="/logo-light.png" alt={env.APP_NAME} width={1080} height={96} unoptimized priority className="h-5 w-auto" />
         </div>
         <div className="max-w-lg">
           <h1 className="text-[44px] font-bold tracking-tight leading-[1.08]">Encontrar, qualificar e converter oportunidades com IA.</h1>
@@ -46,6 +46,7 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
       </aside>
       <main className="flex items-center justify-center p-6">
         <div className="w-full max-w-[400px]">
+          <Image src="/logo.png" alt={env.APP_NAME} width={1080} height={96} unoptimized className="h-4 w-auto mb-8 lg:hidden" />
           <h2 className="text-[28px] font-bold tracking-tight">Entrar</h2>
           <p className="text-sm text-muted mt-1.5 mb-6">Acesse com seu e-mail corporativo.</p>
           <LoginForm next={next} demoAccounts={isDemo ? DEMO : []} demoPassword={isDemo ? (process.env.SEED_PASSWORD ? null : 'Prospect@2026') : null} />

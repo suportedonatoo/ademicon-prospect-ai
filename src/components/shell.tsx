@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
@@ -34,12 +35,9 @@ export function Shell({ nav, user, appName, actions, children }: { nav: NavGroup
         aria-label="Menu principal"
       >
         <div className="flex items-center gap-2.5 px-5 pt-5 pb-3 shrink-0">
-          <Link href="/" className="flex items-center gap-2.5 min-w-0 flex-1">
-            <span className="grid place-items-center size-9 rounded-[10px] bg-ink text-lime font-bold text-sm shrink-0">AP</span>
-            <span className="leading-tight min-w-0">
-              <b className="block text-ink text-[15px] tracking-tight truncate">{shortName(appName)}</b>
-              <small className="hidden lg:block text-[11px] text-faint">Ademicon · Prospecção · IA</small>
-            </span>
+          <Link href="/" className="min-w-0 flex-1" aria-label={appName}>
+            <Image src="/logo.png" alt={appName} width={1080} height={96} unoptimized priority className="h-[15px] w-auto" />
+            <small className="hidden lg:block text-[11px] text-faint mt-1.5">Ademicon · Prospecção · IA</small>
           </Link>
           <button onClick={() => setOpen(false)} className="lg:hidden size-9 grid place-items-center text-ink text-lg" aria-label="Fechar menu">
             ✕
@@ -115,9 +113,6 @@ export function Shell({ nav, user, appName, actions, children }: { nav: NavGroup
     </div>
   );
 }
-
-/** "Ademicon Prospect AI" → "Prospect AI" (a marca completa fica na linha de baixo). */
-const shortName = (n: string) => n.replace(/^Ademicon\s+/i, '');
 
 function Topbar({ user, onMenu }: { user: ShellUser; onMenu: () => void }) {
   return (
