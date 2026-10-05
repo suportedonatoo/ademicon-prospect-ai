@@ -1,0 +1,14 @@
+{
+  "name": "Ademicon Prospect AI",
+  "short_name": "Prospect AI",
+  "description": "Leads, conversas e oportunidades — com notificações no celular.",
+  "start_url": "/?source=pwa",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#f5f7fa",
+  "theme_color": "#0b2545",
+  "lang": "pt-BR",
+  "icons": [
+    { "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}

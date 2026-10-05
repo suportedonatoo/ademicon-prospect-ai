@@ -1,0 +1,118 @@
+# PRODUÇÃO (servidor) — sistema de gestão + worker + landing + HTTPS automático + backup diário.
+# Subir:     docker compose --env-file .env.production -f docker-compose.prod.yml up -d --build
+# Guia completo: docs/deploy.md
+name: ademicon-prospect-ai-prod
+
+x-app-env: &app-env
+  DATABASE_URL: postgresql://prospect:${POSTGRES_PASSWORD}@postgres:5432/prospect
+  REDIS_URL: redis://redis:6379
+  QUEUE_DRIVER: bullmq
+  STORAGE_LOCAL_DIR: /app/storage
+  TRUSTED_PROXY_HOPS: "1"
+
+services:
+  postgres:
+    image: pgvector/pgvector:pg16
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: prospect
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?defina POSTGRES_PASSWORD no .env.production}
+      POSTGRES_DB: prospect
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U prospect -d prospect"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    volumes:
+      - redisdata:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  app:
+    build: .
+    restart: unless-stopped
+    env_file: .env.production
+    environment: *app-env
+    volumes:
+      - storage:/app/storage # fotos e arquivos — sobrevivem a atualizações
+    depends_on:
+      postgres: { condition: service_healthy }
+      redis: { condition: service_healthy }
+
+  worker:
+    build: .
+    restart: unless-stopped
+    command: ["node", "--import", "tsx", "src/worker.ts"]
+    env_file: .env.production
+    environment: *app-env
+    volumes:
+      - storage:/app/storage
+    depends_on:
+      postgres: { condition: service_healthy }
+      redis: { condition: service_healthy }
+
+  landing:
+    build: ./apps/landing
+    restart: unless-stopped
+    environment:
+      GESTAO_API_URL: http://app:3500
+      LANDING_SERVICE_API_KEY: ${LANDING_SERVICE_API_KEY}
+      LANDING_BASE_DOMAIN: ${LANDING_DOMAIN:?defina LANDING_DOMAIN no .env.production}
+      TRUSTED_PROXY_HOPS: "1"
+    depends_on:
+      - app
+
+  # HTTPS automático (Let's Encrypt) para a gestão, o site mestre e cada subdomínio de consultor/unidade.
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      GESTAO_DOMAIN: ${GESTAO_DOMAIN:?defina GESTAO_DOMAIN no .env.production}
+      ACME_EMAIL: ${ACME_EMAIL:?defina ACME_EMAIL no .env.production}
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - app
+      - landing
+
+  # Backup diário do banco (formato custom do pg_dump), guarda 14 dias em ./backups.
+  # Copie ./backups para FORA do servidor também (ver docs/deploy.md).
+  backup:
+    image: pgvector/pgvector:pg16
+    restart: unless-stopped
+    environment:
+      PGPASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - ./backups:/backups
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        while true; do
+          f=/backups/prospect-$$(date +%Y-%m-%d-%H%M).dump
+          if pg_dump -h postgres -U prospect -Fc prospect > "$$f"; then echo "backup ok: $$f"; else echo "BACKUP FALHOU"; rm -f "$$f"; fi
+          find /backups -name 'prospect-*.dump' -mtime +14 -delete
+          sleep 86400
+        done
+    depends_on:
+      postgres: { condition: service_healthy }
+
+volumes:
+  pgdata:
+  redisdata:
+  storage:
+  caddy_data:
+  caddy_config:

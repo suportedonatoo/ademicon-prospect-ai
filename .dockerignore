@@ -1,0 +1,15 @@
+node_modules
+.next
+.next-*
+.env
+.env.*
+!.env.example
+storage
+coverage
+mvp
+.git
+.github
+*.tsbuildinfo
+apps
+entregas
+backups

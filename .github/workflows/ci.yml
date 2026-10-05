@@ -1,0 +1,93 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    services:
+      postgres:
+        image: pgvector/pgvector:pg16
+        env:
+          POSTGRES_USER: prospect
+          POSTGRES_PASSWORD: prospect_ci_password
+          POSTGRES_DB: prospect
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U prospect -d prospect"
+          --health-interval 5s --health-timeout 3s --health-retries 20
+      redis:
+        image: redis:7-alpine
+        ports: ["6379:6379"]
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 5s --health-timeout 3s --health-retries 20
+    env:
+      APP_ENV: test
+      APP_URL: http://localhost:3500
+      SESSION_SECRET: ci-only-session-secret-not-used-anywhere-else
+      DATABASE_URL: postgresql://prospect:prospect_ci_password@localhost:5432/prospect
+      REDIS_URL: redis://localhost:6379
+      QUEUE_DRIVER: inline
+      AI_PROVIDER: mock
+      EMBEDDING_PROVIDER: hash
+      WHATSAPP_PROVIDER: mock
+      NEXT_TELEMETRY_DISABLED: "1"
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Migrations
+        run: npx prisma migrate deploy
+
+      - name: Unit + integration tests
+        run: npm test
+
+      - name: Security (npm audit alta/crítica)
+        run: node scripts/audit.mjs .
+
+      - name: Build
+        run: npm run build
+
+      - name: Extensão Chrome/Edge (build)
+        run: npm run extension:build
+
+      - name: Landing das PJs (install, lint, typecheck, build)
+        working-directory: apps/landing
+        run: |
+          npm ci
+          npm run lint
+          npm run typecheck
+          npm run build
+
+      - name: E2E (seed + app + fluxo principal)
+        run: |
+          npm run db:seed
+          npm start > app.log 2>&1 &
+          for i in $(seq 1 60); do curl -sf http://localhost:3500/api/v1/health && break; sleep 2; done
+          npx vitest run --config vitest.e2e.config.ts tests/e2e/flow.test.ts tests/e2e/v2-golden-path.test.ts
+
+      - name: App log (on failure)
+        if: failure()
+        run: tail -n 200 app.log || true

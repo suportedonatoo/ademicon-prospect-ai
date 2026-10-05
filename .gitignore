@@ -1,0 +1,29 @@
+node_modules/
+.next/
+out/
+coverage/
+/storage/
+*.tsbuildinfo
+next-env.d.ts
+.env
+.env.*.local
+.DS_Store
+.next-build/
+
+# Extensão gerada (npm run extension:build)
+apps/extension/dist/
+
+# Entregas para o cliente (vídeos, prints) — ficam fora do repositório
+entregas/
+
+# Backups do banco (servidor)
+backups/
+.env.production
+.pgdata/
+.env.supabase
+hostinger.env
+acessos-consultores.txt
+equipe-consultores.csv
+.env.supabase
+hostinger.env
+acessos-consultores.txt

@@ -1,0 +1,75 @@
+@import 'tailwindcss';
+
+/*
+ * Identidade visual da landing (marca autorizada: vermelho + neutros).
+ * O vermelho abaixo foi aproximado a partir da referência visual — troque --color-brand-500/600
+ * pelo HEX oficial do manual da marca.
+ */
+@theme {
+  --font-sans: var(--font-brand), ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  /* Mesma identidade do sistema de gestão: verde-escuro + creme + lima */
+  --color-brand-50: #e7f2e6;
+  --color-brand-100: #d6ead5;
+  --color-brand-200: #b5d9b6;
+  --color-brand-500: #131c17;
+  --color-brand-600: #22302a;
+  --color-brand-700: #17633a;
+  --color-brand-900: #131c17;
+  --color-lime: #c8f29a;
+  --color-night: #131c17;
+  --color-night-2: #1b2620;
+  --color-ink: #131c17;
+  --color-ink-2: #364038;
+  --color-muted: #5f6a62;
+  --color-line: #dfe5dc;
+  --color-canvas: #eef2ec;
+  --color-white: #fcfdfa;
+  --color-ok: #1e7a45;
+  --color-ok-50: #e2f3e3;
+  --color-hot: #b8322a;
+  --color-bad: #b8322a;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1.125rem;
+  --radius-2xl: 1.5rem;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+body {
+  background: var(--color-canvas);
+  color: var(--color-ink);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Slider de valor (trilho preenchido até o ponto) */
+.range-brand {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 6px;
+  border-radius: 999px;
+  background: linear-gradient(to right, var(--color-brand-500) var(--fill, 50%), #dfe5dc var(--fill, 50%));
+  outline: none;
+}
+.range-brand::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 999px;
+  background: #fff;
+  border: 2px solid var(--color-brand-500);
+  cursor: pointer;
+}
+.range-brand::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  background: #fff;
+  border: 2px solid var(--color-brand-500);
+  cursor: pointer;
+}
+.range-brand:focus-visible {
+  box-shadow: 0 0 0 4px var(--color-brand-100);
+}

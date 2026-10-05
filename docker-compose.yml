@@ -1,0 +1,82 @@
+name: ademicon-prospect-ai
+
+services:
+  postgres:
+    image: pgvector/pgvector:pg16
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: prospect
+      POSTGRES_PASSWORD: prospect_dev_password
+      POSTGRES_DB: prospect
+    ports:
+      - "5434:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U prospect -d prospect"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    ports:
+      - "6380:6379"
+    volumes:
+      - redisdata:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  app:
+    build: .
+    profiles: ["full"]
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      DATABASE_URL: postgresql://prospect:prospect_dev_password@postgres:5432/prospect
+      REDIS_URL: redis://redis:6379
+      QUEUE_DRIVER: bullmq
+    ports:
+      - "3500:3500"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  worker:
+    build: .
+    profiles: ["full"]
+    restart: unless-stopped
+    command: ["node", "--import", "tsx", "src/worker.ts"]
+    env_file: .env
+    environment:
+      DATABASE_URL: postgresql://prospect:prospect_dev_password@postgres:5432/prospect
+      REDIS_URL: redis://redis:6379
+      QUEUE_DRIVER: bullmq
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  landing:
+    build: ./apps/landing
+    profiles: ["full"]
+    restart: unless-stopped
+    environment:
+      GESTAO_API_URL: http://app:3500
+      LANDING_SERVICE_API_KEY: ${LANDING_SERVICE_API_KEY}
+      LANDING_BASE_DOMAIN: ${LANDING_BASE_DOMAIN:-localhost}
+    ports:
+      - "3600:3600"
+    depends_on:
+      - app
+
+volumes:
+  pgdata:
+  redisdata:

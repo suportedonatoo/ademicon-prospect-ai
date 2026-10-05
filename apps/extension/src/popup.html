@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Ademicon Sales Assistant</title>
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body>
+    <header>
+      <img src="icon-128.png" alt="" width="24" height="24" />
+      <b>Sales Assistant</b>
+      <button id="refresh" class="ghost" title="Atualizar" aria-label="Atualizar">↻</button>
+    </header>
+    <section id="connect" hidden>
+      <p>Conecte à plataforma. O token é gerado em <b>Notificações e dispositivos → Conectar extensão</b>.</p>
+      <label>Endereço da plataforma<input id="apiUrl" type="url" placeholder="https://prospect.suaempresa.com.br" required /></label>
+      <label>Token<input id="token" type="password" placeholder="dx_…" autocomplete="off" required /></label>
+      <button id="save" class="primary">Conectar</button>
+      <p id="connectError" class="error" role="alert"></p>
+    </section>
+    <section id="main" hidden>
+      <p id="status" class="muted" aria-live="polite"></p>
+      <h2>Notificações <span id="unread" class="pill"></span></h2>
+      <ul id="notifications"></ul>
+      <h2>🔥 Leads quentes</h2>
+      <ul id="hot"></ul>
+      <h2>💬 Aguardando resposta</h2>
+      <ul id="awaiting"></ul>
+      <h2>📈 Oportunidades</h2>
+      <p id="opps"></p>
+      <footer>
+        <button id="open" class="primary">Abrir plataforma</button>
+        <button id="disconnect" class="ghost">Desconectar</button>
+      </footer>
+    </section>
+    <script type="module" src="popup.js"></script>
+  </body>
+</html>

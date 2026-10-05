@@ -1,0 +1,127 @@
+@import 'tailwindcss';
+
+/* Design tokens — tecnologia + confiança + operação comercial */
+@theme {
+  --font-sans: var(--font-geist), ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+
+  /* Verde-escuro + creme + lima (telas de referência) */
+  --color-brand-50: #e7f2e6;
+  --color-brand-100: #d6ead5;
+  --color-brand-200: #b5d9b6;
+  --color-brand-500: #2f9e5b;
+  --color-brand-600: #1e7a45;
+  --color-brand-700: #17633a;
+  --color-brand-900: #131c17;
+  --color-lime: #c8f29a;
+
+  --color-ink: #131c17;
+  --color-ink-2: #364038;
+  --color-muted: #5f6a62;
+  --color-faint: #8b958d;
+  --color-line: #dfe5dc;
+  --color-surface: #fbfcf9;
+  --color-canvas: #eef2ec;
+  --color-chrome: #f6f8f3;
+  --color-white: #fcfdfa;
+
+  /* Neutros esverdeados no lugar do slate */
+  --color-slate-50: #f3f6f1;
+  --color-slate-100: #e9eee7;
+  --color-slate-200: #dfe5dc;
+  --color-slate-300: #c9d2c7;
+  --color-slate-400: #8b958d;
+  --color-slate-500: #6b766e;
+  --color-slate-600: #4d5850;
+  --color-slate-700: #364038;
+  --color-slate-900: #131c17;
+
+  --color-ok: #1e7a45;
+  --color-ok-50: #e2f3e3;
+  --color-warn: #9a5b06;
+  --color-warn-50: #fbefd6;
+  --color-bad: #b8322a;
+  --color-bad-50: #fbe4e1;
+
+  --radius-lg: 0.75rem;
+  --radius-xl: 1.125rem;
+  --radius-2xl: 1.5rem;
+  --radius-3xl: 1.75rem;
+
+  /* Gráficos: verde como série principal, tinta e neutros como apoio */
+  --color-series-1: #2f9e5b;
+  --color-series-2: #131c17;
+  --color-series-3: #8fcf7a;
+  --color-series-4: #d9a441;
+  --color-series-5: #7d8a81;
+  --color-series-6: #17633a;
+  --color-series-7: #6a4fc2;
+  --color-series-8: #c2453b;
+  --color-ramp-1: #131c17;
+  --color-ramp-2: #2f9e5b;
+  --color-ramp-3: #2f9e5b;
+  --color-ramp-4: #2f9e5b;
+  --color-ramp-5: #2f9e5b;
+  --color-ramp-6: #2f9e5b;
+}
+
+html,
+body {
+  background: var(--color-canvas);
+  color: var(--color-ink);
+}
+
+body {
+  -webkit-font-smoothing: antialiased;
+}
+
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+::selection {
+  background: var(--color-brand-100);
+}
+
+/* Barras de rolagem discretas nos painéis */
+.scroll-thin::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+.scroll-thin::-webkit-scrollbar-thumb {
+  background: #c9d2c7;
+  border-radius: 99px;
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+}
+.animate-in {
+  animation: fade-in 0.18s ease-out;
+}
+
+/* Campos nativos no padrão das telas: selects com chevron próprio, checkbox escuro */
+select {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='none' stroke='%235f6a62' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m4 6 4 4 4-4'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  padding-right: 2.25rem !important;
+}
+input[type='checkbox'],
+input[type='radio'] {
+  accent-color: var(--color-ink);
+}
+/* Modais simples: formulário em uma coluna, como nas telas de referência */
+.modal-body .grid {
+  grid-template-columns: minmax(0, 1fr) !important;
+}
+.modal-body .grid > * {
+  grid-column: auto !important;
+}
+h1,
+h2 {
+  letter-spacing: -0.02em;
+}

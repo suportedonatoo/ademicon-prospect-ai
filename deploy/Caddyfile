@@ -1,0 +1,23 @@
+# HTTPS automático. Certificados emitidos na hora para cada subdomínio que EXISTE
+# (a landing confirma em /api/tls-ok) — não precisa de certificado curinga nem de DNS por API.
+{
+	email {$ACME_EMAIL}
+	on_demand_tls {
+		ask http://landing:3600/api/tls-ok
+	}
+}
+
+# Sistema de gestão (login, painéis, Inbox)
+{$GESTAO_DOMAIN} {
+	encode gzip
+	reverse_proxy app:3500
+}
+
+# Site mestre (domínio principal) e todos os subdomínios: links dos consultores e unidades
+https:// {
+	tls {
+		on_demand
+	}
+	encode gzip
+	reverse_proxy landing:3600
+}

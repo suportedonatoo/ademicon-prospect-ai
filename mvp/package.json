@@ -1,0 +1,13 @@
+{
+  "name": "vela-inbound",
+  "version": "0.1.0",
+  "private": true,
+  "description": "MVP de Prospecção Inbound para Consórcios e Crédito (protótipo com dados fictícios)",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

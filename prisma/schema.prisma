@@ -1,0 +1,1922 @@
+// Ademicon Prospect AI — modelo de dados V1
+// Regra de ouro: todo registro de negócio carrega organizationId (multi-tenant).
+// Valores monetários em reais inteiros (Int) para simplificar a V1.
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["postgresqlExtensions"]
+}
+
+datasource db {
+  provider   = "postgresql"
+  url        = env("DATABASE_URL")
+  extensions = [vector]
+}
+
+// ───────────────────────── Organização, usuários e acesso ─────────────────────────
+
+model Organization {
+  id        String   @id @default(cuid())
+  name      String
+  legalName String?
+  slug      String   @unique
+  logoUrl   String?
+  timezone  String   @default("America/Sao_Paulo")
+  locale    String   @default("pt-BR")
+  status    String   @default("ACTIVE") // ACTIVE | SUSPENDED
+  settings  Json     @default("{}")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  users         User[]
+  roles         Role[]
+  regions       Region[]
+  pjs           PJ[]
+  consultants   Consultant[]
+  leads         Lead[]
+  campaigns     Campaign[]
+  opportunities Opportunity[]
+  conversations Conversation[]
+}
+
+model User {
+  id             String    @id @default(cuid())
+  organizationId String
+  name           String
+  email          String    @unique
+  passwordHash   String
+  roleId         String
+  pjId           String?
+  consultantId   String?   @unique
+  status         String    @default("ACTIVE") // ACTIVE | INVITED | DISABLED
+  mfaEnabled     Boolean   @default(false)
+  lastLoginAt    DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  organization           Organization            @relation(fields: [organizationId], references: [id])
+  role                   Role                    @relation(fields: [roleId], references: [id])
+  pj                     PJ?                     @relation(fields: [pjId], references: [id])
+  consultant             Consultant?             @relation(fields: [consultantId], references: [id])
+  sessions               Session[]
+  notifications          Notification[]
+  devices                UserDevice[]
+  notificationPreference NotificationPreference?
+
+  @@index([organizationId])
+}
+
+model Role {
+  id             String   @id @default(cuid())
+  organizationId String
+  key            String // SUPER_ADMIN | ADMIN | MANAGER | MARKETING | AI_ADMIN | PJ_MANAGER | CONSULTANT | AUDITOR
+  name           String
+  description    String?
+  isSystem       Boolean  @default(true)
+  createdAt      DateTime @default(now())
+
+  organization Organization     @relation(fields: [organizationId], references: [id])
+  users        User[]
+  permissions  RolePermission[]
+
+  @@unique([organizationId, key])
+}
+
+model Permission {
+  id          String           @id @default(cuid())
+  key         String           @unique // ex.: lead.read
+  module      String
+  description String
+  roles       RolePermission[]
+}
+
+model RolePermission {
+  roleId       String
+  permissionId String
+  role         Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  permission   Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+
+  @@id([roleId, permissionId])
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  userId    String
+  tokenHash String   @unique
+  expiresAt DateTime
+  ip        String?
+  userAgent String?
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
+}
+
+model ApiKey {
+  id             String    @id @default(cuid())
+  organizationId String
+  name           String
+  prefix         String
+  keyHash        String    @unique
+  permissions    String[]
+  createdById    String?
+  lastUsedAt     DateTime?
+  revokedAt      DateTime?
+  createdAt      DateTime  @default(now())
+
+  @@index([organizationId])
+}
+
+// ───────────────────────── Estrutura comercial ─────────────────────────
+
+model Region {
+  id             String   @id @default(cuid())
+  organizationId String
+  name           String
+  ufs            String[]
+  cities         String[]
+  createdAt      DateTime @default(now())
+
+  organization Organization @relation(fields: [organizationId], references: [id])
+  pjs          PJ[]
+
+  @@unique([organizationId, name])
+}
+
+model PJ {
+  id                 String   @id @default(cuid())
+  organizationId     String
+  regionId           String?
+  code               String
+  name               String
+  city               String
+  uf                 String
+  citiesServed       String[]
+  active             Boolean  @default(true)
+  // Landing própria da PJ (serviço apps/landing): <subdomain>.<LANDING_BASE_DOMAIN>
+  subdomain          String?  @unique
+  landingActive      Boolean  @default(false)
+  landingTitle       String?
+  landingSubtitle    String?
+  landingSimulatorId String?
+  // Contato da unidade exibido na landing (WhatsApp / ligar / endereço)
+  phone              String?
+  whatsapp           String?
+  address            String?
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  organization  Organization  @relation(fields: [organizationId], references: [id])
+  region        Region?       @relation(fields: [regionId], references: [id])
+  consultants   Consultant[]
+  users         User[]
+  leads         Lead[]
+  opportunities Opportunity[]
+
+  @@unique([organizationId, code])
+  @@index([organizationId, regionId])
+}
+
+model Consultant {
+  id                   String   @id @default(cuid())
+  organizationId       String
+  pjId                 String
+  name                 String
+  email                String
+  phone                String?
+  products             String[] // especialidades (IMOVEL, VEICULO, ...)
+  maxOpenLeads         Int      @default(30)
+  maxOpenOpportunities Int      @default(40)
+  workingHours         Json     @default("{}") // { days: [1..5], start: 8, end: 18 } — vazio = sem restrição
+  available            Boolean  @default(true)
+  active               Boolean  @default(true)
+  priority             Int      @default(0)
+  /// IA do consultor: { enabled, assistantName, presentation, style, signature, emojis } — vazio = padrão da organização
+  aiProfile            Json     @default("{}")
+  /// Divisão igual: quem entra (ou volta a ficar ativo) no meio do mês começa empatado com a equipe,
+  /// e não recebe todos os próximos leads para "alcançar" os outros. Vale só no mês de splitBaselineAt.
+  /// Link do Instagram do consultor (perfil profissional)
+  instagramUrl         String?
+  /// Link próprio do consultor (para a bio): <landingSlug>.<domínio>. Página idêntica à da Ademicon;
+  /// quem chega por ele e deixa contato vira lead DESTE consultor.
+  landingSlug          String?  @unique
+  /// Foto do colaborador (chave no storage). Aparece só no sistema interno — nunca na página pública.
+  photoKey             String?
+  splitBaseline        Int      @default(0)
+  splitBaselineAt      DateTime?
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+
+  organization    Organization     @relation(fields: [organizationId], references: [id])
+  pj              PJ               @relation(fields: [pjId], references: [id])
+  user            User?
+  leads           Lead[]
+  opportunities   Opportunity[]
+  whatsappNumbers WhatsAppNumber[]
+
+  @@index([organizationId, pjId])
+}
+
+// ───────────────────────── Leads ─────────────────────────
+
+enum LeadStatus {
+  NEW
+  PROCESSING
+  QUALIFIED
+  ASSIGNED
+  IN_CONVERSATION
+  OPPORTUNITY
+  CONVERTED
+  LOST
+  BLOCKED
+}
+
+model Lead {
+  id             String @id @default(cuid())
+  organizationId String
+  code           Int    @default(autoincrement())
+
+  // Identidade
+  name    String
+  phone   String? // somente dígitos com DDI (ex.: 5511999990000)
+  email   String?
+  company String?
+  cnpj    String?
+  city    String?
+  uf      String?
+
+  // Interesse
+  product      String? // IMOVEL | VEICULO | MOTO | SERVICOS | BENS_MOVEIS
+  objective    String?
+  desiredValue Int?
+  term         String?
+  region       String?
+
+  // Origem
+  source        String // GOOGLE_ADS | META | INSTAGRAM | WHATSAPP | LANDING | SIMULATOR | IMPORT | MAPS | API | MANUAL
+  medium        String?
+  campaignId    String?
+  utmCampaign   String?
+  utmContent    String?
+  utmTerm       String?
+  landingPageId String?
+  externalId    String?
+
+  // Inteligência
+  score               Int        @default(0)
+  temperature         String     @default("FRIO") // FRIO (0–40) | MORNO (41–70) | QUENTE (71–100) — faixas configuráveis
+  landingHeat         String? // Qualificação na landing da PJ: MORNO (simulou + deixou contato) | QUENTE (+ pediu para ser chamado agora)
+  originPjId          String? // PJ dona da landing de origem — o lead fica nessa PJ
+  routingHint         String? // CENTRAL = landing central (divisão igual entre PJs e consultores)
+  intent              String? // LOW | MEDIUM | HIGH
+  signals             Json       @default("{}") // { simulationStarted, requestedContact, repliedBot, highIntentReason }
+  status              LeadStatus @default(NEW)
+  lostReason          String?
+  // Lead Intelligence V2 — sub-scores 0–100 (ver docs/lead-intelligence.md)
+  fitScore            Int        @default(0)
+  intentScore         Int        @default(0)
+  engagementScore     Int        @default(0)
+  behaviorScore       Int        @default(0)
+  recencyScore        Int        @default(0)
+  lifecycle           String     @default("ACTIVE") // ACTIVE | NURTURE | REACTIVATION | DORMANT
+  lastSignalAt        DateTime?
+  experimentVariantId String?
+
+  // Distribuição
+  pjId         String?
+  consultantId String?
+  assignedAt   DateTime?
+
+  // IA
+  aiSummary         String?
+  lastAgent         String?
+  lastInteractionAt DateTime?
+
+  // Governança
+  consentStatus    String   @default("UNKNOWN") // GRANTED | REVOKED | UNKNOWN
+  preferredChannel String?
+  optOut           Boolean  @default(false)
+  dataOrigin       String? // descrição da base legal / origem do dado
+  capturedAt       DateTime @default(now())
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  organization  Organization             @relation(fields: [organizationId], references: [id])
+  pj            PJ?                      @relation(fields: [pjId], references: [id])
+  consultant    Consultant?              @relation(fields: [consultantId], references: [id])
+  campaign      Campaign?                @relation(fields: [campaignId], references: [id])
+  landingPage   LandingPage?             @relation(fields: [landingPageId], references: [id])
+  identities    LeadIdentity[]
+  sources       LeadSource[]
+  merges        LeadMerge[]
+  scoreSnapshot LeadScore?
+  scoreEvents   LeadScoreEvent[]
+  activities    LeadActivity[]
+  opportunities Opportunity[]
+  conversations Conversation[]
+  memory        LeadMemory?
+  consents      Consent[]
+  preference    CommunicationPreference?
+  tasks         Task[]
+  simulations   Simulation[]
+  buyingSignals BuyingSignal[]
+  intentEvents  IntentEvent[]
+  nextActions   NextBestAction[]
+
+  @@unique([organizationId, code])
+  @@index([organizationId, temperature])
+  @@index([organizationId, lifecycle])
+  @@index([organizationId, status])
+  @@index([organizationId, score])
+  @@index([organizationId, source])
+  @@index([organizationId, campaignId])
+  @@index([organizationId, pjId])
+  @@index([organizationId, consultantId])
+  @@index([organizationId, createdAt])
+  @@index([organizationId, updatedAt])
+  @@index([phone])
+  @@index([email])
+  @@index([cnpj])
+}
+
+model LeadIdentity {
+  id             String   @id @default(cuid())
+  organizationId String
+  leadId         String
+  type           String // PHONE | EMAIL | CNPJ | EXTERNAL
+  value          String
+  createdAt      DateTime @default(now())
+  lead           Lead     @relation(fields: [leadId], references: [id], onDelete: Cascade)
+
+  @@unique([organizationId, type, value])
+  @@index([leadId])
+}
+
+model LeadSource {
+  id             String   @id @default(cuid())
+  organizationId String
+  leadId         String
+  source         String
+  medium         String?
+  campaignId     String?
+  landingPageId  String?
+  externalId     String?
+  payload        Json     @default("{}")
+  receivedAt     DateTime @default(now())
+  lead           Lead     @relation(fields: [leadId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId, source])
+  @@index([leadId])
+}
+
+model LeadMerge {
+  id             String   @id @default(cuid())
+  organizationId String
+  leadId         String
+  matchedBy      String // PHONE | EMAIL | CNPJ | EXTERNAL
+  incoming       Json
+  changes        Json
+  mergedAt       DateTime @default(now())
+  mergedBy       String // SYSTEM ou userId
+  mergeReason    String
+  lead           Lead     @relation(fields: [leadId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId, mergedAt])
+  @@index([leadId])
+}
+
+model LeadScore {
+  id             String   @id @default(cuid())
+  organizationId String
+  leadId         String   @unique
+  score          Int
+  temperature    String
+  breakdown      Json
+  computedAt     DateTime @default(now())
+  lead           Lead     @relation(fields: [leadId], references: [id], onDelete: Cascade)
+}
+
+model LeadScoreEvent {
+  id             String   @id @default(cuid())
+  organizationId String
+  leadId         String
+  ruleKey        String
+  points         Int
+  reason         String
+  createdAt      DateTime @default(now())
+  lead           Lead     @relation(fields: [leadId], references: [id], onDelete: Cascade)
+
+  @@index([leadId])
+}
+
+model LeadActivity {
+  id             String   @id @default(cuid())
+  organizationId String
+  leadId         String
+  type           String // CREATED | NOTE | STATUS_CHANGED | ASSIGNED | MERGED | SCORED | MESSAGE | HANDOFF | CALL | EMAIL | SIMULATION | OPPORTUNITY | CONSENT
+  description    String
+  actorType      String   @default("SYSTEM") // USER | SYSTEM | AI
+  actorId        String?
+  metadata       Json     @default("{}")
+  createdAt      DateTime @default(now())
+  lead           Lead     @relation(fields: [leadId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId, createdAt])
+  @@index([leadId, createdAt])
+}
+
+// ───────────────────────── Aquisição ─────────────────────────
+
+enum CampaignStatus {
+  DRAFT
+  SCHEDULED
+  ACTIVE
+  PAUSED
+  COMPLETED
+}
+
+model Campaign {
+  id             String         @id @default(cuid())
+  organizationId String
+  name           String
+  product        String?
+  regionId       String?
+  pjId           String?
+  landingPageId  String?
+  source         String // GOOGLE_ADS | META | INSTAGRAM | WHATSAPP | ORGANIC | EMAIL | OFFLINE
+  status         CampaignStatus @default(DRAFT)
+  startAt        DateTime?
+  endAt          DateTime?
+  budget         Int            @default(0)
+  utmCampaign    String?
+  externalId     String?
+  /// Consultores que pagaram o anúncio: 1 = anúncio individual, vários = grupo, vazio = leads seguem a divisão geral.
+  sponsorConsultantIds String[] @default([])
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+
+  organization Organization       @relation(fields: [organizationId], references: [id])
+  leads        Lead[]
+  audiences    CampaignAudience[]
+  messages     CampaignMessage[]
+  events       CampaignEvent[]
+  metrics      CampaignMetric[]
+
+  @@index([organizationId, status])
+  @@index([organizationId, source])
+}
+
+model CampaignAudience {
+  id             String   @id @default(cuid())
+  organizationId String
+  campaignId     String
+  name           String
+  filters        Json     @default("{}")
+  size           Int      @default(0)
+  createdAt      DateTime @default(now())
+  campaign       Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+}
+
+model CampaignMessage {
+  id             String    @id @default(cuid())
+  organizationId String
+  campaignId     String
+  templateId     String?
+  channel        String    @default("WHATSAPP")
+  content        String
+  scheduledAt    DateTime?
+  status         String    @default("DRAFT") // DRAFT | QUEUED | SENDING | SENT | PAUSED
+  sentCount      Int       @default(0)
+  skippedCount   Int       @default(0)
+  createdAt      DateTime  @default(now())
+  campaign       Campaign  @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+}
+
+model CampaignEvent {
+  id             String   @id @default(cuid())
+  organizationId String
+  campaignId     String
+  type           String
+  payload        Json     @default("{}")
+  createdAt      DateTime @default(now())
+  campaign       Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+
+  @@index([campaignId, createdAt])
+}
+
+model CampaignMetric {
+  id             String   @id @default(cuid())
+  organizationId String
+  campaignId     String
+  date           DateTime @db.Date
+  impressions    Int      @default(0)
+  clicks         Int      @default(0)
+  spend          Int      @default(0)
+  providerLeads  Int      @default(0)
+  provider       String
+  campaign       Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+
+  @@unique([campaignId, date])
+  @@index([organizationId, date])
+}
+
+model LandingPage {
+  id             String   @id @default(cuid())
+  organizationId String
+  name           String
+  slug           String   @unique
+  title          String
+  subtitle       String?
+  product        String?
+  regionId       String?
+  pjId           String?
+  consultantId   String?
+  ctaText        String   @default("Simular agora")
+  imageUrl       String?
+  benefits       Json     @default("[]")
+  faq            Json     @default("[]")
+  simulatorId    String?
+  whatsappNumber String?
+  tracking       Json     @default("{}")
+  seo            Json     @default("{}")
+  status         String   @default("DRAFT") // DRAFT | PUBLISHED | ARCHIVED
+  views          Int      @default(0)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  form        LandingForm?
+  simulator   Simulator?   @relation(fields: [simulatorId], references: [id])
+  leads       Lead[]
+  simulations Simulation[]
+
+  @@index([organizationId, status])
+}
+
+model LandingForm {
+  id             String      @id @default(cuid())
+  organizationId String
+  landingPageId  String      @unique
+  fields         String[]
+  requiredFields String[]
+  consentText    String
+  landingPage    LandingPage @relation(fields: [landingPageId], references: [id], onDelete: Cascade)
+}
+
+model Simulator {
+  id                 String   @id @default(cuid())
+  organizationId     String
+  name               String
+  slug               String   @unique
+  products           Json // [{ key, label, termOptions: number[], adminFeePct, reserveFundPct, minValue, maxValue }]
+  requiredFields     String[]
+  parametersVerified Boolean  @default(false) // false = parâmetros ilustrativos (não oficiais)
+  disclaimer         String
+  active             Boolean  @default(true)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  landingPages LandingPage[]
+  simulations  Simulation[]
+
+  @@index([organizationId])
+}
+
+model Simulation {
+  id                   String   @id @default(cuid())
+  organizationId       String
+  simulatorId          String
+  leadId               String?
+  landingPageId        String?
+  attributionSessionId String?
+  product              String
+  objective            String?
+  value                Int
+  termMonths           Int?
+  city                 String?
+  uf                   String?
+  result               Json     @default("{}")
+  pjId                 String? // landing da PJ que gerou a simulação
+  heat                 String? // FRIO (só simulou) | MORNO | QUENTE
+  channel              String? // canal de origem (GOOGLE_ADS, GOOGLE_ORGANIC, META, ...)
+  createdAt            DateTime @default(now())
+
+  simulator   Simulator    @relation(fields: [simulatorId], references: [id])
+  lead        Lead?        @relation(fields: [leadId], references: [id])
+  landingPage LandingPage? @relation(fields: [landingPageId], references: [id])
+
+  @@index([organizationId, createdAt])
+  @@index([organizationId, pjId, createdAt])
+}
+
+// ───────────────────────── CRM / Oportunidades ─────────────────────────
+
+model Pipeline {
+  id             String          @id @default(cuid())
+  organizationId String
+  name           String
+  isDefault      Boolean         @default(false)
+  createdAt      DateTime        @default(now())
+  stages         PipelineStage[]
+  opportunities  Opportunity[]
+
+  @@index([organizationId])
+}
+
+model PipelineStage {
+  id             String        @id @default(cuid())
+  organizationId String
+  pipelineId     String
+  key            String // NOVO | QUALIFICADO | OPORTUNIDADE | CONTATO | NECESSIDADE | SIMULACAO | PROPOSTA | NEGOCIACAO | FECHADO | PERDIDO
+  name           String
+  order          Int
+  isWon          Boolean       @default(false)
+  isLost         Boolean       @default(false)
+  pipeline       Pipeline      @relation(fields: [pipelineId], references: [id], onDelete: Cascade)
+  opportunities  Opportunity[]
+
+  @@unique([pipelineId, key])
+}
+
+model Opportunity {
+  id                  String    @id @default(cuid())
+  organizationId      String
+  code                Int       @default(autoincrement())
+  leadId              String
+  pipelineId          String
+  stageId             String
+  pjId                String?
+  consultantId        String?
+  product             String?
+  value               Int       @default(0)
+  source              String?
+  campaignId          String?
+  status              String    @default("OPEN") // OPEN | WON | LOST
+  lostReason          String?
+  lostCategory        String? // PRECO | CONCORRENTE | PRAZO | SEM_INTERESSE | SEM_CONTATO | DESISTENCIA | PRODUTO | OUTRO
+  competitor          String?
+  // Opportunity Intelligence (calculado por regra — ver docs/revenue-intelligence.md)
+  health              String? // HEALTHY | AT_RISK | STALLED
+  healthScore         Int?
+  healthReasons       Json      @default("[]")
+  stageChangedAt      DateTime  @default(now())
+  lastActivityAt      DateTime?
+  experimentVariantId String?
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+  closedAt            DateTime?
+
+  organization Organization          @relation(fields: [organizationId], references: [id])
+  lead         Lead                  @relation(fields: [leadId], references: [id])
+  pipeline     Pipeline              @relation(fields: [pipelineId], references: [id])
+  stage        PipelineStage         @relation(fields: [stageId], references: [id])
+  pj           PJ?                   @relation(fields: [pjId], references: [id])
+  consultant   Consultant?           @relation(fields: [consultantId], references: [id])
+  activities   OpportunityActivity[]
+  tasks        Task[]
+
+  @@unique([organizationId, code])
+  @@index([organizationId, stageId])
+  @@index([organizationId, status])
+  @@index([organizationId, pjId])
+  @@index([organizationId, consultantId])
+  @@index([organizationId, campaignId])
+  @@index([organizationId, createdAt])
+  @@index([organizationId, updatedAt])
+  @@index([organizationId, health])
+  @@index([leadId])
+}
+
+model OpportunityActivity {
+  id             String      @id @default(cuid())
+  organizationId String
+  opportunityId  String
+  type           String // CREATED | STAGE_CHANGED | VALUE_CHANGED | NOTE | CLOSED_WON | CLOSED_LOST | REASSIGNED
+  fromStage      String?
+  toStage        String?
+  description    String
+  actorId        String?
+  createdAt      DateTime    @default(now())
+  opportunity    Opportunity @relation(fields: [opportunityId], references: [id], onDelete: Cascade)
+
+  @@index([opportunityId, createdAt])
+}
+
+model Task {
+  id             String       @id @default(cuid())
+  organizationId String
+  type           String // CONTACT | FOLLOW_UP | CALLBACK | PROPOSAL | MEETING
+  title          String
+  description    String?
+  assigneeUserId String?
+  consultantId   String?
+  leadId         String?
+  opportunityId  String?
+  dueAt          DateTime
+  priority       String       @default("MEDIUM") // LOW | MEDIUM | HIGH | URGENT
+  status         String       @default("OPEN") // OPEN | DONE | CANCELED
+  origin         String       @default("MANUAL") // MANUAL | AUTOMATION | FOLLOW_UP
+  createdAt      DateTime     @default(now())
+  completedAt    DateTime?
+  lead           Lead?        @relation(fields: [leadId], references: [id])
+  opportunity    Opportunity? @relation(fields: [opportunityId], references: [id])
+
+  @@index([organizationId, status, dueAt])
+  @@index([organizationId, consultantId])
+}
+
+// ───────────────────────── Conversas e IA ─────────────────────────
+
+model Conversation {
+  id                   String   @id @default(cuid())
+  organizationId       String
+  leadId               String
+  channel              String   @default("WHATSAPP") // WHATSAPP | WEB
+  whatsappNumberId     String?
+  status               String   @default("OPEN") // OPEN | CLOSED
+  mode                 String   @default("AI") // AI | HUMAN
+  botState             String   @default("ACTIVE") // ACTIVE | PAUSED
+  currentAgent         String? // PROSPECT | QUALIFICATION
+  assignedConsultantId String?
+  lastMessageAt        DateTime @default(now())
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+
+  organization Organization          @relation(fields: [organizationId], references: [id])
+  lead         Lead                  @relation(fields: [leadId], references: [id])
+  messages     Message[]
+  summaries    ConversationSummary[]
+
+  @@index([organizationId, lastMessageAt])
+  @@index([organizationId, mode])
+  @@index([leadId])
+}
+
+model Message {
+  id             String       @id @default(cuid())
+  organizationId String
+  conversationId String
+  direction      String // INBOUND | OUTBOUND
+  senderType     String // LEAD | AI | HUMAN | SYSTEM
+  agentKey       String?
+  senderName     String?
+  content        String
+  status         String       @default("SENT") // QUEUED | SENT | DELIVERED | READ | FAILED | BLOCKED
+  externalId     String?
+  aiExecutionId  String?
+  createdAt      DateTime     @default(now())
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  @@index([conversationId, createdAt])
+  @@index([externalId])
+}
+
+model ConversationSummary {
+  id             String       @id @default(cuid())
+  organizationId String
+  conversationId String
+  leadId         String
+  kind           String       @default("HANDOFF") // HANDOFF | PERIODIC
+  content        String
+  structured     Json         @default("{}")
+  createdAt      DateTime     @default(now())
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  @@index([leadId])
+}
+
+model LeadMemory {
+  id             String   @id @default(cuid())
+  organizationId String
+  leadId         String   @unique
+  product        String?
+  objective      String?
+  value          Int?
+  city           String?
+  term           String?
+  objections     String[]
+  preferences    Json     @default("{}")
+  intent         String?
+  summary        String?
+  updatedAt      DateTime @updatedAt
+  lead           Lead     @relation(fields: [leadId], references: [id], onDelete: Cascade)
+}
+
+model AIAgent {
+  id             String   @id @default(cuid())
+  organizationId String
+  key            String // MAESTRO | PROSPECT | QUALIFICATION | SUPERVISOR
+  name           String
+  description    String
+  active         Boolean  @default(true)
+  model          String?
+  temperature    Float?
+  instructions   String
+  updatedAt      DateTime @updatedAt
+
+  @@unique([organizationId, key])
+}
+
+model AIPlaybook {
+  id             String   @id @default(cuid())
+  organizationId String
+  key            String
+  name           String
+  objective      String
+  trigger        String
+  rules          String[]
+  agentKey       String
+  nextAction     String
+  active         Boolean  @default(true)
+  order          Int      @default(0)
+  updatedAt      DateTime @updatedAt
+
+  @@unique([organizationId, key])
+}
+
+model AIExecution {
+  id                String    @id @default(cuid())
+  organizationId    String
+  leadId            String?
+  conversationId    String?
+  agentKey          String
+  playbookKey       String?
+  provider          String
+  model             String?
+  status            String    @default("RUNNING") // RUNNING | COMPLETED | BLOCKED | FAILED
+  input             Json      @default("{}")
+  output            Json      @default("{}")
+  supervisorVerdict Json      @default("{}")
+  knowledgeRefs     String[]
+  latencyMs         Int?
+  tokensInput       Int?
+  tokensOutput      Int?
+  costMicros        Int? // custo estimado em milionésimos de US$ (quando o provider informa tokens)
+  promptVersion     Int?
+  confidence        Float?
+  riskLevel         String? // LOW | MEDIUM | HIGH
+  requiresHuman     Boolean   @default(false)
+  error             String?
+  startedAt         DateTime  @default(now())
+  completedAt       DateTime?
+
+  feedback AIFeedback[]
+
+  @@index([organizationId, startedAt])
+  @@index([conversationId])
+}
+
+model AIEvent {
+  id             String   @id @default(cuid())
+  organizationId String
+  executionId    String?
+  type           String
+  payload        Json     @default("{}")
+  createdAt      DateTime @default(now())
+
+  @@index([organizationId, createdAt])
+}
+
+model AIFeedback {
+  id             String      @id @default(cuid())
+  organizationId String
+  executionId    String
+  messageId      String?
+  rating         String // GOOD | BAD | INCORRECT | NEEDS_REVIEW
+  comment        String?
+  userId         String?
+  createdAt      DateTime    @default(now())
+  execution      AIExecution @relation(fields: [executionId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId, rating])
+}
+
+model KnowledgeGap {
+  id             String   @id @default(cuid())
+  organizationId String
+  question       String
+  leadId         String?
+  conversationId String?
+  agentKey       String
+  context        Json     @default("{}")
+  answerGiven    String?
+  status         String   @default("OPEN") // OPEN | RESOLVED | IGNORED
+  createdAt      DateTime @default(now())
+
+  @@index([organizationId, status])
+}
+
+model KnowledgeCategory {
+  id             String              @id @default(cuid())
+  organizationId String
+  key            String
+  name           String
+  documents      KnowledgeDocument[]
+
+  @@unique([organizationId, key])
+}
+
+model KnowledgeDocument {
+  id             String    @id @default(cuid())
+  organizationId String
+  categoryId     String
+  title          String
+  source         String
+  status         String    @default("DRAFT") // DRAFT | REVIEW | APPROVED | PUBLISHED | EXPIRED | ARCHIVED (ACTIVE = legado, tratado como PUBLISHED)
+  product        String?
+  ownerName      String
+  validFrom      DateTime?
+  validUntil     DateTime?
+  priority       Int       @default(0)
+  currentVersion Int       @default(1)
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  category KnowledgeCategory  @relation(fields: [categoryId], references: [id])
+  versions KnowledgeVersion[]
+  chunks   KnowledgeChunk[]
+
+  @@index([organizationId, status])
+}
+
+model KnowledgeVersion {
+  id             String            @id @default(cuid())
+  organizationId String
+  documentId     String
+  version        Int
+  content        String
+  changeNote     String?
+  createdById    String?
+  createdAt      DateTime          @default(now())
+  document       KnowledgeDocument @relation(fields: [documentId], references: [id], onDelete: Cascade)
+
+  @@unique([documentId, version])
+}
+
+model KnowledgeChunk {
+  id             String                      @id @default(cuid())
+  organizationId String
+  documentId     String
+  version        Int
+  index          Int
+  content        String
+  tokens         Int
+  embedding      Unsupported("vector(256)")?
+  createdAt      DateTime                    @default(now())
+  document       KnowledgeDocument           @relation(fields: [documentId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId, documentId])
+}
+
+// ───────────────────────── WhatsApp ─────────────────────────
+
+model WhatsAppAccount {
+  id                String           @id @default(cuid())
+  organizationId    String
+  name              String
+  businessAccountId String?
+  provider          String           @default("mock")
+  status            String           @default("ACTIVE")
+  createdAt         DateTime         @default(now())
+  numbers           WhatsAppNumber[]
+}
+
+model WhatsAppNumber {
+  id             String          @id @default(cuid())
+  organizationId String
+  accountId      String
+  name           String
+  phone          String
+  status         String          @default("DISCONNECTED") // CONNECTED | DISCONNECTED | PENDING | ERROR
+  provider       String          @default("mock")
+  webhookUrl     String?
+  purpose        String          @default("TEAM") // PROSPECT_BOT | QUALIFICATION_BOT | TEAM
+  dailyLimit     Int             @default(250)
+  sentToday      Int             @default(0)
+  paused         Boolean         @default(false)
+  /// Dono do número (consultor tem de 2 a 6). Nulo = número da operação (bots/equipe).
+  consultantId   String?
+  /// Ordem de uso entre os números do mesmo dono (0 = principal; os demais são backup).
+  priority       Int             @default(0)
+  /// ID do número na API oficial do WhatsApp (phone_number_id da Meta). Obrigatório no modo cloud-api.
+  providerNumberId String?
+  lastError      String?
+  lastErrorAt    DateTime?
+  createdAt      DateTime        @default(now())
+  account        WhatsAppAccount @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  consultant     Consultant?     @relation(fields: [consultantId], references: [id], onDelete: SetNull)
+
+  @@index([organizationId])
+  @@index([consultantId])
+}
+
+model MessageTemplate {
+  id             String   @id @default(cuid())
+  organizationId String
+  name           String
+  category       String // MARKETING | UTILITY | AUTHENTICATION
+  language       String   @default("pt_BR")
+  body           String
+  variables      String[]
+  status         String   @default("DRAFT") // DRAFT | PENDING | APPROVED | REJECTED
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@unique([organizationId, name])
+}
+
+// ───────────────────────── Prospecção empresarial e importação ─────────────────────────
+
+model ProspectSearch {
+  id             String             @id @default(cuid())
+  organizationId String
+  provider       String
+  filters        Json
+  resultCount    Int                @default(0)
+  createdById    String?
+  createdAt      DateTime           @default(now())
+  prospects      BusinessProspect[]
+}
+
+model BusinessProspect {
+  id             String          @id @default(cuid())
+  organizationId String
+  searchId       String?
+  name           String
+  category       String
+  cnae           String?
+  size           String?
+  situation      String?
+  address        String?
+  neighborhood   String?
+  city           String
+  uf             String
+  phone          String?
+  website        String?
+  cnpj           String?
+  source         String
+  sourceRef      String?
+  collectedAt    DateTime        @default(now())
+  status         String          @default("NEW") // NEW | CONVERTED | DISCARDED
+  leadId         String?
+  search         ProspectSearch? @relation(fields: [searchId], references: [id])
+
+  @@index([organizationId, city])
+  @@index([organizationId, status])
+  @@index([cnpj])
+}
+
+model ImportJob {
+  id             String      @id @default(cuid())
+  organizationId String
+  fileName       String
+  fileType       String // CSV | XLSX
+  status         String      @default("UPLOADED") // UPLOADED | MAPPED | VALIDATED | IMPORTING | COMPLETED | FAILED
+  headers        String[]
+  mapping        Json        @default("{}")
+  source         String      @default("IMPORT")
+  campaignId     String?
+  totalRows      Int         @default(0)
+  newCount       Int         @default(0)
+  updatedCount   Int         @default(0)
+  duplicateCount Int         @default(0)
+  errorCount     Int         @default(0)
+  createdById    String?
+  createdAt      DateTime    @default(now())
+  completedAt    DateTime?
+  rows           ImportRow[]
+
+  @@index([organizationId, createdAt])
+}
+
+model ImportRow {
+  id             String    @id @default(cuid())
+  organizationId String
+  jobId          String
+  rowNumber      Int
+  raw            Json
+  normalized     Json      @default("{}")
+  status         String    @default("PENDING") // PENDING | VALID | INVALID | NEW | UPDATED | DUPLICATE | ERROR
+  errors         String[]
+  leadId         String?
+  job            ImportJob @relation(fields: [jobId], references: [id], onDelete: Cascade)
+
+  @@index([jobId, status])
+}
+
+// ───────────────────────── Attribution ─────────────────────────
+
+model AttributionSession {
+  id             String             @id @default(cuid())
+  organizationId String
+  sessionKey     String             @unique
+  landingPageId  String?
+  source         String?
+  medium         String?
+  campaign       String?
+  content        String?
+  term           String?
+  referrer       String?
+  gclid          String?
+  fbclid         String?
+  channel        String? // GOOGLE_ADS (pago) | GOOGLE_ORGANIC | META | INSTAGRAM | WHATSAPP | LANDING (direto/outros)
+  pjId           String?
+  leadId         String?
+  firstSeenAt    DateTime           @default(now())
+  lastSeenAt     DateTime           @default(now())
+  events         AttributionEvent[]
+
+  @@index([organizationId, firstSeenAt])
+  @@index([leadId])
+}
+
+model AttributionEvent {
+  id             String              @id @default(cuid())
+  organizationId String
+  sessionId      String?
+  type           String // PAGE_VIEW | SIMULATION_STARTED | SIMULATION_COMPLETED | WHATSAPP_CLICK | PHONE_CLICK | LEAD_CREATED | QUALIFIED | ASSIGNED | OPPORTUNITY_CREATED | CONVERSION
+  leadId         String?
+  opportunityId  String?
+  consultantId   String?
+  campaignId     String?
+  value          Int?
+  createdAt      DateTime            @default(now())
+  session        AttributionSession? @relation(fields: [sessionId], references: [id])
+
+  @@index([organizationId, type, createdAt])
+  @@index([leadId])
+}
+
+// ───────────────────────── Distribuição ─────────────────────────
+
+model RoutingRule {
+  id             String   @id @default(cuid())
+  organizationId String
+  name           String
+  priority       Int      @default(100) // menor = avaliada primeiro
+  active         Boolean  @default(true)
+  conditions     Json     @default("{}") // { products?: [], regionIds?: [], cities?: [], ufs?: [], sources?: [], minScore?: n }
+  pjIds          String[]
+  method         String   @default("ROUND_ROBIN") // ROUND_ROBIN | LEAST_LOAD | PRIORITY | SPECIFIC_CONSULTANT
+  consultantId   String?
+  capacity       Int? // máx. leads abertos por consultor nesta regra
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@index([organizationId, active, priority])
+}
+
+model RoutingState {
+  id             String @id @default(cuid())
+  organizationId String
+  key            String
+  pointer        Int    @default(0)
+
+  @@unique([organizationId, key])
+}
+
+model RoutingDecision {
+  id             String   @id @default(cuid())
+  organizationId String
+  leadId         String
+  ruleId         String?
+  ruleName       String?
+  pjId           String?
+  consultantId   String?
+  method         String?
+  outcome        String // ASSIGNED | NO_ELIGIBLE | MANUAL
+  steps          Json
+  /// AI Routing Assistant: { consultantId, consultantName, reason, confidence, followed } — sugestão; a regra decide.
+  aiRecommendation Json?
+  createdAt      DateTime @default(now())
+
+  @@index([organizationId, createdAt])
+  @@index([leadId])
+}
+
+// ───────────────────────── Catálogo de produtos (por organização) ─────────────────────────
+
+model ProductCategory {
+  id             String    @id @default(cuid())
+  organizationId String
+  key            String
+  name           String
+  sortOrder      Int       @default(0)
+  createdAt      DateTime  @default(now())
+  products       Product[]
+
+  @@unique([organizationId, key])
+}
+
+model Product {
+  id             String           @id @default(cuid())
+  organizationId String
+  categoryId     String?
+  key            String // código estável usado em leads/oportunidades (ex.: IMOVEL)
+  name           String
+  description    String?
+  status         String           @default("ACTIVE") // ACTIVE | INACTIVE
+  sortOrder      Int              @default(0)
+  /// Configuração do produto: { simulatorEnabled, knowledgeTags[], defaultCampaignId, … }
+  config         Json             @default("{}")
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+  category       ProductCategory? @relation(fields: [categoryId], references: [id])
+
+  @@unique([organizationId, key])
+  @@index([organizationId, status])
+}
+
+// ───────────────────────── Idempotência da API (Idempotency-Key) ─────────────────────────
+
+model IdempotencyRecord {
+  id             String   @id @default(cuid())
+  organizationId String
+  key            String
+  route          String // MÉTODO + caminho
+  requestHash    String
+  status         String   @default("IN_PROGRESS") // IN_PROGRESS | COMPLETED
+  responseStatus Int?
+  response       Json?
+  createdAt      DateTime @default(now())
+
+  @@unique([organizationId, route, key])
+  @@index([createdAt])
+}
+
+model AutomationRule {
+  id             String    @id @default(cuid())
+  organizationId String
+  name           String
+  trigger        String // nome do evento (lead.scored, lead.unattended, ...)
+  conditions     Json      @default("[]") // [{ field, op, value }]
+  actions        Json      @default("[]") // [{ type, params }]
+  active         Boolean   @default(true)
+  runCount       Int       @default(0)
+  lastRunAt      DateTime?
+  createdAt      DateTime  @default(now())
+
+  @@index([organizationId, trigger, active])
+}
+
+// ───────────────────────── Notificações, integrações, auditoria ─────────────────────────
+
+model Notification {
+  id             String    @id @default(cuid())
+  organizationId String
+  userId         String
+  type           String
+  category       String    @default("SYSTEM") // LEAD | CONVERSATION | OPPORTUNITY | TASK | SLA | SYSTEM
+  priority       String    @default("NORMAL") // LOW | NORMAL | HIGH | CRITICAL
+  title          String
+  body           String?
+  link           String?
+  entityType     String?
+  entityId       String?
+  dedupeKey      String? // evita notificação duplicada para o mesmo evento/usuário
+  heldUntil      DateTime? // acumulada por horário de silêncio
+  channels       String[] // canais efetivamente tentados (IN_APP, DESKTOP, PUSH, EXTENSION, EMAIL)
+  deliveredAt    DateTime?
+  clickedAt      DateTime?
+  readAt         DateTime?
+  createdAt      DateTime  @default(now())
+  user           User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, dedupeKey])
+  @@index([userId, readAt])
+  @@index([userId, createdAt])
+  @@index([organizationId, type, createdAt])
+}
+
+model Integration {
+  id             String    @id @default(cuid())
+  organizationId String
+  provider       String
+  name           String
+  category       String
+  status         String    @default("MOCK") // MOCK | CONNECTED | NOT_CONFIGURED | ERROR
+  config         Json      @default("{}") // somente configuração NÃO secreta
+  lastHealthAt   DateTime?
+  lastError      String?
+  createdAt      DateTime  @default(now())
+
+  @@unique([organizationId, provider])
+}
+
+model Webhook {
+  id             String   @id @default(cuid())
+  organizationId String?
+  provider       String
+  headers        Json     @default("{}")
+  payload        Json
+  status         String   @default("RECEIVED") // RECEIVED | PROCESSED | FAILED | REJECTED | DUPLICATE
+  error          String?
+  idempotencyKey String?  @unique // provider:id-externo — o mesmo webhook duas vezes não é processado duas vezes
+  receivedAt     DateTime @default(now())
+
+  @@index([provider, receivedAt])
+}
+
+model WebhookSubscription {
+  id             String            @id @default(cuid())
+  organizationId String
+  name           String
+  url            String
+  secret         String
+  events         String[]
+  active         Boolean           @default(true)
+  createdAt      DateTime          @default(now())
+  deliveries     WebhookDelivery[]
+
+  @@index([organizationId])
+}
+
+model WebhookDelivery {
+  id             String              @id @default(cuid())
+  organizationId String
+  subscriptionId String
+  event          String
+  payload        Json
+  status         String              @default("PENDING") // PENDING | SUCCESS | FAILED | RETRYING
+  responseStatus Int?
+  responseBody   String?
+  attempts       Int                 @default(0)
+  nextAttemptAt  DateTime?
+  createdAt      DateTime            @default(now())
+  updatedAt      DateTime            @updatedAt
+  subscription   WebhookSubscription @relation(fields: [subscriptionId], references: [id], onDelete: Cascade)
+  attemptLog     WebhookAttempt[]
+
+  @@index([status, nextAttemptAt])
+}
+
+model WebhookAttempt {
+  id             String          @id @default(cuid())
+  organizationId String
+  deliveryId     String
+  attempt        Int
+  responseStatus Int?
+  error          String?
+  durationMs     Int
+  createdAt      DateTime        @default(now())
+  delivery       WebhookDelivery @relation(fields: [deliveryId], references: [id], onDelete: Cascade)
+
+  @@index([deliveryId])
+}
+
+model DomainEvent {
+  id             String   @id @default(cuid())
+  organizationId String
+  name           String
+  payload        Json
+  createdAt      DateTime @default(now())
+
+  @@index([organizationId, name, createdAt])
+}
+
+model AuditLog {
+  id             String   @id @default(cuid())
+  organizationId String
+  userId         String?
+  userName       String?
+  action         String
+  entityType     String?
+  entityId       String?
+  ip             String?
+  userAgent      String?
+  metadata       Json     @default("{}")
+  createdAt      DateTime @default(now())
+
+  @@index([organizationId, createdAt])
+  @@index([organizationId, action])
+  @@index([entityType, entityId])
+}
+
+// ───────────────────────── LGPD ─────────────────────────
+
+model Consent {
+  id             String    @id @default(cuid())
+  organizationId String
+  leadId         String
+  channel        String // WHATSAPP | EMAIL | PHONE | ALL
+  purpose        String // SERVICE | MARKETING | PROFILING
+  status         String // GRANTED | REVOKED
+  source         String
+  policyVersion  String
+  evidence       Json      @default("{}")
+  createdAt      DateTime  @default(now())
+  revokedAt      DateTime?
+  lead           Lead      @relation(fields: [leadId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId, leadId])
+  @@index([leadId, channel, purpose])
+}
+
+model CommunicationPreference {
+  id                  String   @id @default(cuid())
+  organizationId      String
+  leadId              String   @unique
+  preferredChannel    String?
+  allowWhatsapp       Boolean  @default(true)
+  allowEmail          Boolean  @default(true)
+  allowPhone          Boolean  @default(true)
+  quietHoursStart     Int? // 0-23
+  quietHoursEnd       Int?
+  frequencyCapPerWeek Int      @default(3)
+  updatedAt           DateTime @updatedAt
+  lead                Lead     @relation(fields: [leadId], references: [id], onDelete: Cascade)
+}
+
+model PrivacyEvent {
+  id             String   @id @default(cuid())
+  organizationId String
+  leadId         String?
+  type           String // CONSENT_GRANTED | CONSENT_REVOKED | OPT_OUT | PREFERENCE_UPDATED | DATA_EXPORTED | DATA_ANONYMIZED | REQUEST_OPENED | REQUEST_CLOSED
+  purpose        String?
+  source         String
+  policyVersion  String?
+  payload        Json     @default("{}")
+  createdAt      DateTime @default(now())
+
+  @@index([organizationId, createdAt])
+  @@index([leadId])
+}
+
+model DataRequest {
+  id             String    @id @default(cuid())
+  organizationId String
+  leadId         String?
+  requesterName  String
+  requesterEmail String
+  type           String // ACCESS | CORRECTION | DELETION | PORTABILITY | OPPOSITION
+  status         String    @default("OPEN") // OPEN | IN_PROGRESS | DONE | REJECTED
+  dueAt          DateTime
+  notes          String?
+  resolvedAt     DateTime?
+  createdAt      DateTime  @default(now())
+
+  @@index([organizationId, status])
+}
+
+// ═════════════════════════ V2 — Lead / Revenue Intelligence ═════════════════════════
+
+model BuyingSignal {
+  id             String   @id @default(cuid())
+  organizationId String
+  leadId         String
+  type           String // simulation_requested | price_question | product_question | returned_to_site | whatsapp_clicked | replied | requested_contact | accepted_consultant | high_engagement
+  source         String // LANDING | SIMULATOR | CONVERSATION | TRACKING | CRM | IMPORT
+  confidence     Float // 0–1
+  evidence       String?
+  createdAt      DateTime @default(now())
+  lead           Lead     @relation(fields: [leadId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId, type, createdAt])
+  @@index([leadId, createdAt])
+}
+
+model IntentEvent {
+  id             String   @id @default(cuid())
+  organizationId String
+  leadId         String
+  conversationId String?
+  messageId      String?
+  type           String // PURCHASE_INTENT | URGENCY | FINANCIAL_INTEREST | SIMULATION_REQUEST | CONTACT_REQUEST | WHATSAPP_REQUEST | CALL_REQUEST | COMPARISON | OBJECTION | QUESTION | DROPOUT | RETURN_INTENT | RENEWED_INTEREST | SPECIALIST_NEEDED
+  evidence       String
+  confidence     Float
+  origin         String // RULE | AI
+  createdAt      DateTime @default(now())
+  lead           Lead     @relation(fields: [leadId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId, type, createdAt])
+  @@index([leadId, createdAt])
+}
+
+model NextBestAction {
+  id             String    @id @default(cuid())
+  organizationId String
+  leadId         String
+  opportunityId  String?
+  action         String // CONTACT_NOW | CALL | SEND_WHATSAPP | SEND_SIMULATION | FOLLOW_UP | TRANSFER_TO_SPECIALIST | TRANSFER_TO_CONSULTANT | CREATE_TASK | WAIT | REACTIVATE | NURTURE | CLOSE
+  priority       String // CRITICAL | HIGH | MEDIUM | LOW
+  reason         String
+  signals        Json      @default("[]") // [{ key, label }] — somente sinais reais que levaram à recomendação
+  confidence     Float
+  method         String    @default("RULE") // RULE | AI
+  ownerType      String? // CONSULTANT | PJ_MANAGER | AI
+  ownerId        String?
+  recommendedAt  DateTime? // melhor horário, quando aplicável
+  validUntil     DateTime
+  status         String    @default("OPEN") // OPEN | DONE | DISMISSED | EXPIRED | SUPERSEDED
+  resolvedAt     DateTime?
+  resolvedBy     String?
+  createdAt      DateTime  @default(now())
+  lead           Lead      @relation(fields: [leadId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId, status, priority])
+  @@index([leadId, status])
+}
+
+model DuplicateCandidate {
+  id             String    @id @default(cuid())
+  organizationId String
+  leadAId        String
+  leadBId        String
+  level          String // MATCH_EXACT | MATCH_HIGH | MATCH_MEDIUM | MATCH_LOW
+  score          Int
+  reasons        Json      @default("[]")
+  status         String    @default("OPEN") // OPEN | MERGED | KEPT_BOTH | IGNORED
+  resolvedBy     String?
+  resolvedAt     DateTime?
+  createdAt      DateTime  @default(now())
+
+  @@unique([organizationId, leadAId, leadBId])
+  @@index([organizationId, status, level])
+}
+
+model LossRecord {
+  id             String   @id @default(cuid())
+  organizationId String
+  opportunityId  String   @unique
+  leadId         String
+  category       String
+  reason         String?
+  competitor     String?
+  stageKey       String?
+  product        String?
+  pjId           String?
+  consultantId   String?
+  campaignId     String?
+  value          Int      @default(0)
+  createdAt      DateTime @default(now())
+
+  @@index([organizationId, category, createdAt])
+}
+
+// ═════════════════════════ V2 — Playbooks, IA, experimentos ═════════════════════════
+
+model PlaybookVersion {
+  id             String    @id @default(cuid())
+  organizationId String
+  playbookKey    String
+  version        Int
+  name           String
+  description    String?
+  // Segmentação: { temperatures?, products?, sources?, regionIds?, pjIds?, stages?, intents? }
+  segment        Json      @default("{}")
+  // Passos: [{ type: ACTION|WAIT|CONDITION, action?, params?, waitMinutes?, condition? }]
+  steps          Json      @default("[]")
+  status         String    @default("DRAFT") // DRAFT | ACTIVE | ARCHIVED
+  priority       Int       @default(100)
+  authorId       String?
+  createdAt      DateTime  @default(now())
+  publishedAt    DateTime?
+
+  @@unique([organizationId, playbookKey, version])
+  @@index([organizationId, status])
+}
+
+model PlaybookRun {
+  id             String    @id @default(cuid())
+  organizationId String
+  playbookKey    String
+  version        Int
+  leadId         String
+  stepIndex      Int       @default(0)
+  status         String    @default("RUNNING") // RUNNING | WAITING | COMPLETED | CANCELLED | FAILED
+  nextRunAt      DateTime?
+  log            Json      @default("[]")
+  startedAt      DateTime  @default(now())
+  finishedAt     DateTime?
+
+  @@index([organizationId, status, nextRunAt])
+  @@index([leadId])
+}
+
+model AIPromptVersion {
+  id             String    @id @default(cuid())
+  organizationId String
+  agentKey       String
+  version        Int
+  instructions   String
+  model          String?
+  temperature    Float?
+  status         String    @default("DRAFT") // DRAFT | TESTING | ACTIVE | ARCHIVED
+  changeNote     String?
+  authorId       String?
+  authorName     String?
+  createdAt      DateTime  @default(now())
+  publishedAt    DateTime?
+
+  @@unique([organizationId, agentKey, version])
+  @@index([organizationId, agentKey, status])
+}
+
+model AIEvalDataset {
+  id             String       @id @default(cuid())
+  organizationId String
+  name           String
+  kind           String // PROSPECTING | QUALIFICATION | OBJECTIONS | FOLLOW_UP | HANDOFF | SECURITY | KNOWLEDGE
+  description    String?
+  createdAt      DateTime     @default(now())
+  cases          AIEvalCase[]
+  runs           AIEvalRun[]
+
+  @@index([organizationId])
+}
+
+model AIEvalCase {
+  id             String        @id @default(cuid())
+  organizationId String
+  datasetId      String
+  input          String
+  // Expectativas verificáveis: { mustHandoff?, mustNotContain?: [], mustContainAny?: [], mustBlock?, expectGap? }
+  expected       Json          @default("{}")
+  tags           String[]
+  dataset        AIEvalDataset @relation(fields: [datasetId], references: [id], onDelete: Cascade)
+}
+
+model AIEvalRun {
+  id             String        @id @default(cuid())
+  organizationId String
+  datasetId      String
+  agentKey       String
+  promptVersion  Int?
+  status         String        @default("RUNNING") // RUNNING | COMPLETED | FAILED
+  metrics        Json          @default("{}")
+  results        Json          @default("[]")
+  createdById    String?
+  createdAt      DateTime      @default(now())
+  completedAt    DateTime?
+  dataset        AIEvalDataset @relation(fields: [datasetId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId, createdAt])
+}
+
+model AIInsight {
+  id             String   @id @default(cuid())
+  organizationId String
+  kind           String // QUALIFIED_NO_FOLLOWUP | STALLED_OPPORTUNITIES | LOW_QUALITY_SOURCE | CPL_INCREASE | RECURRING_OBJECTION | UNANSWERED_QUESTIONS | CONVERSION_DROP | LOSS_PATTERN | CAPACITY
+  title          String
+  description    String
+  severity       String   @default("MEDIUM") // LOW | MEDIUM | HIGH
+  sourceData     Json     @default("{}")
+  periodStart    DateTime
+  periodEnd      DateTime
+  confidence     Float
+  method         String   @default("RULE")
+  status         String   @default("OPEN") // OPEN | ACKNOWLEDGED | DISMISSED
+  fingerprint    String
+  createdAt      DateTime @default(now())
+
+  @@unique([organizationId, fingerprint])
+  @@index([organizationId, status, createdAt])
+}
+
+model Experiment {
+  id             String              @id @default(cuid())
+  organizationId String
+  name           String
+  hypothesis     String?
+  target         String // LANDING | HEADLINE | CTA | FORM | MESSAGE | CAMPAIGN | PLAYBOOK | QUALIFICATION_FLOW
+  targetId       String?
+  campaignId     String?
+  primaryMetric  String              @default("OPPORTUNITIES") // LEADS | QUALIFIED | OPPORTUNITIES | CONVERSIONS | REVENUE
+  status         String              @default("DRAFT") // DRAFT | RUNNING | PAUSED | COMPLETED
+  startedAt      DateTime?
+  endedAt        DateTime?
+  createdAt      DateTime            @default(now())
+  variants       ExperimentVariant[]
+
+  @@index([organizationId, status])
+}
+
+model ExperimentVariant {
+  id             String     @id @default(cuid())
+  organizationId String
+  experimentId   String
+  key            String // A | B | C
+  name           String
+  weight         Int        @default(50)
+  config         Json       @default("{}")
+  exposures      Int        @default(0)
+  spend          Int        @default(0)
+  experiment     Experiment @relation(fields: [experimentId], references: [id], onDelete: Cascade)
+
+  @@unique([experimentId, key])
+}
+
+model FeatureFlag {
+  id             String   @id @default(cuid())
+  organizationId String
+  key            String
+  enabled        Boolean  @default(false)
+  updatedById    String?
+  updatedAt      DateTime @updatedAt
+
+  @@unique([organizationId, key])
+}
+
+model SavedFilter {
+  id             String   @id @default(cuid())
+  organizationId String
+  userId         String
+  page           String
+  name           String
+  query          String
+  createdAt      DateTime @default(now())
+
+  @@index([userId, page])
+}
+
+model ConfigHistory {
+  id             String   @id @default(cuid())
+  organizationId String
+  area           String // settings | scoring | routing | playbook | prompt | flags
+  before         Json
+  after          Json
+  actorId        String?
+  actorName      String?
+  createdAt      DateTime @default(now())
+
+  @@index([organizationId, area, createdAt])
+}
+
+// Outbox: o evento é gravado na mesma transação da mudança e despachado depois (sem perda).
+model OutboxEvent {
+  id             String    @id @default(cuid())
+  organizationId String
+  name           String
+  payload        Json
+  status         String    @default("PENDING") // PENDING | DISPATCHED | FAILED
+  attempts       Int       @default(0)
+  lastError      String?
+  availableAt    DateTime  @default(now())
+  dispatchedAt   DateTime?
+  createdAt      DateTime  @default(now())
+
+  @@index([status, availableAt])
+}
+
+model JobRun {
+  id             String    @id @default(cuid())
+  organizationId String?
+  job            String
+  idempotencyKey String?   @unique
+  status         String    @default("RUNNING") // RUNNING | COMPLETED | FAILED | DEAD
+  attempts       Int       @default(1)
+  error          String?
+  durationMs     Int?
+  startedAt      DateTime  @default(now())
+  finishedAt     DateTime?
+
+  @@index([job, startedAt])
+  @@index([status])
+}
+
+// ═════════════════════════ V2 — Notificações multi-dispositivo ═════════════════════════
+
+model NotificationPreference {
+  id                        String   @id @default(cuid())
+  organizationId            String
+  userId                    String   @unique
+  // categoria → canais. Ex.: { "lead.hot": ["IN_APP","DESKTOP","PUSH"] }
+  matrix                    Json     @default("{}")
+  quietEnabled              Boolean  @default(false)
+  quietStart                String   @default("22:00")
+  quietEnd                  String   @default("07:00")
+  // Exceções que furam o silêncio
+  quietBypass               String[] @default(["lead.hot", "sla.critical", "system.critical"])
+  hideSensitiveOnLockScreen Boolean  @default(true)
+  updatedAt                 DateTime @updatedAt
+  user                      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model UserDevice {
+  id             String    @id @default(cuid())
+  organizationId String
+  userId         String
+  kind           String // BROWSER | PWA | EXTENSION | MOBILE
+  label          String
+  os             String?
+  browser        String?
+  // Web Push: endpoint + chaves públicas do navegador
+  pushEndpoint   String?   @unique
+  pushP256dh     String?
+  pushAuth       String?
+  // Extensão: token próprio (somente o hash), revogável
+  tokenHash      String?   @unique
+  status         String    @default("ACTIVE") // ACTIVE | REVOKED
+  lastSeenAt     DateTime  @default(now())
+  revokedAt      DateTime?
+  createdAt      DateTime  @default(now())
+  user           User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, status])
+}
+
+model DeepLink {
+  id             String    @id @default(cuid())
+  organizationId String
+  userId         String
+  // Hash do código curto — o código em si nunca é salvo
+  codeHash       String    @unique
+  targetType     String // CONVERSATION | LEAD | OPPORTUNITY | TASK
+  targetId       String
+  method         String // QR | LINK | PUSH
+  expiresAt      DateTime
+  usedAt         DateTime?
+  usedByDevice   String?
+  createdAt      DateTime  @default(now())
+
+  @@index([userId, createdAt])
+}
+
+// ───────────────────────── Plataforma (Super Admin) ─────────────────────────
+
+/// Chaves de API configuradas no painel do Super Admin (criptografadas com AES-256-GCM).
+/// Têm prioridade sobre o .env. O valor nunca volta para a tela — só os 4 últimos caracteres.
+model PlatformCredential {
+  key       String   @id
+  valueEnc  String
+  last4     String?
+  updatedBy String?
+  updatedAt DateTime @updatedAt
+}
+
+// ───────────────────────── Treinamento da equipe ─────────────────────────
+
+/// Conteúdo de treinamento (vídeo, apostila ou link) cadastrado pelo Super Admin.
+model TrainingItem {
+  id             String             @id @default(cuid())
+  organizationId String
+  title          String
+  description    String?
+  url            String
+  category       String             @default("Geral")
+  order          Int                @default(0)
+  active         Boolean            @default(true)
+  createdAt      DateTime           @default(now())
+  updatedAt      DateTime           @updatedAt
+  progress       TrainingProgress[]
+
+  @@index([organizationId, active, order])
+}
+
+/// Quem concluiu cada conteúdo.
+model TrainingProgress {
+  id             String       @id @default(cuid())
+  organizationId String
+  itemId         String
+  userId         String
+  completedAt    DateTime     @default(now())
+  item           TrainingItem @relation(fields: [itemId], references: [id], onDelete: Cascade)
+
+  @@unique([itemId, userId])
+  @@index([organizationId, userId])
+}
+
+/// KIT DE DIVULGAÇÃO: modelos de postagem que a gestão revisa e aprova. O consultor recebe alguns por dia,
+/// já com o link dele (rastreado por canal). Texto com {link} e {primeiro_nome}. Nada de taxa/valor inventado.
+model PostTemplate {
+  id             String   @id @default(cuid())
+  organizationId String
+  title          String
+  /// WHATSAPP_STATUS | INSTAGRAM | GRUPOS | QUALQUER
+  network        String   @default("QUALQUER")
+  /// Público (ex.: "Brasileiros no exterior") — só para orientar quem posta.
+  audience       String?
+  product        String?
+  body           String
+  active         Boolean  @default(true)
+  /// Só modelos aprovados pela gestão aparecem no kit do consultor.
+  approved       Boolean  @default(false)
+  approvedAt     DateTime?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@index([organizationId, active, approved])
+}
+
+/// LINK RASTREADO do consultor: um canal onde ele divulga (grupo, status, Instagram) ou a indicação de um cliente.
+/// Vai no utm_campaign (code); o lead que chega por ele mostra de onde veio.
+model TrackedLink {
+  id             String   @id @default(cuid())
+  organizationId String
+  consultantId   String
+  /// CANAL | INDICACAO
+  kind           String   @default("CANAL")
+  /// Nome do canal ("Grupo Brasileiros em Lisboa") ou de quem indicou.
+  name           String
+  /// WHATSAPP_STATUS | INSTAGRAM | GRUPOS | FACEBOOK | OUTRO | INDICACAO
+  network        String   @default("OUTRO")
+  /// PROPRIO (lead é do consultor) | MESTRE (site mestre, divisão igual)
+  target         String   @default("PROPRIO")
+  code           String   @unique
+  active         Boolean  @default(true)
+  createdAt      DateTime @default(now())
+
+  @@index([organizationId, consultantId])
+}

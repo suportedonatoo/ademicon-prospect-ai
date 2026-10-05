@@ -1,0 +1,13 @@
+{
+  "manifest_version": 3,
+  "name": "Ademicon Sales Assistant",
+  "short_name": "Sales Assistant",
+  "version": "1.0.0",
+  "description": "Notificações, leads quentes e conversas aguardando — acesso rápido à plataforma Ademicon Prospect AI.",
+  "action": { "default_popup": "popup.html", "default_title": "Ademicon Sales Assistant", "default_icon": { "128": "icon-128.png" } },
+  "icons": { "128": "icon-128.png" },
+  "background": { "service_worker": "background.js", "type": "module" },
+  "permissions": ["storage", "alarms", "notifications"],
+  "optional_host_permissions": ["https://*/*", "http://localhost/*", "http://127.0.0.1/*"],
+  "minimum_chrome_version": "116"
+}
