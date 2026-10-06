@@ -109,8 +109,8 @@ export const CREDENTIAL_GROUPS: CredentialGroup[] = [
 ];
 
 const ALL_FIELDS = CREDENTIAL_GROUPS.flatMap((g) => g.fields);
-const ENV_DEFAULTS: Record<string, unknown> = {};
-const g = globalThis as unknown as { __credsApplied?: Set<string> };
+const g = globalThis as unknown as { __credsApplied?: Set<string>; __envDefaults?: Record<string, unknown> };
+const ENV_DEFAULTS = (g.__envDefaults ??= {});
 
 /** Só o Super Admin (equipe da plataforma) — nem o Admin do cliente. */
 export function assertSuperAdmin(ctx: Ctx) {

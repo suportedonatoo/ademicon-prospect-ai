@@ -15,7 +15,8 @@ import { createGoogleCalendarProvider, createMicrosoftCalendarProvider } from '.
 import { webPushProvider } from './push/webpush.provider';
 
 // IntegrationProvider registry — ponto único para descobrir/usar integrações.
-export const providers = {
+// Compartilhado no processo (mesmo motivo do `env`): rebuildProviders precisa alcançar todas as cópias do módulo.
+const build = () => ({
   googleAds: createGoogleAdsProvider(),
   meta: createMetaProvider(),
   instagram: createInstagramProvider(),
@@ -30,7 +31,9 @@ export const providers = {
   googleCalendar: createGoogleCalendarProvider(),
   microsoftCalendar: createMicrosoftCalendarProvider(),
   webPush: webPushProvider,
-};
+});
+const shared = globalThis as unknown as { __providers?: ReturnType<typeof build> };
+export const providers = (shared.__providers ??= build());
 
 /** Recria os providers com as credenciais atuais (chamado quando o Super Admin salva uma chave). */
 export function rebuildProviders() {

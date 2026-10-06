@@ -79,7 +79,10 @@ const blankToUndefined = Object.fromEntries(
   Object.entries(process.env).map(([k, v]) => [k, v === '' ? undefined : v])
 );
 
-export const env = schema.parse(blankToUndefined);
+// Um único objeto por processo: no build de produção o Next carrega este módulo mais de uma vez
+// (instrumentation e rotas). Sem isso, as chaves salvas no painel só valeriam na cópia que as carregou.
+const shared = globalThis as unknown as { __env?: z.infer<typeof schema> };
+export const env = (shared.__env ??= schema.parse(blankToUndefined));
 export const isProduction = env.APP_ENV === 'production';
 
 if (isProduction && env.SESSION_SECRET === 'dev-only-session-secret-change-me') {
