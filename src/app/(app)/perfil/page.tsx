@@ -11,6 +11,9 @@ import { photoUrlFor } from '@/modules/consultants/photo.service';
 import { Avatar } from '@/components/avatar';
 import { PhotoPicker } from '@/components/photo-picker';
 import { PublishLinks } from '@/components/publish-links';
+import { ActionButton } from '@/components/client';
+import { buttonClass } from '@/components/ui';
+import { instagramConnectConfigured } from '@/modules/instagram/instagram.service';
 
 export const metadata = { title: 'Perfil do consultor' };
 
@@ -102,6 +105,48 @@ export default async function ProfilePage({ searchParams }: { searchParams: Prom
               <Link href="/whatsapp/numeros" className="text-brand-600 hover:underline">
                 Gerenciar números →
               </Link>
+            )}
+          </div>
+        </Card>
+
+        <Card title="Instagram" subtitle="As mensagens diretas da sua conta entram no Inbox como leads seus. Uma conta por consultor." className="lg:col-span-2">
+          {sp.instagram === 'ok' && (
+            <div className="mb-3">
+              <Notice tone="green" title="Instagram conectado.">
+                {sp.conta ? `Conta @${sp.conta}. ` : ''}As próximas mensagens diretas já entram no Inbox.
+              </Notice>
+            </div>
+          )}
+          {sp.instagram === 'erro' && (
+            <div className="mb-3">
+              <Notice tone="red" title="Não foi possível conectar.">
+                {sp.motivo}
+              </Notice>
+            </div>
+          )}
+          <div className="flex flex-wrap items-center gap-3">
+            {c.instagramAccountId ? (
+              <>
+                <Badge tone="green" dot>
+                  Conectado{c.instagramUsername ? ` · @${c.instagramUsername}` : ''}
+                </Badge>
+                {own && (
+                  <ActionButton size="sm" variant="danger" path="/instagram/disconnect" confirm="Desconectar o Instagram? As mensagens novas deixam de entrar no Inbox." success="Instagram desconectado.">
+                    Desconectar
+                  </ActionButton>
+                )}
+              </>
+            ) : !instagramConnectConfigured() ? (
+              <span className="text-sm text-muted">Ainda não disponível: a equipe da plataforma precisa preencher o ID e o segredo do app do Instagram em Configurar APIs.</span>
+            ) : own ? (
+              <>
+                <a href="/api/v1/instagram/connect" className={buttonClass('primary')}>
+                  Conectar Instagram
+                </a>
+                <span className="text-sm text-muted">A conta precisa ser profissional (Comercial ou Criador de conteúdo). Você entra com ela e autoriza.</span>
+              </>
+            ) : (
+              <span className="text-sm text-muted">Não conectado. Só o próprio consultor conecta a conta, pelo login dele.</span>
             )}
           </div>
         </Card>

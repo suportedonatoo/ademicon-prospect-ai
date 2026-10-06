@@ -46,11 +46,13 @@ export const CREDENTIAL_GROUPS: CredentialGroup[] = [
   {
     id: 'instagram',
     title: 'Instagram Direct',
-    description: 'Mensagens do Instagram no mesmo Inbox, com a IA respondendo. Usa o App Secret e o token de verificação da Meta (grupo Meta Ads).',
+    description: 'Mensagens do Instagram no mesmo Inbox, com a IA respondendo. Conta da unidade: token + ID da conta. Contas dos consultores: ID + segredo do app do Instagram. O token de verificação do webhook é o da Meta (grupo Meta Ads).',
     docs: 'https://developers.facebook.com/docs/messenger-platform/instagram',
     fields: [
       { key: 'INSTAGRAM_ACCESS_TOKEN', label: 'Token da página (instagram_manage_messages)', secret: true },
       { key: 'INSTAGRAM_ACCOUNT_ID', label: 'ID da conta profissional do Instagram', secret: false },
+      { key: 'INSTAGRAM_APP_ID', label: 'ID do app do Instagram (login dos consultores)', secret: false, hint: 'Com ID e segredo preenchidos, cada consultor conecta a própria conta em Meu perfil.' },
+      { key: 'INSTAGRAM_APP_SECRET', label: 'Segredo do app do Instagram', secret: true },
     ],
   },
   {

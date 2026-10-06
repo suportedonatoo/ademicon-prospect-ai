@@ -51,6 +51,9 @@ const schema = z.object({
   /** Instagram Direct: token da página com instagram_manage_messages e o ID da conta profissional do Instagram. */
   INSTAGRAM_ACCESS_TOKEN: z.string().optional(),
   INSTAGRAM_ACCOUNT_ID: z.string().optional(),
+  // Login do Instagram (cada consultor conecta a própria conta): ID e segredo do app do Instagram na Meta.
+  INSTAGRAM_APP_ID: z.string().optional(),
+  INSTAGRAM_APP_SECRET: z.string().optional(),
   /** Chave para criptografar as credenciais salvas no painel (se vazio, deriva do SESSION_SECRET). */
   CREDENTIALS_KEY: z.string().optional(),
   GOOGLE_MAPS_API_KEY: z.string().optional(),

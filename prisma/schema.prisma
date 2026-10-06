@@ -198,6 +198,11 @@ model Consultant {
   /// e não recebe todos os próximos leads para "alcançar" os outros. Vale só no mês de splitBaselineAt.
   /// Link do Instagram do consultor (perfil profissional)
   instagramUrl         String?
+  /// Conta do Instagram conectada pelo próprio consultor (uma por consultor). O id é o que chega nos webhooks.
+  instagramAccountId   String?  @unique
+  instagramUsername    String?
+  instagramTokenEnc    String?
+  instagramTokenExpiresAt DateTime?
   /// Link próprio do consultor (para a bio): <landingSlug>.<domínio>. Página idêntica à da Ademicon;
   /// quem chega por ele e deixa contato vira lead DESTE consultor.
   landingSlug          String?  @unique
