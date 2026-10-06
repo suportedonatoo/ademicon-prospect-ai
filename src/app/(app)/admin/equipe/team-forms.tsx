@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { api, toast } from '@/lib/client';
+import { api, toast, showTempPassword } from '@/lib/client';
 import { buttonClass } from '@/components/ui';
 import { Field, Modal, inputClass } from '@/components/client';
 import { Avatar } from '@/components/avatar';
@@ -60,6 +60,7 @@ export function MemberForm({ pjs }: { pjs: Opt[] }) {
         await uploadPhoto(r.consultantId, photo.file).catch((e: Error) => setPhotoFailed(e.message));
       }
       setDone(r);
+      if (r.tempPassword) showTempPassword({ name: r.name, email: r.email, password: r.tempPassword });
       router.refresh();
     } catch (e) {
       toast((e as Error).message, 'error');
@@ -237,7 +238,9 @@ export function TeamImport({ template }: { template: string }) {
   const run = async () => {
     setBusy(true);
     try {
-      setRes(await api<ImportResult>('/team/import', { body: { csv } }));
+      const out = await api<ImportResult>('/team/import', { body: { csv } });
+      setRes(out);
+      for (const r of out.results) if (r.ok && r.tempPassword) showTempPassword({ name: r.name, email: r.email, password: r.tempPassword });
       router.refresh();
     } catch (e) {
       toast((e as Error).message, 'error');

@@ -25,6 +25,29 @@ export async function api<T = unknown>(path: string, opts: { method?: string; bo
 
 // Toasts globais simples (evento de janela).
 export type ToastKind = 'success' | 'error' | 'info';
+export interface TempCredential {
+  name: string;
+  email: string;
+  password: string;
+  at: number;
+}
+export const TEMP_CREDENTIALS_KEY = 'pa_temp_credentials';
+export const TEMP_CREDENTIALS_TTL_MS = 5 * 60_000;
+
+/**
+ * Senha provisória recém-criada: fica visível por 5 minutos num painel fixo (com copiar),
+ * mesmo que o modal feche ou a página recarregue. Guardada só na aba (sessionStorage) e apagada ao vencer.
+ */
+export function showTempPassword(c: Omit<TempCredential, 'at'>) {
+  try {
+    const list = (JSON.parse(sessionStorage.getItem(TEMP_CREDENTIALS_KEY) ?? '[]') as TempCredential[]).filter((x) => x.email !== c.email);
+    sessionStorage.setItem(TEMP_CREDENTIALS_KEY, JSON.stringify([...list, { ...c, at: Date.now() }]));
+  } catch {
+    /* sem sessionStorage: o modal continua mostrando a senha */
+  }
+  window.dispatchEvent(new Event('app:temp-credentials'));
+}
+
 export function toast(message: string, kind: ToastKind = 'success') {
   window.dispatchEvent(new CustomEvent('app:toast', { detail: { message, kind } }));
 }

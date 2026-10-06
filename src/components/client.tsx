@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, useTransition, type ReactNode } from 'react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { api, toast, type ToastKind } from '@/lib/client';
+import { api, toast, TEMP_CREDENTIALS_KEY, TEMP_CREDENTIALS_TTL_MS, type TempCredential, type ToastKind } from '@/lib/client';
 import { buttonClass, cx } from './ui';
 
 // Componentes interativos genéricos.
@@ -26,6 +26,71 @@ export function Toaster() {
           {t.message}
         </div>
       ))}
+    </div>
+  );
+}
+
+/** Painel fixo com as senhas provisórias criadas nos últimos 5 minutos (ver showTempPassword). */
+export function TempPasswords() {
+  const [items, setItems] = useState<TempCredential[]>([]);
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => {
+    const load = () => {
+      try {
+        const live = (JSON.parse(sessionStorage.getItem(TEMP_CREDENTIALS_KEY) ?? '[]') as TempCredential[]).filter((c) => Date.now() - c.at < TEMP_CREDENTIALS_TTL_MS);
+        sessionStorage.setItem(TEMP_CREDENTIALS_KEY, JSON.stringify(live));
+        setItems(live);
+      } catch {
+        setItems([]);
+      }
+      setNow(Date.now());
+    };
+    load();
+    window.addEventListener('app:temp-credentials', load);
+    const t = setInterval(load, 1000);
+    return () => {
+      window.removeEventListener('app:temp-credentials', load);
+      clearInterval(t);
+    };
+  }, []);
+  const drop = (email: string) => {
+    sessionStorage.setItem(TEMP_CREDENTIALS_KEY, JSON.stringify(items.filter((c) => c.email !== email)));
+    window.dispatchEvent(new Event('app:temp-credentials'));
+  };
+  if (!items.length) return null;
+  return (
+    <div className="fixed bottom-4 left-4 z-[90] w-[min(380px,calc(100vw-32px))] space-y-2" role="region" aria-label="Senhas provisórias">
+      {items.map((c) => {
+        const left = Math.max(0, Math.ceil((TEMP_CREDENTIALS_TTL_MS - (now - c.at)) / 1000));
+        return (
+          <div key={c.email} className="rounded-2xl border border-line bg-white p-4 shadow-xl text-sm">
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0">
+                <b className="block truncate">{c.name}</b>
+                <span className="block text-xs text-muted truncate">{c.email}</span>
+              </div>
+              <button onClick={() => drop(c.email)} className="size-7 shrink-0 rounded-full bg-slate-100 hover:bg-slate-200 text-xs" aria-label="Fechar">
+                ✕
+              </button>
+            </div>
+            <div className="mt-2.5 flex items-center gap-2">
+              <code className="flex-1 min-w-0 truncate rounded-lg bg-slate-100 px-2.5 py-1.5 font-mono text-[13px]">{c.password}</code>
+              <button
+                className={buttonClass('secondary', 'sm')}
+                onClick={async () => {
+                  await navigator.clipboard.writeText(`Login: ${c.email}\nSenha provisória: ${c.password}`);
+                  toast('Login e senha copiados.');
+                }}
+              >
+                Copiar
+              </button>
+            </div>
+            <p className="mt-2 text-xs text-muted tabular">
+              Senha provisória · some em {Math.floor(left / 60)}:{String(left % 60).padStart(2, '0')}. Depois disso não aparece de novo.
+            </p>
+          </div>
+        );
+      })}
     </div>
   );
 }

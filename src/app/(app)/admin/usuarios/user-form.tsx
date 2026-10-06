@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { api, toast } from '@/lib/client';
+import { api, toast, showTempPassword } from '@/lib/client';
 import { buttonClass } from '@/components/ui';
 import { Field, Modal, inputClass } from '@/components/client';
 
@@ -35,7 +35,10 @@ export function UserForm({ id, initial, roles, pjs, consultants }: { id?: string
                   const r = await api<{ tempPassword?: string | null }>(id ? `/users/${id}` : '/users', { method: id ? 'PATCH' : 'POST', body: { ...v, pjId: v.pjId || null, consultantId: v.consultantId || null } });
                   toast('Usuário salvo (auditado).');
                   router.refresh();
-                  if (r.tempPassword) setTemp(r.tempPassword);
+                  if (r.tempPassword) {
+                    setTemp(r.tempPassword);
+                    showTempPassword({ name: v.name, email: v.email, password: r.tempPassword });
+                  }
                   else setOpen(false);
                 } catch (e) {
                   toast((e as Error).message, 'error');

@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from 'next';
 import { Geist } from 'next/font/google';
-import { Toaster } from '@/components/client';
+import { TempPasswords, Toaster } from '@/components/client';
 import { env } from '@/lib/env';
 import './globals.css';
 
@@ -22,6 +22,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className="font-sans">
         {children}
         <Toaster />
+        <TempPasswords />
       </body>
     </html>
   );
