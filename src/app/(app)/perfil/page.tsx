@@ -14,6 +14,7 @@ import { PublishLinks } from '@/components/publish-links';
 import { ActionButton } from '@/components/client';
 import { buttonClass } from '@/components/ui';
 import { instagramConnectConfigured } from '@/modules/instagram/instagram.service';
+import { InstagramTokenForm } from './instagram-token-form';
 
 export const metadata = { title: 'Perfil do consultor' };
 
@@ -130,8 +131,8 @@ export default async function ProfilePage({ searchParams }: { searchParams: Prom
                 <Badge tone="green" dot>
                   Conectado{c.instagramUsername ? ` · @${c.instagramUsername}` : ''}
                 </Badge>
-                {own && (
-                  <ActionButton size="sm" variant="danger" path="/instagram/disconnect" confirm="Desconectar o Instagram? As mensagens novas deixam de entrar no Inbox." success="Instagram desconectado.">
+                {(own || ctx.roleKey === 'SUPER_ADMIN') && (
+                  <ActionButton size="sm" variant="danger" path="/instagram/disconnect" body={{ consultantId: c.id }} confirm="Desconectar o Instagram? As mensagens novas deixam de entrar no Inbox." success="Instagram desconectado.">
                     Desconectar
                   </ActionButton>
                 )}
@@ -146,9 +147,10 @@ export default async function ProfilePage({ searchParams }: { searchParams: Prom
                 <span className="text-sm text-muted">A conta precisa ser profissional (Comercial ou Criador de conteúdo). Você entra com ela e autoriza.</span>
               </>
             ) : (
-              <span className="text-sm text-muted">Não conectado. Só o próprio consultor conecta a conta, pelo login dele.</span>
+              <span className="text-sm text-muted">Não conectado. O consultor conecta pelo login dele.</span>
             )}
           </div>
+          {!c.instagramAccountId && (own || ctx.roleKey === 'SUPER_ADMIN') && <InstagramTokenForm consultantId={c.id} />}
         </Card>
 
         <PublishLinks slug={c.landingSlug} own={own} className="lg:col-span-2" />

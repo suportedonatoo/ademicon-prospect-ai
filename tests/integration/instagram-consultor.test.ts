@@ -3,7 +3,7 @@ import { db } from '@/lib/db';
 import { env } from '@/lib/env';
 import { decryptSecret } from '@/lib/secrets';
 import { createOrg, resetDb } from '../helpers';
-import { completeInstagramConnect, instagramAuthorizeUrl, readConnectState, receiveInstagram, sendInstagram } from '@/modules/instagram/instagram.service';
+import { completeInstagramConnect, connectInstagramWithToken, disconnectInstagram, instagramAuthorizeUrl, readConnectState, receiveInstagram, sendInstagram } from '@/modules/instagram/instagram.service';
 
 type Org = Awaited<ReturnType<typeof createOrg>>;
 let A: Org;
@@ -84,5 +84,23 @@ describe('Instagram por consultor', () => {
     const r = await sendInstagram(A.org.id, lead.id, 'Olá de novo');
     expect(r.status).toBe('FAILED');
     expect(r.error).toMatch(/desconectada/);
+  });
+
+  it('colar token: o sistema descobre a conta; só o próprio consultor ou o Super Admin conecta e desconecta', async () => {
+    vi.stubGlobal('fetch', vi.fn(async (u: string) => (String(u).includes('/me?fields=') ? json({ user_id: 'IG-C2', username: 'consultor.dois' }) : json({ success: true }))));
+    const c2 = A.consultants[1].id;
+    const outro = await A.ctx(A.users.consultant); // consultor 1
+    const token = 'tok-colado-'.padEnd(40, 'x');
+    await expect(connectInstagramWithToken(outro, { consultantId: c2, token })).rejects.toThrow(/Só o próprio consultor ou o Super Admin/);
+
+    const su = { ...(await A.ctx(A.users.admin)), roleKey: 'SUPER_ADMIN' };
+    expect(await connectInstagramWithToken(su, { consultantId: c2, token })).toEqual({ username: 'consultor.dois' });
+    const c = await db.consultant.findUniqueOrThrow({ where: { id: c2 } });
+    expect(c.instagramAccountId).toBe('IG-C2');
+    expect(decryptSecret(c.instagramTokenEnc!)).toBe(token);
+
+    await expect(disconnectInstagram(outro, c2)).rejects.toThrow(/Só o próprio consultor ou o Super Admin/);
+    await disconnectInstagram(su, c2);
+    expect((await db.consultant.findUniqueOrThrow({ where: { id: c2 } })).instagramAccountId).toBeNull();
   });
 });

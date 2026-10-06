@@ -116,7 +116,26 @@ export async function completeInstagramConnect(ctx: Ctx, code: string, state: st
   const shortToken = String(((short.data as IgJson[] | undefined)?.[0] ?? short).access_token ?? '');
   if (!shortToken) throw BadRequest('Instagram não devolveu o token de acesso.');
   const long = await igJson(`https://graph.instagram.com/access_token?${new URLSearchParams({ grant_type: 'ig_exchange_token', client_secret: env.INSTAGRAM_APP_SECRET!, access_token: shortToken })}`);
-  const token = String(long.access_token);
+  return saveInstagramAccount(consultantId, String(long.access_token), Number(long.expires_in ?? 60 * 86400));
+}
+
+/**
+ * Alternativa ao botão: colar um token de acesso da conta (gerado no painel do app da Meta).
+ * O id e o usuário da conta são descobertos pelo próprio token — ninguém digita ID.
+ * Quem pode: o próprio consultor, ou o Super Admin para qualquer consultor.
+ */
+export async function connectInstagramWithToken(ctx: Ctx, input: { consultantId?: string | null; token: string }) {
+  const consultantId = input.consultantId || ctx.consultantId;
+  if (!consultantId) throw BadRequest('Informe o consultor.');
+  if (consultantId !== ctx.consultantId && ctx.roleKey !== 'SUPER_ADMIN') throw Forbidden('Só o próprio consultor ou o Super Admin conecta o Instagram de um consultor.');
+  if (!(await db.consultant.findFirst({ where: { id: consultantId, organizationId: ctx.orgId }, select: { id: true } }))) throw BadRequest('Consultor não encontrado.');
+  const token = input.token.trim();
+  if (token.length < 20) throw BadRequest('Token inválido.');
+  return saveInstagramAccount(consultantId, token, 60 * 86400);
+}
+
+/** Confere o token na Meta, assina o webhook da conta e grava no consultor (token criptografado). */
+async function saveInstagramAccount(consultantId: string, token: string, expiresInSeconds: number) {
   const me = await igJson(`${igBase()}/me?fields=user_id,username`, { headers: { authorization: `Bearer ${token}` } });
   // user_id é o id da conta profissional — o mesmo que chega nos webhooks.
   const accountId = String(me.user_id ?? me.id ?? '');
@@ -134,7 +153,7 @@ export async function completeInstagramConnect(ctx: Ctx, code: string, state: st
       instagramAccountId: accountId,
       instagramUsername: username,
       instagramTokenEnc: encryptSecret(token),
-      instagramTokenExpiresAt: new Date(Date.now() + Number(long.expires_in ?? 60 * 86400) * 1000),
+      instagramTokenExpiresAt: new Date(Date.now() + expiresInSeconds * 1000),
       ...(username ? { instagramUrl: `https://www.instagram.com/${username}/` } : {}),
     },
   });
@@ -142,9 +161,10 @@ export async function completeInstagramConnect(ctx: Ctx, code: string, state: st
   return { username };
 }
 
-export async function disconnectInstagram(ctx: Ctx) {
-  if (!ctx.consultantId) throw Forbidden('Só o próprio consultor desconecta o Instagram.');
-  await db.consultant.update({ where: { id: ctx.consultantId }, data: { instagramAccountId: null, instagramUsername: null, instagramTokenEnc: null, instagramTokenExpiresAt: null } });
+export async function disconnectInstagram(ctx: Ctx, consultantId?: string | null) {
+  const id = consultantId || ctx.consultantId;
+  if (!id || (id !== ctx.consultantId && ctx.roleKey !== 'SUPER_ADMIN')) throw Forbidden('Só o próprio consultor ou o Super Admin desconecta o Instagram.');
+  await db.consultant.updateMany({ where: { id, organizationId: ctx.orgId }, data: { instagramAccountId: null, instagramUsername: null, instagramTokenEnc: null, instagramTokenExpiresAt: null } });
 }
 
 type Owner = { id: string; instagramAccountId: string | null; instagramTokenEnc: string | null; instagramTokenExpiresAt: Date | null };
