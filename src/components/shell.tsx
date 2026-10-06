@@ -242,6 +242,9 @@ function UserMenu({ user }: { user: ShellUser }) {
             <Link href="/configuracoes/notificacoes" className={item}>
               <Icon name="bell" className="size-4" /> Preferências de notificação
             </Link>
+            <Link href="/configuracoes/senha" className={item}>
+              <Icon name="lock" className="size-4" /> Trocar senha
+            </Link>
             {user.menu && (
               <button
                 className={item}

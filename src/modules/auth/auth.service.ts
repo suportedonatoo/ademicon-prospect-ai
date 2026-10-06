@@ -110,3 +110,14 @@ export async function ctxFromApiKey(raw: string, meta: { ip?: string | null; use
     ...meta,
   };
 }
+
+/** Troca da própria senha. Confere a atual e encerra as outras sessões (a sessão em uso continua). */
+export async function changePassword(ctx: Ctx, input: { current: string; next: string }, currentToken?: string | null) {
+  if (!ctx.userId) throw Unauthorized('Entre na sua conta para trocar a senha.');
+  await rateLimit(`password:${ctx.userId}`, 8, 15 * 60);
+  const user = await db.user.findUniqueOrThrow({ where: { id: ctx.userId } });
+  if (!(await verifyPassword(input.current, user.passwordHash))) throw Unauthorized('A senha atual não confere.');
+  await db.user.update({ where: { id: user.id }, data: { passwordHash: await hashPassword(input.next) } });
+  await db.session.deleteMany({ where: { userId: user.id, ...(currentToken ? { NOT: { tokenHash: sha256(currentToken) } } : {}) } });
+  await audit(ctx, 'user.changed', { type: 'User', id: user.id }, { action: 'password_changed' });
+}
