@@ -57,6 +57,11 @@ const schema = z.object({
   /** Chave para criptografar as credenciais salvas no painel (se vazio, deriva do SESSION_SECRET). */
   CREDENTIALS_KEY: z.string().optional(),
   GOOGLE_MAPS_API_KEY: z.string().optional(),
+  /** Google Agenda (OAuth de cada consultor): Client ID e segredo do app no Google Cloud. */
+  GOOGLE_CLIENT_ID: z.string().optional(),
+  GOOGLE_CLIENT_SECRET: z.string().optional(),
+  /** Fuso usado para entender e mostrar horários de reunião. */
+  APP_TIMEZONE: z.string().default('America/Sao_Paulo'),
   BING_MAPS_API_KEY: z.string().optional(),
   COMPANY_REGISTRY_API_URL: z.string().optional(),
   COMPANY_REGISTRY_API_KEY: z.string().optional(),

@@ -8,6 +8,7 @@ import { audit } from '../audit/audit.service';
 import { OPEN_ASSIGNED_STATUSES } from '../leads/state-machine';
 import { assertProduct } from '../products/product.service';
 import { aiProfileInput, parseAiProfile } from '../ai/consultant-persona';
+import { assertSchedulingSane } from '../calendar/scheduling.service';
 import { equalSplitPeriodStart } from '../lead-routing/routing-engine';
 import { enterEqualSplit } from '../lead-routing/equal-split';
 import { ensureLandingSlug } from './landing-link';
@@ -104,9 +105,11 @@ export async function getConsultantProfile(ctx: Ctx, id: string) {
 /** IA do consultor: o próprio consultor ou a gestão podem alterar. */
 export async function saveAiProfile(ctx: Ctx, id: string, raw: unknown) {
   if (ctx.consultantId !== id) assertCan(ctx, 'consultant.manage');
-  const input = aiProfileInput.parse(raw);
-  const c = await db.consultant.findFirst({ where: { id, organizationId: ctx.orgId, ...(ctx.scope === 'PJ' && ctx.consultantId !== id ? { pjId: ctx.pjId ?? '__none__' } : {}) }, select: { id: true } });
+  const c = await db.consultant.findFirst({ where: { id, organizationId: ctx.orgId, ...(ctx.scope === 'PJ' && ctx.consultantId !== id ? { pjId: ctx.pjId ?? '__none__' } : {}) }, select: { id: true, aiProfile: true } });
   if (!c) throw NotFound('Consultor');
+  // Cada parte da tela salva só o que é dela (perfil, treinamento, agenda): o resto é mantido.
+  const input = aiProfileInput.parse({ ...parseAiProfile(c.aiProfile), ...(raw && typeof raw === 'object' ? raw : {}) });
+  if (input.scheduling) assertSchedulingSane(input.scheduling);
   await db.consultant.update({ where: { id }, data: { aiProfile: input as object } });
   await audit(ctx, 'settings.changed', { type: 'Consultant', id }, { action: 'ai_profile', enabled: input.enabled });
   return input;

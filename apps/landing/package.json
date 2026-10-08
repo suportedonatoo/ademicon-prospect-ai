@@ -8,7 +8,9 @@
     "build": "next build",
     "start": "next start -p 3600",
     "lint": "eslint . --max-warnings=0",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "dev:previa": "node scripts/dev-marca.mjs previa 3601",
+    "dev:autorizada": "node scripts/dev-marca.mjs autorizada 3602"
   },
   "dependencies": {
     "next": "15.5.26",
@@ -29,5 +31,8 @@
   },
   "overrides": {
     "postcss": "^8.5.28"
+  },
+  "allowScripts": {
+    "unrs-resolver@1.12.2": true
   }
 }

@@ -19,7 +19,15 @@ type Mode = 'PARCELA' | 'CREDITO';
 
 interface SimResult {
   simulationId: string;
-  result: { mode: Mode; value: number; installmentTarget?: number; options: { termMonths: number; installment: number; credit: number; basis: string }[]; disclaimer: string };
+  result: {
+    mode: Mode;
+    value: number;
+    installmentTarget?: number;
+    options: { termMonths: number; installment: number; credit: number; basis: string }[];
+    disclaimer: string;
+    /** Faixas oficiais da administradora (sem tabela estimada). */
+    officialRange?: { creditMin: number; creditMax: number; installmentMin: number; installmentMax: number };
+  };
 }
 
 type Step = 'simular' | 'resultado' | 'contato' | 'enviado';
@@ -274,6 +282,25 @@ export function SimulatorFlow({
               )}
             </h2>
           </div>
+          {sim.result.officialRange ? (
+            <div className="rounded-xl border border-line divide-y divide-line">
+              <div className="px-4 py-3">
+                <p className="text-xs text-muted">Cartas de crédito de {productName(product)}</p>
+                <p className="font-bold tabular-nums">
+                  {brl0(sim.result.officialRange.creditMin)} a {brl0(sim.result.officialRange.creditMax)}
+                </p>
+              </div>
+              <div className="px-4 py-3">
+                <p className="text-xs text-muted">Parcelas, conforme o plano</p>
+                <p className="font-bold tabular-nums">
+                  {brl2(sim.result.officialRange.installmentMin)} a {brl2(sim.result.officialRange.installmentMax)}
+                </p>
+              </div>
+              <p className="px-4 py-3 text-[13px] text-ink-2">
+                {sim.result.mode === 'PARCELA' ? 'A parcela' : 'O crédito'} que você escolheu está dentro das condições oficiais. O consultor apresenta os planos disponíveis — prazo e parcela exata — para o seu caso.
+              </p>
+            </div>
+          ) : (
           <ul className="divide-y divide-line rounded-xl border border-line">
             {sim.result.options.map((o) => (
               <li key={o.termMonths} className="flex items-center justify-between gap-3 px-4 py-2.5">
@@ -294,6 +321,7 @@ export function SimulatorFlow({
               </li>
             ))}
           </ul>
+          )}
           <p className="text-[11px] leading-snug text-muted">
             {sim.result.options[0]?.basis === 'DIVISAO_SIMPLES' ? 'Base: crédito ÷ prazo, sem taxas. ' : ''}
             {sim.result.disclaimer}

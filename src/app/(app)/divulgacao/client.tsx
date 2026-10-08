@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { api, toast } from '@/lib/client';
 import { Badge, Card, buttonClass } from '@/components/ui';
 import { Field, inputClass } from '@/components/client';
+import { referralMessage } from '@/modules/outreach/referral-message';
 
 export type LinkRow = { id: string; kind: string; name: string; network: string; target: string; url: string; leads: number; hot: number; sales: number };
 export type Post = { id: string; title: string; network: string; audience: string | null; body: string; defaultChannelId: string | null };
@@ -161,10 +162,6 @@ export function LinkActions({ link, message }: { link: LinkRow; message?: string
 }
 
 // ───────── indicação ─────────
-
-/** Mensagem que o consultor manda para quem vai indicar. */
-export const referralMessage = (who: string, url: string) =>
-  `Oi, ${who.split(/\s+/)[0]}! Obrigado pela confiança 😊\nSe alguém que você conhece pensa em comprar imóvel, carro ou moto, pode me indicar? É só mandar este link — a pessoa faz uma simulação grátis e eu cuido do atendimento:\n${url}`;
 
 export function NewReferral() {
   const router = useRouter();

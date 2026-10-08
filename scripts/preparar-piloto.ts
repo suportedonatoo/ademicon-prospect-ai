@@ -95,7 +95,7 @@ async function main() {
   // Simulador: estimativa (parâmetros NÃO verificados até a Ademicon passar a tabela oficial)
   const completo = C.SIMULATORS.find((s) => s.slug === 'simulador-completo')!;
   await db.simulator.create({
-    data: { organizationId: org.id, name: completo.name, slug: completo.slug, products: completo.products, requiredFields: completo.required, parametersVerified: false, disclaimer: C.SIMULATOR_DISCLAIMER },
+    data: { organizationId: org.id, name: completo.name, slug: completo.slug, products: completo.products as object, requiredFields: completo.required, parametersVerified: false, disclaimer: C.SIMULATOR_DISCLAIMER },
   });
 
   // WhatsApp: conta conforme o provedor configurado (os números entram no cadastro de cada consultor)

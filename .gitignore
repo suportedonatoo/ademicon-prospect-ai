@@ -19,13 +19,19 @@ entregas/
 # Backups do banco (servidor)
 backups/
 .env.production
+
+# Marca que os dados de demonstração já foram criados (Iniciar.bat)
+.seed-feito
+
+# Pastas de build das versões da landing (prévia / autorizada)
+.next-previa/
+.next-autorizada/
+
+# Arquivos locais de deploy e acessos (versão no ar)
 .pgdata/
 .env.supabase
 hostinger.env
 acessos-consultores.txt
 equipe-consultores.csv
-.env.supabase
-hostinger.env
-acessos-consultores.txt
 hostinger-minimo.env
 meta-conexao.md

@@ -116,7 +116,7 @@ export const NAV: NavGroup[] = [
       { label: 'Preferências de notificação', href: '/configuracoes/notificacoes', icon: 'bell' },
     ],
   },
-  { label: 'Conta', items: [{ label: 'Meu perfil', href: '/perfil', permission: 'conversation.read', icon: 'user' }, { label: 'Treinamento', href: '/treinamento', icon: 'cap' }] },
+  { label: 'Conta', items: [{ label: 'Meu perfil', href: '/perfil', permission: 'conversation.read', icon: 'user' }, { label: 'Configurar IA', href: '/configurar-ia', permission: 'conversation.read', icon: 'bot' }, { label: 'Vídeos do Instagram', href: '/instagram-videos', permission: 'conversation.read', icon: 'megaphone' }, { label: 'Treinamento', href: '/treinamento', icon: 'cap' }] },
 ];
 
 /** Tela inicial do usuário: a primeira do menu que o perfil pode ver (consultor não vê o Dashboard). */
@@ -182,6 +182,8 @@ export const CONSULTANT_NAV: NavGroup[] = [
       { label: 'Tarefas', href: '/tarefas', permission: 'task.read', icon: 'check' },
       { label: 'Prospectar no Google', href: '/empresas', permission: 'prospecting.read', icon: 'building' },
       { label: 'Treinamento', href: '/treinamento', icon: 'cap' },
+      { label: 'Vídeos do Instagram', href: '/instagram-videos', icon: 'megaphone' },
+      { label: 'Configurar IA', href: '/configurar-ia', icon: 'bot' },
       { label: 'Meu perfil', href: '/perfil', icon: 'user' },
     ],
   },

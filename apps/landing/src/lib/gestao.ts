@@ -1,6 +1,7 @@
 import 'server-only';
 
 // Cliente do SISTEMA DE GESTÃO. Roda só no servidor: a API key nunca chega ao navegador.
+import { scrubDeep } from './brand-mode';
 
 export interface SiteProduct {
   key: string;
@@ -64,7 +65,8 @@ async function call<T>(subdomain: string | null, path: string, init: { method?: 
   }
   const json = (await res.json().catch(() => ({}))) as { data?: T; error?: { message?: string } };
   if (!res.ok) throw new GestaoError(json.error?.message ?? 'Não foi possível concluir. Tente novamente.', res.status);
-  return json.data as T;
+  // Prévia: nenhum texto vindo do sistema (títulos, FAQ, respostas do assistente) mostra o nome da administradora.
+  return scrubDeep(json.data as T);
 }
 
 export const gestao = {
@@ -74,7 +76,7 @@ export const gestao = {
   site: (subdomain: string) => call<Site>(subdomain, '', { revalidate: 60 }),
   track: (subdomain: string, body: unknown) => call<{ sessionKey: string; channel: string }>(subdomain, '/track', { body }),
   simulate: (subdomain: string, body: unknown) =>
-    call<{ simulationId: string; heat: 'FRIO'; result: { value: number; options: { termMonths: number; installment: number; basis: string }[]; disclaimer: string } }>(subdomain, '/simulate', { body }),
+    call<{ simulationId: string; heat: 'FRIO'; result: { value: number; options: { termMonths: number; installment: number; basis: string }[]; disclaimer: string; officialRange?: { creditMin: number; creditMax: number; installmentMin: number; installmentMax: number } } }>(subdomain, '/simulate', { body }),
   interest: (subdomain: string, body: unknown) => call<{ protocol: string; heat: 'MORNO' | 'QUENTE'; chatToken: string; whatsappUrl: string | null }>(subdomain, '/interest', { body }),
   /** Bot do visitante anônimo (FRIO). */
   visitorChat: (subdomain: string, body: unknown) => call<{ reply: string; suggestInterest: boolean }>(subdomain, '/chat', { body }),
@@ -89,6 +91,6 @@ export const gestao = {
     }
     const json = (await res.json().catch(() => ({}))) as { data?: { mode: string; messages: { id: string; from: 'me' | 'bot' | 'human'; name: string | null; text: string }[] }; error?: { message?: string } };
     if (!res.ok) throw new GestaoError(json.error?.message ?? 'Não foi possível enviar.', res.status);
-    return json.data!;
+    return scrubDeep(json.data!);
   },
 };

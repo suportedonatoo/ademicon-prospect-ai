@@ -86,7 +86,7 @@ export function Shell({ nav, user, appName, actions, children }: { nav: NavGroup
                 input.value = '';
               }}
             >
-              <input name="q" aria-label="Pergunte sobre seus leads" placeholder="Pergunte sobre seus leads…" className="w-full h-9 rounded-xl border border-line bg-white pl-3 pr-8 text-[13px] placeholder:text-faint focus:outline-none focus:border-brand-500" />
+              <input name="q" aria-label="Pergunte sobre seus leads" placeholder="Busque ou peça: agenda com Maria amanhã 15h" className="w-full h-9 rounded-xl border border-line bg-white pl-3 pr-8 text-[13px] placeholder:text-faint focus:outline-none focus:border-brand-500" />
               <button className="absolute right-2 top-1/2 -translate-y-1/2 text-brand-500" aria-label="Perguntar">
                 <Icon name="send" className="size-3.5" />
               </button>

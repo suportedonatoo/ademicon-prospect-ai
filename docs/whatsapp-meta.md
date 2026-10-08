@@ -41,7 +41,15 @@
    - **ID da conta WhatsApp Business (WABA):** o do passo 3.
 
    Clique em **Testar conexão**. O resultado deve dizer "Conta conectada".
-9. **WhatsApp → Números → Novo número:**
+9. **WhatsApp → Números → Conexão com a Meta.** Esse painel faz pelo sistema o que antes era feito no painel da Meta:
+   - mostra o que falta: token, WABA, App Secret e token do webhook;
+   - **Inscrever agora:** inscreve o app na conta. Sem isso, as mensagens recebidas não chegam;
+   - **Importar números da Meta:** traz todos os números da conta já com o *phone_number_id*. Número já cadastrado com o mesmo telefone só ganha o ID; número novo entra como número da operação, e depois dá para passar a um consultor em *Editar*;
+   - **Registrar** (com o PIN de 6 dígitos): liga na API o número que ainda não está registrado.
+
+   Se preferir cadastrar à mão, siga o passo abaixo.
+
+   **WhatsApp → Números → Novo número:**
    - **Nome:** "Bot do piloto".
    - **Telefone:** o chip, com DDI.
    - **Finalidade:** *Prospect Agent*.

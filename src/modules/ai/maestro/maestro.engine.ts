@@ -21,6 +21,7 @@ import { estimateCostMicros } from '../cost';
 import { activePromptVersion } from '../prompt-versions.service';
 import { assessConfidence } from '../confidence';
 import { consultantPersona } from '../consultant-persona';
+import { handleSchedulingTurn } from '../../calendar/scheduling.service';
 
 /**
  * MaestroEngine
@@ -76,6 +77,14 @@ export async function receiveInboundMessage(orgId: string, conversationId: strin
       await notifyConsultant(orgId, conversation.assignedConsultantId, { type: 'conversation.message', priority: 'HIGH', title: `Nova mensagem de ${lead.name}`, body: text.slice(0, 120), link: `/conversas?c=${conversationId}`, entityType: 'Lead', entityId: lead.id, dedupeKey: `msg:${message.id}` });
     }
     return { conversationId, reply: null, agentKey: null, handoff: false, executionId: null, skipped: 'Consultor ativo — IA pausada' } satisfies MaestroResult;
+  }
+  // Pedido de reunião (ou escolha de um horário oferecido): a agenda responde e marca sozinha.
+  if (!lead.optOut) {
+    const sched = await handleSchedulingTurn(orgId, conversationId, text).catch((e) => {
+      logger.error('scheduling.failed', { conversationId, error: String(e) });
+      return { handled: false } as { handled: boolean; booked?: boolean };
+    });
+    if (sched.handled) return { conversationId, reply: null, agentKey: null, handoff: false, executionId: null, skipped: sched.booked ? 'Reunião marcada' : 'Horários oferecidos' } satisfies MaestroResult;
   }
   return runTurn(orgId, conversationId, text);
 }

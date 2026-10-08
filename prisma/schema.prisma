@@ -203,6 +203,11 @@ model Consultant {
   instagramUsername    String?
   instagramTokenEnc    String?
   instagramTokenExpiresAt DateTime?
+  /// Resposta automática a comentários: { enabled, keywords[], message, publicReply, imageKey } — vazio = desligada
+  instagramAutoDm      Json     @default("{}")
+  /// Google Agenda do consultor (OAuth): refresh token criptografado e a conta conectada
+  googleCalendarTokenEnc String?
+  googleCalendarEmail    String?
   /// Link próprio do consultor (para a bio): <landingSlug>.<domínio>. Página idêntica à da Ademicon;
   /// quem chega por ele e deixa contato vira lead DESTE consultor.
   landingSlug          String?  @unique
@@ -745,6 +750,8 @@ model Conversation {
   botState             String   @default("ACTIVE") // ACTIVE | PAUSED
   currentAgent         String? // PROSPECT | QUALIFICATION
   assignedConsultantId String?
+  /// Agendamento em andamento com a IA: { offered: [ISO], offeredAt, mode }
+  scheduling           Json     @default("{}")
   lastMessageAt        DateTime @default(now())
   createdAt            DateTime @default(now())
   updatedAt            DateTime @updatedAt
@@ -1924,4 +1931,76 @@ model TrackedLink {
   createdAt      DateTime @default(now())
 
   @@index([organizationId, consultantId])
+}
+
+/// Comentário no Instagram que recebeu (ou não) a mensagem automática no Direct.
+/// Uma resposta por comentário (regra da Meta) e, no máximo, uma por pessoa por conta a cada 30 dias.
+model InstagramCommentDm {
+  id                String    @id @default(cuid())
+  organizationId    String
+  consultantId      String?
+  accountId         String
+  commentId         String    @unique
+  commenterId       String
+  commenterUsername String?
+  mediaId           String?
+  commentText       String
+  keyword           String?
+  /// Regra do vídeo que disparou (null = resposta automática geral do consultor)
+  ruleId            String?
+  status            String // SENT | SIMULATED | FAILED | SKIPPED_REPEAT
+  error             String?
+  leadId            String?
+  photoSentAt       DateTime?
+  createdAt         DateTime  @default(now())
+
+  @@index([accountId, commenterId, createdAt])
+  @@index([organizationId, createdAt])
+}
+
+/// Reunião marcada com o cliente (pela IA, pelo Maestro ou pelo consultor). Vai para o Google Agenda do consultor quando conectado.
+model Meeting {
+  id             String    @id @default(cuid())
+  organizationId String
+  consultantId   String
+  leadId         String
+  conversationId String?
+  taskId         String?
+  startAt        DateTime
+  endAt          DateTime
+  mode           String // ONLINE | PRESENCIAL | LIGACAO
+  location       String?
+  googleEventId  String?
+  meetLink       String?
+  htmlLink       String?
+  status         String    @default("SCHEDULED") // SCHEDULED | CANCELED
+  createdBy      String // AI | MAESTRO | MANUAL
+  createdAt      DateTime  @default(now())
+
+  @@index([consultantId, startAt])
+  @@index([leadId])
+}
+
+/// Vídeo/post com palavra-chave: quem comentar a palavra naquele post recebe a mensagem escolhida no Direct
+/// e uma resposta pública no comentário. Uma regra por post, por consultor.
+model InstagramPostRule {
+  id             String   @id @default(cuid())
+  organizationId String
+  consultantId   String
+  postUrl        String
+  shortcode      String
+  mediaId        String?
+  caption        String?
+  thumbnailUrl   String?
+  keywords       Json     @default("[]")
+  message        String
+  publicReply    String
+  /// Até 3 fotos (chaves no storage). Vazio = só mensagem. Vão quando a pessoa responde (regra da Meta).
+  imageKeys      Json     @default("[]")
+  active         Boolean  @default(true)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@unique([consultantId, shortcode])
+  @@index([mediaId])
 }

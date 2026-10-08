@@ -98,6 +98,16 @@ export const CREDENTIAL_GROUPS: CredentialGroup[] = [
     ],
   },
   {
+    id: 'google-calendar',
+    title: 'Google Agenda (reuniões dos consultores)',
+    description: 'Cada consultor conecta a própria agenda em Configurar IA. A IA e o Maestro marcam reuniões nela e mandam a confirmação ao cliente. Sem isso, a reunião vira só tarefa no sistema.',
+    docs: 'https://developers.google.com/calendar/api/guides/overview',
+    fields: [
+      { key: 'GOOGLE_CLIENT_ID', label: 'OAuth Client ID', secret: false, hint: 'Google Cloud → APIs e serviços → Credenciais → ID do cliente OAuth (aplicativo da Web)' },
+      { key: 'GOOGLE_CLIENT_SECRET', label: 'OAuth Client Secret', secret: true },
+    ],
+  },
+  {
     id: 'maps',
     title: 'Mapas e Cadastro de Empresas (prospecção)',
     description: 'Busca de empresas por categoria e cidade (Google Maps / Bing Maps) e consulta de CNPJ (Receita Federal via BrasilAPI — pública, sem chave).',

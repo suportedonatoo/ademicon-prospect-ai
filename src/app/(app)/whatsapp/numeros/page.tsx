@@ -9,6 +9,7 @@ import { Badge, Card, Notice, PageHeader } from '@/components/ui';
 import { ActionButton } from '@/components/client';
 import { formatPhone } from '@/lib/normalize';
 import { NumberForm } from './number-form';
+import { MetaSetup } from './meta-setup';
 
 export const metadata = { title: 'Números de WhatsApp' };
 
@@ -40,6 +41,7 @@ export default async function NumbersPage() {
           nenhuma mensagem sai da plataforma. Webhook de entrada: <code className="text-xs">POST {env.APP_URL}/api/v1/webhooks/inbound/whatsapp?org=demo</code> com {'{ from, to, text }'}. Sem mecanismos de burla de limites, mascaramento de origem ou envio indiscriminado.
         </Notice>
       )}
+      {canConfig && <MetaSetup />}
       {canConfig && short.length > 0 && (
         <Notice tone="amber" title={`${short.length} consultor(es) com menos de ${BACKUP_RECOMMENDED} números:`}>
           sem número de backup, as conversas param se o número cair. {short.slice(0, 8).map((c) => `${c.name} (${byConsultant.get(c.id)?.length ?? 0})`).join(', ')}

@@ -1,7 +1,8 @@
 import { brl } from '@/lib/format';
 import { productLabel, sourceLabel } from '@/modules/leads/catalog';
 import { asksIfBot, detectIntent, extractSlots, isOptOut, isQuestion, wantsHuman } from '../nlu';
-import type { AgentTurnInput, AgentTurnOutput, AIProvider, KnowledgeSnippet, SummaryInput } from './types';
+import type { AgentTurnInput, AgentTurnOutput, AIProvider, KnowledgeSnippet, IdeasInput, SummaryInput } from './types';
+import { templateIdeas } from './ideas';
 import { firstName } from '@/lib/normalize';
 
 // MockAIProvider — sem LLM. Conversa natural baseada em regras + Knowledge Base.
@@ -185,6 +186,10 @@ export class MockAIProvider implements AIProvider {
       knowledgeGap: gap,
       usedKnowledgeIds: used,
     };
+  }
+
+  async ideas(input: IdeasInput): Promise<string[]> {
+    return templateIdeas(input.count, input.exclude);
   }
 
   async summarize({ lead, history }: SummaryInput): Promise<string> {

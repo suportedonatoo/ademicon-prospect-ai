@@ -185,7 +185,7 @@ async function main() {
   for (const s of C.SIMULATORS) {
     sims[s.slug] = (
       await db.simulator.create({
-        data: { organizationId: org.id, name: s.name, slug: s.slug, products: s.products, requiredFields: s.required, parametersVerified: false, disclaimer: C.SIMULATOR_DISCLAIMER },
+        data: { organizationId: org.id, name: s.name, slug: s.slug, products: s.products as object, requiredFields: s.required, parametersVerified: false, disclaimer: C.SIMULATOR_DISCLAIMER },
       })
     ).id;
   }
@@ -563,6 +563,12 @@ async function main() {
 
   console.log('› V2: Knowledge Base, lacunas, automações, sinais, intenções, perdas, saúde, duplicidades, playbooks, AI Lab, experimentos, NBA e insights…');
   await seedV2(db, org.id, faker);
+
+  // Simuladores: limites de crédito e parcela = faixas oficiais da Ademicon (sem tabela de parcelas estimada).
+  const { withOfficialRanges } = await import('../src/modules/simulators/ademicon-official');
+  for (const sim of await db.simulator.findMany({ select: { id: true, products: true } })) {
+    await db.simulator.update({ where: { id: sim.id }, data: { products: withOfficialRanges(sim.products as never) as object } });
+  }
 
   // Kit de divulgação: modelos de exemplo, NÃO aprovados (a gestão revisa antes de liberar).
   const { ensureExampleTemplates } = await import('../src/modules/outreach/outreach.service');

@@ -29,7 +29,7 @@ import { findOrCreateOpenConversation } from '../conversations/conversation.serv
 
 const base = () => `https://graph.facebook.com/${env.META_API_VERSION}`;
 export const instagramConfigured = () => !!env.INSTAGRAM_ACCESS_TOKEN;
-const igBase = () => `https://graph.instagram.com/${env.META_API_VERSION}`;
+export const igBase = () => `https://graph.instagram.com/${env.META_API_VERSION}`;
 /** Login do Instagram disponível (cada consultor conecta a própria conta)? */
 export const instagramConnectConfigured = () => !!(env.INSTAGRAM_APP_ID && env.INSTAGRAM_APP_SECRET);
 const identityValue = (externalId: string) => `INSTAGRAM:${externalId}`;
@@ -81,7 +81,7 @@ export function instagramAuthorizeUrl(consultantId: string) {
     client_id: env.INSTAGRAM_APP_ID!,
     redirect_uri: REDIRECT(),
     response_type: 'code',
-    scope: 'instagram_business_basic,instagram_business_manage_messages',
+    scope: 'instagram_business_basic,instagram_business_manage_messages,instagram_business_manage_comments',
     state: `${payload}.${sign(payload)}`,
   });
   return `https://www.instagram.com/oauth/authorize?${q}`;
@@ -144,7 +144,7 @@ async function saveInstagramAccount(consultantId: string, token: string, expires
   const other = await db.consultant.findFirst({ where: { instagramAccountId: accountId, NOT: { id: consultantId } }, select: { name: true } });
   if (other) throw Conflict(`Esta conta do Instagram já está conectada a ${other.name}.`);
   // Sem esta assinatura a Meta não entrega as mensagens da conta ao nosso webhook.
-  await igJson(`${igBase()}/me/subscribed_apps?subscribed_fields=messages`, { method: 'POST', headers: { authorization: `Bearer ${token}` } });
+  await igJson(`${igBase()}/me/subscribed_apps?subscribed_fields=messages,comments`, { method: 'POST', headers: { authorization: `Bearer ${token}` } });
 
   const username = me.username ? String(me.username) : null;
   await db.consultant.update({
@@ -167,11 +167,11 @@ export async function disconnectInstagram(ctx: Ctx, consultantId?: string | null
   await db.consultant.updateMany({ where: { id, organizationId: ctx.orgId }, data: { instagramAccountId: null, instagramUsername: null, instagramTokenEnc: null, instagramTokenExpiresAt: null } });
 }
 
-type Owner = { id: string; instagramAccountId: string | null; instagramTokenEnc: string | null; instagramTokenExpiresAt: Date | null };
-const OWNER_SELECT = { id: true, instagramAccountId: true, instagramTokenEnc: true, instagramTokenExpiresAt: true } as const;
+export type Owner = { id: string; instagramAccountId: string | null; instagramTokenEnc: string | null; instagramTokenExpiresAt: Date | null };
+export const OWNER_SELECT = { id: true, instagramAccountId: true, instagramTokenEnc: true, instagramTokenExpiresAt: true } as const;
 
 /** Token do consultor; renova quando faltam menos de 10 dias (o token dura 60 e só renova depois de 24 h de uso). */
-async function ownerToken(o: Owner): Promise<string | null> {
+export async function ownerToken(o: Owner): Promise<string | null> {
   const token = o.instagramTokenEnc ? decryptSecret(o.instagramTokenEnc) : null;
   if (!token) return null;
   if (o.instagramTokenExpiresAt && o.instagramTokenExpiresAt.getTime() - Date.now() < 10 * 86400_000) {
@@ -219,6 +219,11 @@ export async function receiveInstagram(orgSlug: string | null, body: IgWebhook) 
     }
     const lead = await db.lead.findUniqueOrThrow({ where: { id: identity.leadId }, select: { id: true, consultantId: true } });
     const { conversation } = await findOrCreateOpenConversation(org.id, lead.id, 'INSTAGRAM', { currentAgent: 'PROSPECT', assignedConsultantId: lead.consultantId });
+    // Veio de um comentário com palavra-chave? A resposta da pessoa libera o envio da foto de apresentação.
+    if (owner?.instagramAccountId) {
+      const { sendPendingPhoto } = await import('./comment-dm.service');
+      await sendPendingPhoto(org.id, owner.instagramAccountId, ev.igsid, conversation.id).catch((e) => logger.warn('instagram.photo_failed', { error: String(e) }));
+    }
     await enqueue('ai.respond', { orgId: org.id, conversationId: conversation.id, text: ev.text, externalId: ev.externalId });
     results.push({ leadId: lead.id, conversationId: conversation.id });
   }

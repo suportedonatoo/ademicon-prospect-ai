@@ -6,7 +6,8 @@ import * as z from 'zod/v4';
 import { productLabel } from '@/modules/leads/catalog';
 import { brl } from '@/lib/format';
 import { MockAIProvider } from './mock.provider';
-import type { AgentTurnInput, AgentTurnOutput, AIProvider, SummaryInput } from './types';
+import type { AgentTurnInput, AgentTurnOutput, AIProvider, IdeasInput, SummaryInput } from './types';
+import { IDEAS_SYSTEM, ideasUserPrompt, parseIdeas, templateIdeas } from './ideas';
 
 // Provider real (Claude). Saída estruturada validada por schema.
 // Em qualquer falha (rede, recusa, parse), cai para o MockAIProvider — a conversa nunca quebra —
@@ -156,6 +157,24 @@ export class AnthropicAIProvider implements AIProvider {
       // LLM FALLBACK: registra que quem respondeu foi o fallback determinístico — e por quê.
       logger.warn('ai.fallback', { model, error: String((e as Error)?.message ?? e).slice(0, 300) });
       return { ...(await this.fallback.generateTurn(i)), modelUsed: 'mock (fallback)', fallback: true };
+    }
+  }
+
+  async ideas(input: IdeasInput): Promise<string[]> {
+    try {
+      const response = await this.client.messages.create({
+        model: this.model,
+        max_tokens: isHaiku(this.model) ? 1200 : 4000,
+        ...(isHaiku(this.model) ? {} : { output_config: { effort: 'low' as const } }),
+        system: IDEAS_SYSTEM,
+        messages: [{ role: 'user', content: ideasUserPrompt(input) }],
+      });
+      const text = response.content.find((b) => b.type === 'text');
+      const list = text && text.type === 'text' ? parseIdeas(text.text, input.message, input.count).filter((x) => !input.exclude?.includes(x)) : [];
+      return list.length ? list : templateIdeas(input.count, input.exclude);
+    } catch (e) {
+      logger.warn('ai.ideas_fallback', { error: String((e as Error)?.message ?? e).slice(0, 300) });
+      return templateIdeas(input.count, input.exclude);
     }
   }
 

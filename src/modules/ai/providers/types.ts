@@ -78,6 +78,17 @@ export interface AgentTurnOutput {
   fallback?: boolean;
 }
 
+/** Ideias de mensagem (ex.: Direct do Instagram) a partir do texto escrito pelo consultor. */
+export interface IdeasInput {
+  /** Mensagem do consultor */
+  message: string;
+  /** Contexto: post, palavras-chave, nome do consultor */
+  context: string;
+  count: number;
+  /** Ideias já mostradas ("gerar outras"): não repetir */
+  exclude?: string[];
+}
+
 export interface SummaryInput {
   lead: LeadFacts;
   history: ChatTurn[];
@@ -88,5 +99,6 @@ export interface AIProvider {
   model: string;
   generateTurn(input: AgentTurnInput): Promise<AgentTurnOutput>;
   summarize(input: SummaryInput): Promise<string>;
+  ideas(input: IdeasInput): Promise<string[]>;
   healthCheck(): Promise<{ ok: boolean; mode: 'mock' | 'real'; detail: string }>;
 }

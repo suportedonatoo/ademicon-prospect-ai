@@ -119,7 +119,8 @@ export async function getSite(ctx: Ctx, subdomain: string) {
 function planLabel(result: unknown, value: number) {
   const r = (result ?? {}) as { mode?: string; installmentTarget?: number };
   const brl = (n: number) => `R$ ${n.toLocaleString('pt-BR')}`;
-  return r.mode === 'PARCELA' && r.installmentTarget ? `plano por parcela de ${brl(r.installmentTarget)} (carta de referência ${brl(value)})` : `carta de ${brl(value)}`;
+  if (r.mode === 'PARCELA' && r.installmentTarget) return value ? `plano por parcela de ${brl(r.installmentTarget)} (carta de referência ${brl(value)})` : `plano por parcela de ${brl(r.installmentTarget)}`;
+  return `carta de ${brl(value)}`;
 }
 
 /** Unidades com landing no ar (para a página mestre: "Encontre sua unidade"). */
@@ -175,7 +176,7 @@ export async function simulateCold(ctx: Ctx, subdomain: string, raw: unknown) {
     const err = validateInstallment(cfg, installment, simulator.parametersVerified);
     if (err) throw BadRequest(err);
     result = simulateByInstallment(cfg, installment, simulator.parametersVerified, simulator.disclaimer);
-    if (!result.options.length) throw BadRequest('Não há prazo disponível para essa parcela. Ajuste o valor.');
+    if (!result.options.length && !result.officialRange) throw BadRequest('Não há prazo disponível para essa parcela. Ajuste o valor.');
   } else {
     const valueError = validateValue(cfg, Number(input.value));
     if (valueError) throw BadRequest(valueError);
@@ -261,7 +262,7 @@ export async function registerInterest(ctx: Ctx, subdomain: string, raw: unknown
     uf: simulation.uf,
     product: simulation.product,
     objective: simulation.objective,
-    desiredValue: simulation.value,
+    desiredValue: simulation.value || null, // simulação por parcela com faixa oficial não define carta
     term: simulation.termMonths ? `${simulation.termMonths} meses` : null,
     source,
     medium: session?.medium ?? (pj ? 'landing-pj' : consultant ? 'landing-consultor' : 'landing-central'),

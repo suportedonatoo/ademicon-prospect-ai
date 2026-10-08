@@ -20,6 +20,9 @@ export interface PaletteAction {
 type Hit = { type: string; id: string; title: string; subtitle: string; href: string };
 type Group = { type: string; label: string; items: Hit[] };
 
+/** Pedidos ao Maestro (marcar reunião, ver agenda) em vez de busca. */
+const MAESTRO_RE = /\b(agend|marc(a|ar|ue)\b|reuni[aã]o|minhas reuni|minha agenda)/i;
+
 const TYPE_ICON: Record<string, string> = { lead: 'users', company: 'building', opportunity: 'target', conversation: 'chat', campaign: 'megaphone', consultant: 'user', pj: 'building' };
 
 export function CommandPalette({ actions }: { actions: PaletteAction[] }) {
@@ -32,6 +35,21 @@ export function CommandPalette({ actions }: { actions: PaletteAction[] }) {
   const inputRef = useRef<HTMLInputElement>(null);
   const reqId = useRef(0);
   const initial = useRef('');
+  const [maestro, setMaestro] = useState<{ busy: boolean; answer: string | null; ok: boolean }>({ busy: false, answer: null, ok: false });
+  const isCommand = MAESTRO_RE.test(q);
+
+  const askMaestro = useCallback(async () => {
+    const text = q.trim();
+    if (text.length < 3) return;
+    setMaestro({ busy: true, answer: null, ok: false });
+    try {
+      const r = await api<{ ok: boolean; message: string }>('/maestro/command', { body: { text } });
+      setMaestro({ busy: false, answer: r.message, ok: r.ok });
+      if (r.ok) router.refresh();
+    } catch (e) {
+      setMaestro({ busy: false, answer: (e as Error).message, ok: false });
+    }
+  }, [q, router]);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -58,6 +76,7 @@ export function CommandPalette({ actions }: { actions: PaletteAction[] }) {
       initial.current = '';
       setGroups([]);
       setActive(0);
+      setMaestro({ busy: false, answer: null, ok: false });
       setTimeout(() => inputRef.current?.focus(), 10);
     }
   }, [open]);
@@ -120,7 +139,10 @@ export function CommandPalette({ actions }: { actions: PaletteAction[] }) {
                 e.preventDefault();
                 setActive((a) => Math.max(a - 1, 0));
               }
-              if (e.key === 'Enter' && flat[active]) go(flat[active].href);
+              if (e.key === 'Enter' && isCommand) {
+                e.preventDefault();
+                askMaestro();
+              } else if (e.key === 'Enter' && flat[active]) go(flat[active].href);
             }}
             placeholder="Buscar lead, telefone, empresa, oportunidade, campanha… ou digite uma ação"
             className="flex-1 h-14 text-base outline-none bg-transparent"
@@ -133,7 +155,19 @@ export function CommandPalette({ actions }: { actions: PaletteAction[] }) {
           <kbd className="hidden sm:inline text-[11px] text-faint border border-line rounded px-1.5">Esc</kbd>
         </div>
         <div id="palette-results" role="listbox" className="max-h-[60vh] overflow-y-auto scroll-thin py-2">
-          {q.trim().length >= 2 && !loading && !groups.length && <p className="px-4 py-3 text-sm text-muted">Nenhum resultado para “{q.trim()}”.</p>}
+          {isCommand && (
+            <div className="mx-2 mb-2 rounded-2xl bg-slate-50 border border-line p-3">
+              <button type="button" onClick={askMaestro} disabled={maestro.busy} className="w-full flex items-center gap-3 text-left">
+                <span className="size-8 rounded-lg bg-ink grid place-items-center shrink-0"><Icon name="spark" className="size-4 text-lime" /></span>
+                <span className="min-w-0">
+                  <b className="block text-sm font-medium text-ink">{maestro.busy ? 'Maestro trabalhando…' : 'Pedir ao Maestro'}</b>
+                  <small className="block text-xs text-muted truncate">“{q.trim()}” · Enter</small>
+                </span>
+              </button>
+              {maestro.answer && <p className={cx('mt-2 text-sm whitespace-pre-wrap', maestro.ok ? 'text-ok' : 'text-ink-2')}>{maestro.answer}</p>}
+            </div>
+          )}
+          {q.trim().length >= 2 && !loading && !groups.length && !isCommand && <p className="px-4 py-3 text-sm text-muted">Nenhum resultado para “{q.trim()}”.</p>}
           {groups.map((g) => (
             <div key={g.label} className="pb-1">
               <div className="px-4 pt-2 pb-1 text-[10.5px] font-semibold uppercase tracking-wider text-faint">{g.label}</div>

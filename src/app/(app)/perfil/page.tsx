@@ -6,15 +6,13 @@ import { getConsultantProfile, listConsultants } from '@/modules/consultants/con
 import { BACKUP_RECOMMENDED, MAX_NUMBERS_PER_CONSULTANT, MIN_NUMBERS_PER_CONSULTANT, unusableReason } from '@/modules/whatsapp/number-pool';
 import { Badge, Card, Notice, PageHeader, Stat } from '@/components/ui';
 import { formatPhone } from '@/lib/normalize';
-import { AiProfileForm } from './ai-profile-form';
 import { photoUrlFor } from '@/modules/consultants/photo.service';
 import { Avatar } from '@/components/avatar';
 import { PhotoPicker } from '@/components/photo-picker';
 import { PublishLinks } from '@/components/publish-links';
-import { ActionButton } from '@/components/client';
 import { buttonClass } from '@/components/ui';
-import { instagramConnectConfigured } from '@/modules/instagram/instagram.service';
-import { InstagramTokenForm } from './instagram-token-form';
+import { InstagramLogin } from '@/components/instagram-login';
+import { InstagramAutoDmForm } from './instagram-auto-dm-form';
 
 export const metadata = { title: 'Perfil do consultor' };
 
@@ -111,52 +109,29 @@ export default async function ProfilePage({ searchParams }: { searchParams: Prom
         </Card>
 
         <Card title="Instagram" subtitle="As mensagens diretas da sua conta entram no Inbox como leads seus. Uma conta por consultor." className="lg:col-span-2">
-          {sp.instagram === 'ok' && (
-            <div className="mb-3">
-              <Notice tone="green" title="Instagram conectado.">
-                {sp.conta ? `Conta @${sp.conta}. ` : ''}As próximas mensagens diretas já entram no Inbox.
-              </Notice>
-            </div>
+          <InstagramLogin consultantId={c.id} connected={!!c.instagramAccountId} username={c.instagramUsername} canManage={own || ctx.roleKey === 'SUPER_ADMIN'} own={own} next="/perfil" status={sp} />
+          {c.instagramAccountId && (
+            <Link href={own ? '/instagram-videos' : `/instagram-videos?c=${c.id}`} className="inline-block mt-3 text-sm text-brand-600 hover:underline">
+              Vídeos com palavra-chave →
+            </Link>
           )}
-          {sp.instagram === 'erro' && (
-            <div className="mb-3">
-              <Notice tone="red" title="Não foi possível conectar.">
-                {sp.motivo}
-              </Notice>
-            </div>
-          )}
-          <div className="flex flex-wrap items-center gap-3">
-            {c.instagramAccountId ? (
-              <>
-                <Badge tone="green" dot>
-                  Conectado{c.instagramUsername ? ` · @${c.instagramUsername}` : ''}
-                </Badge>
-                {(own || ctx.roleKey === 'SUPER_ADMIN') && (
-                  <ActionButton size="sm" variant="danger" path="/instagram/disconnect" body={{ consultantId: c.id }} confirm="Desconectar o Instagram? As mensagens novas deixam de entrar no Inbox." success="Instagram desconectado.">
-                    Desconectar
-                  </ActionButton>
-                )}
-              </>
-            ) : !instagramConnectConfigured() ? (
-              <span className="text-sm text-muted">Ainda não disponível: a equipe da plataforma precisa preencher o ID e o segredo do app do Instagram em Configurar APIs.</span>
-            ) : own ? (
-              <>
-                <a href="/api/v1/instagram/connect" className={buttonClass('primary')}>
-                  Conectar Instagram
-                </a>
-                <span className="text-sm text-muted">A conta precisa ser profissional (Comercial ou Criador de conteúdo). Você entra com ela e autoriza.</span>
-              </>
-            ) : (
-              <span className="text-sm text-muted">Não conectado. O consultor conecta pelo login dele.</span>
-            )}
-          </div>
-          {!c.instagramAccountId && (own || ctx.roleKey === 'SUPER_ADMIN') && <InstagramTokenForm consultantId={c.id} />}
+          {(own || ctx.roleKey === 'SUPER_ADMIN' || can(ctx, 'consultant.manage')) && <InstagramAutoDmForm consultantId={c.id} consultantName={c.name} />}
         </Card>
 
         <PublishLinks slug={c.landingSlug} own={own} className="lg:col-span-2" />
 
-        <Card title="Minha IA" subtitle="Como o assistente virtual se apresenta e fala com os seus leads. As regras, a Knowledge Base e o supervisor continuam os mesmos.">
-          <AiProfileForm consultantId={c.id} consultantName={c.name} initial={aiProfile} readOnly={!canEditAi} />
+        <Card title="Minha IA" subtitle="Perfil, treinamento (o seu jeito de atender) e as reuniões que a IA marca na sua agenda.">
+          <div className="flex flex-wrap items-center gap-3">
+            <Badge tone={aiProfile.enabled ? 'green' : 'gray'} dot>
+              {aiProfile.enabled ? `IA personalizada${aiProfile.assistantName ? ` · ${aiProfile.assistantName}` : ''}` : 'Padrão da empresa'}
+            </Badge>
+            <Badge tone={c.googleCalendarTokenEnc ? 'green' : 'gray'} dot>
+              {c.googleCalendarTokenEnc ? 'Google Agenda conectado' : 'Google Agenda não conectado'}
+            </Badge>
+          </div>
+          <Link href={own ? '/configurar-ia' : `/configurar-ia?c=${c.id}`} className={buttonClass(canEditAi ? 'primary' : 'secondary') + ' mt-4'}>
+            {canEditAi ? 'Configurar IA →' : 'Ver configuração da IA →'}
+          </Link>
         </Card>
       </div>
     </>

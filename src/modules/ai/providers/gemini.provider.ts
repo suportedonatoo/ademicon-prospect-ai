@@ -1,7 +1,8 @@
 import { logger } from '@/lib/logger';
 import { TurnSchema, systemPrompt } from './anthropic.provider';
 import { MockAIProvider } from './mock.provider';
-import type { AgentTurnInput, AgentTurnOutput, AIProvider, SummaryInput } from './types';
+import type { AgentTurnInput, AgentTurnOutput, AIProvider, IdeasInput, SummaryInput } from './types';
+import { IDEAS_SYSTEM, ideasUserPrompt, parseIdeas, templateIdeas } from './ideas';
 
 // Provider Google Gemini (API REST do AI Studio, sem SDK). Mesmo prompt e mesmo schema do provider Claude.
 // Em qualquer falha (rede, cota do plano gratuito, parse), cai para o MockAIProvider — a conversa nunca quebra.
@@ -114,6 +115,17 @@ export class GeminiAIProvider implements AIProvider {
     } catch (e) {
       logger.warn('ai.fallback', { model, error: String((e as Error)?.message ?? e).slice(0, 300) });
       return { ...(await this.fallback.generateTurn(i)), modelUsed: 'mock (fallback)', fallback: true };
+    }
+  }
+
+  async ideas(input: IdeasInput): Promise<string[]> {
+    try {
+      const r = await this.generate(this.model, IDEAS_SYSTEM, [{ role: 'user', parts: [{ text: ideasUserPrompt(input) }] }], false);
+      const list = parseIdeas(r.text, input.message, input.count).filter((x) => !input.exclude?.includes(x));
+      return list.length ? list : templateIdeas(input.count, input.exclude);
+    } catch (e) {
+      logger.warn('ai.ideas_fallback', { error: String((e as Error)?.message ?? e).slice(0, 300) });
+      return templateIdeas(input.count, input.exclude);
     }
   }
 

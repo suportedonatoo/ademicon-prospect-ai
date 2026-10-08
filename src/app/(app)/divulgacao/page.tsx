@@ -2,7 +2,8 @@ import { requireCtx } from '@/modules/auth/session';
 import { myOutreach, networkLabel } from '@/modules/outreach/outreach.service';
 import { Card, Notice, PageHeader, Stat, Table, Td, Th } from '@/components/ui';
 import { num } from '@/lib/format';
-import { DailyKit, LinkActions, NewChannel, NewReferral, referralMessage } from './client';
+import { DailyKit, LinkActions, NewChannel, NewReferral } from './client';
+import { referralMessage } from '@/modules/outreach/referral-message';
 
 export const metadata = { title: 'Divulgação' };
 

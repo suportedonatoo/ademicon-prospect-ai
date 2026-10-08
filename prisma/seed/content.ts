@@ -1,6 +1,7 @@
 // Conteúdo estático do seed. TODO fictício / genérico.
 // A Knowledge Base contém apenas conceitos gerais de consórcio (sem taxas, prazos ou condições comerciais)
 // e está marcada como "conteúdo de demonstração — substituir por material oficial".
+import { withOfficialRanges } from '../../src/modules/simulators/ademicon-official';
 
 export const REGIONS = [
   { name: 'Jundiaí e Região', ufs: ['SP'], cities: ['Jundiaí', 'Itupeva', 'Várzea Paulista', 'Campo Limpo Paulista', 'Louveira', 'Cabreúva'] },
@@ -200,13 +201,17 @@ export const LANDINGS = [
   { slug: 'sao-paulo-veiculos', name: 'São Paulo · Veículos', product: 'VEICULO', region: 'São Paulo Capital', pj: 'PJ06', title: 'Carro zero ou seminovo sem juros', subtitle: 'Consórcio de veículos na capital.', simulator: 'simulador-veiculo', status: 'DRAFT' },
 ];
 
-const P = {
-  IMOVEL: { key: 'IMOVEL', label: 'Imóvel', termOptions: [120, 180, 200], minValue: 80000, maxValue: 2000000 },
-  VEICULO: { key: 'VEICULO', label: 'Veículo', termOptions: [50, 70, 80], minValue: 30000, maxValue: 400000 },
-  MOTO: { key: 'MOTO', label: 'Moto', termOptions: [36, 50, 60], minValue: 10000, maxValue: 120000 },
-  SERVICOS: { key: 'SERVICOS', label: 'Serviços', termOptions: [24, 36, 40], minValue: 10000, maxValue: 60000 },
-  BENS_MOVEIS: { key: 'BENS_MOVEIS', label: 'Bens Móveis', termOptions: [36, 60, 80], minValue: 20000, maxValue: 500000 },
-};
+// Limites de crédito e parcela = faixas OFICIAIS do simulador público da Ademicon (ademicon-official.ts).
+// Os prazos abaixo não são oficiais e não são usados enquanto houver faixa oficial (o site mostra só as faixas).
+const P = Object.fromEntries(
+  withOfficialRanges([
+    { key: 'IMOVEL', label: 'Imóvel', termOptions: [120, 180, 200], minValue: 80000, maxValue: 2000000 },
+    { key: 'VEICULO', label: 'Veículo', termOptions: [50, 70, 80], minValue: 30000, maxValue: 400000 },
+    { key: 'MOTO', label: 'Moto', termOptions: [36, 50, 60], minValue: 10000, maxValue: 120000 },
+    { key: 'SERVICOS', label: 'Serviços', termOptions: [24, 36, 40], minValue: 10000, maxValue: 60000 },
+    { key: 'BENS_MOVEIS', label: 'Bens Móveis', termOptions: [36, 60, 80], minValue: 20000, maxValue: 500000 },
+  ]).map((p) => [p.key, p]),
+) as Record<'IMOVEL' | 'VEICULO' | 'MOTO' | 'SERVICOS' | 'BENS_MOVEIS', ReturnType<typeof withOfficialRanges>[number]>;
 
 export const SIMULATORS = [
   { slug: 'simulador-imovel', name: 'Simulador Imóvel', products: [P.IMOVEL], required: ['product', 'value', 'name', 'whatsapp', 'city'] },
