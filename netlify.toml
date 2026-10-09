@@ -5,7 +5,8 @@
   publish = ".next"
   # Só publica quando a landing mudou. Cada publicação consome créditos do plano; a maioria
   # dos envios ao repositório mexe apenas no sistema de gestão (que fica na Hostinger).
-  ignore = "git diff --quiet $CACHED_COMMIT_REF $COMMIT_REF -- . ../../netlify.toml"
+  # Na primeira publicação as duas referências são iguais: nesse caso publica sempre.
+  ignore = "[ \"$CACHED_COMMIT_REF\" != \"$COMMIT_REF\" ] && git diff --quiet $CACHED_COMMIT_REF $COMMIT_REF -- . ../../netlify.toml"
 
 [build.environment]
   NODE_VERSION = "22"
