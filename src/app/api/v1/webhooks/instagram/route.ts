@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { publicRoute } from '@/lib/api';
+import { db } from '@/lib/db';
 import { env } from '@/lib/env';
 import { BadRequest } from '@/lib/errors';
 import { receiveInstagram, verifyInstagramSignature } from '@/modules/instagram/instagram.service';
@@ -8,6 +9,19 @@ import { receiveInstagramComments } from '@/modules/instagram/comment-dm.service
 /** GET — verificação do webhook (hub.challenge) com o token de verificação da Meta. */
 export async function GET(req: NextRequest) {
   const p = req.nextUrl.searchParams;
+  // Diagnóstico: registra cada tentativa de verificação da Meta (sem guardar o token), para sabermos
+  // se a chamada chegou e por que foi recusada. Aparece em Integrações → Webhooks.
+  const sent = p.get('hub.verify_token') ?? '';
+  const expected = env.META_VERIFY_TOKEN ?? '';
+  await db.webhook
+    .create({
+      data: {
+        provider: 'instagram-verify',
+        headers: { 'user-agent': req.headers.get('user-agent') ?? '' },
+        payload: { mode: p.get('hub.mode'), hasChallenge: !!p.get('hub.challenge'), tokenSentLength: sent.length, tokenExpectedLength: expected.length, match: !!expected && sent === expected, sentTrimmedMatches: !!expected && sent.trim() === expected },
+      },
+    })
+    .catch(() => undefined);
   if (p.get('hub.mode') === 'subscribe' && env.META_VERIFY_TOKEN && p.get('hub.verify_token') === env.META_VERIFY_TOKEN) {
     return new NextResponse(p.get('hub.challenge') ?? '', { status: 200 });
   }

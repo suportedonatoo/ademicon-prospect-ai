@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { publicRoute } from '@/lib/api';
+import { db } from '@/lib/db';
 import { env, isProduction } from '@/lib/env';
 import { BadRequest } from '@/lib/errors';
 import { receiveWebhook } from '@/modules/whatsapp/whatsapp.service';
@@ -8,6 +9,19 @@ import { assertWebhookAuthentic } from '@/modules/whatsapp/webhook-auth';
 /** GET — verificação de assinatura do webhook (padrão hub.challenge da plataforma oficial). */
 export async function GET(req: NextRequest) {
   const p = req.nextUrl.searchParams;
+  // Diagnóstico: registra cada tentativa de verificação da Meta (sem guardar o token), para sabermos
+  // se a chamada chegou e por que foi recusada. Aparece em Integrações → Webhooks.
+  const sent = p.get('hub.verify_token') ?? '';
+  const expected = env.WHATSAPP_WEBHOOK_VERIFY_TOKEN ?? '';
+  await db.webhook
+    .create({
+      data: {
+        provider: 'whatsapp-verify',
+        headers: { 'user-agent': req.headers.get('user-agent') ?? '' },
+        payload: { mode: p.get('hub.mode'), hasChallenge: !!p.get('hub.challenge'), tokenSentLength: sent.length, tokenExpectedLength: expected.length, match: !!expected && sent === expected, sentTrimmedMatches: !!expected && sent.trim() === expected },
+      },
+    })
+    .catch(() => undefined);
   if (p.get('hub.mode') === 'subscribe' && env.WHATSAPP_WEBHOOK_VERIFY_TOKEN && p.get('hub.verify_token') === env.WHATSAPP_WEBHOOK_VERIFY_TOKEN) {
     return new NextResponse(p.get('hub.challenge') ?? '', { status: 200 });
   }
