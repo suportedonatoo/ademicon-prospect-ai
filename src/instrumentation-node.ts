@@ -33,8 +33,17 @@ if ((process.env.QUEUE_DRIVER ?? 'inline') === 'inline' && process.env.APP_ENV !
 const gc = globalThis as unknown as { __credentials?: boolean };
 if (process.env.APP_ENV !== 'test' && !gc.__credentials) {
   gc.__credentials = true;
-  const load = () => import('./modules/platform/credentials.service').then((m) => m.applyCredentials()).catch(() => undefined);
-  void load();
+  const load = () =>
+    import('./modules/platform/credentials.service')
+      .then((m) => m.applyCredentials())
+      .then(() => true)
+      .catch(() => false);
+  // Logo após subir, o banco pode recusar a conexão: insiste a cada 5 s até a primeira carga dar certo.
+  // Sem isso, webhooks e IA ficariam até 2 minutos sem as chaves depois de cada reinício.
+  const first = async () => {
+    for (let i = 0; i < 60 && !(await load()); i++) await new Promise((r) => setTimeout(r, 5000));
+  };
+  void first();
   setInterval(load, 2 * 60_000).unref();
 }
 

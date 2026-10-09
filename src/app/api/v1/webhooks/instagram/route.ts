@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { publicRoute } from '@/lib/api';
 import { db } from '@/lib/db';
+import { applyCredentials } from '@/modules/platform/credentials.service';
 import { env } from '@/lib/env';
 import { BadRequest } from '@/lib/errors';
 import { receiveInstagram, verifyInstagramSignature } from '@/modules/instagram/instagram.service';
@@ -12,6 +13,8 @@ export async function GET(req: NextRequest) {
   // Diagnóstico: registra cada tentativa de verificação da Meta (sem guardar o token), para sabermos
   // se a chamada chegou e por que foi recusada. Aparece em Integrações → Webhooks.
   const sent = p.get('hub.verify_token') ?? '';
+  // Logo após um reinício as chaves do painel podem ainda não estar em memória: busca no banco antes de recusar.
+  if (sent !== (env.META_VERIFY_TOKEN ?? '')) await applyCredentials().catch(() => undefined);
   const expected = env.META_VERIFY_TOKEN ?? '';
   await db.webhook
     .create({
@@ -34,6 +37,7 @@ export async function GET(req: NextRequest) {
  */
 export const POST = publicRoute({ rate: 600, key: 'ig-webhook' }, async ({ req }) => {
   const raw = await req.text();
+  if (!env.META_APP_SECRET && !env.INSTAGRAM_APP_SECRET) await applyCredentials().catch(() => undefined);
   verifyInstagramSignature(raw, req.headers.get('x-hub-signature-256'));
   let payload: unknown;
   try {

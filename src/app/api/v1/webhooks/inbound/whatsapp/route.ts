@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { publicRoute } from '@/lib/api';
 import { db } from '@/lib/db';
+import { applyCredentials } from '@/modules/platform/credentials.service';
 import { env, isProduction } from '@/lib/env';
 import { BadRequest } from '@/lib/errors';
 import { receiveWebhook } from '@/modules/whatsapp/whatsapp.service';
@@ -12,6 +13,8 @@ export async function GET(req: NextRequest) {
   // Diagnóstico: registra cada tentativa de verificação da Meta (sem guardar o token), para sabermos
   // se a chamada chegou e por que foi recusada. Aparece em Integrações → Webhooks.
   const sent = p.get('hub.verify_token') ?? '';
+  // Logo após um reinício as chaves do painel podem ainda não estar em memória: busca no banco antes de recusar.
+  if (sent !== (env.WHATSAPP_WEBHOOK_VERIFY_TOKEN ?? '')) await applyCredentials().catch(() => undefined);
   const expected = env.WHATSAPP_WEBHOOK_VERIFY_TOKEN ?? '';
   await db.webhook
     .create({
@@ -31,6 +34,7 @@ export async function GET(req: NextRequest) {
 /** POST /api/v1/webhooks/inbound/whatsapp?org=demo — mensagem recebida (assinada). Mock aceita { from, to?, text, profileName? }. */
 export const POST = publicRoute({ rate: 600, key: 'wa-webhook' }, async ({ req }) => {
   const raw = await req.text();
+  if (env.WHATSAPP_PROVIDER === 'mock' || !env.WHATSAPP_APP_SECRET) await applyCredentials().catch(() => undefined);
   assertWebhookAuthentic({ rawBody: raw, signature: req.headers.get('x-hub-signature-256'), appSecret: env.WHATSAPP_APP_SECRET, provider: env.WHATSAPP_PROVIDER, production: isProduction });
   let payload: unknown;
   try {
