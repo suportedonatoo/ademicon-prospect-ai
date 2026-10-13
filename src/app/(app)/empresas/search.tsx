@@ -6,11 +6,12 @@ import { api, toast } from '@/lib/client';
 import { buttonClass } from '@/components/ui';
 import { Field, inputClass } from '@/components/client';
 
-export function SearchCompanies() {
+export function SearchCompanies({ left }: { left: number | null }) {
   const router = useRouter();
   const [busy, setBusy] = useState(false);
   const [f, setF] = useState({ provider: 'google_maps', category: 'Construtoras', city: 'Jundiaí', uf: 'SP', neighborhood: '', radiusKm: '5', cnae: '', size: '', situation: 'ATIVA', limit: '20' });
   const set = (k: string, v: string) => setF((x) => ({ ...x, [k]: v }));
+  if (left === 0) return <p className="text-sm font-medium text-bad">Período de teste atingido: você já usou as 2 buscas disponíveis.</p>;
   return (
     <form
       className="grid sm:grid-cols-3 lg:grid-cols-6 gap-3 items-end"
@@ -19,7 +20,7 @@ export function SearchCompanies() {
         setBusy(true);
         try {
           const res = await api<{ total: number; added: number; mode: string }>('/prospecting', {
-            body: { ...f, neighborhood: f.neighborhood || undefined, cnae: f.cnae || undefined, size: f.size || undefined, situation: f.situation || undefined, radiusKm: Number(f.radiusKm), limit: Number(f.limit) },
+            body: { ...f, neighborhood: f.neighborhood || undefined, cnae: f.cnae || undefined, size: f.size || undefined, situation: f.situation || undefined, radiusKm: Number(f.radiusKm), limit: 20 },
           });
           toast(`${res.total} empresas encontradas (${res.added} novas)${res.mode === 'mock' ? ' · dados fictícios do provider mock' : ''}.`);
           router.refresh();
@@ -73,11 +74,12 @@ export function SearchCompanies() {
         </select>
       </Field>
       <Field label="Limite">
-        <input className={inputClass} type="number" min={1} max={50} value={f.limit} onChange={(e) => set('limit', e.target.value)} />
+        <input className={inputClass} type="number" value={20} readOnly aria-readonly title="Limite fixo de 20 empresas por busca" />
       </Field>
       <button className={buttonClass('primary') + ' h-9'} disabled={busy}>
         {busy ? 'Buscando…' : 'Buscar empresas'}
       </button>
+      {left !== null && <p className="text-xs text-muted sm:col-span-3 lg:col-span-6">Período de teste: {left} de 2 buscas restantes.</p>}
     </form>
   );
 }

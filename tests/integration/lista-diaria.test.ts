@@ -3,7 +3,7 @@ import { db } from '@/lib/db';
 import { env } from '@/lib/env';
 import { createOrg, resetDb, uniquePhone } from '../helpers';
 import { buildDailyLists, DAILY_TARGET, localDay, runDailyListIfDue } from '@/modules/business-prospecting/daily-list.service';
-import { discardProspect, listProspects } from '@/modules/business-prospecting/prospecting.service';
+import { discardProspect, listProspects, searchBusinesses, trialSearchesLeft } from '@/modules/business-prospecting/prospecting.service';
 import { GooglePlacesProvider, googleRequestsLeft } from '@/modules/integrations/maps/maps.provider';
 import { DAILY_LEAD_MAX, filterCandidates } from '@/modules/lead-routing/routing-engine';
 import type { Ctx } from '@/modules/auth/context';
@@ -57,6 +57,16 @@ describe('Lista diária de empresas', () => {
     const other = await db.businessProspect.findFirstOrThrow({ where: { organizationId: A.org.id, assignedConsultantId: null } });
     await discardProspect(consultor, other.id);
     expect((await db.businessProspect.findUniqueOrThrow({ where: { id: other.id } })).status).toBe('NEW');
+  });
+
+  it('busca manual: no máximo 20 empresas por busca e 2 buscas por pessoa (período de teste)', async () => {
+    const q = { provider: 'google_maps', category: 'padarias', city: 'Jundiaí', uf: 'SP' };
+    await expect(searchBusinesses(consultor, { ...q, limit: 50 })).rejects.toThrow(); // acima de 20 não passa
+    expect(await trialSearchesLeft(consultor)).toBe(2);
+    expect((await searchBusinesses(consultor, q)).total).toBeLessThanOrEqual(20);
+    await searchBusinesses(consultor, { ...q, category: 'oficinas' });
+    expect(await trialSearchesLeft(consultor)).toBe(0);
+    await expect(searchBusinesses(consultor, { ...q, category: 'academias' })).rejects.toThrow(/Período de teste atingido/);
   });
 
   it('teto de custo: a requisição que passa do limite diário é recusada ANTES de chamar o Google', async () => {

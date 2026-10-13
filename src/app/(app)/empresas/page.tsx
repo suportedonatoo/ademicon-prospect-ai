@@ -1,6 +1,6 @@
 import { requireCtx } from '@/modules/auth/session';
 import { can } from '@/modules/auth/context';
-import { listProspects } from '@/modules/business-prospecting/prospecting.service';
+import { listProspects, trialSearchesLeft } from '@/modules/business-prospecting/prospecting.service';
 import { Badge, Card, Empty, Notice, PageHeader, Table, Td, Th } from '@/components/ui';
 import { ActionButton, FilterBar, Pagination } from '@/components/client';
 import { formatCnpj, formatPhone } from '@/lib/normalize';
@@ -88,7 +88,7 @@ export default async function EmpresasPage({ searchParams }: { searchParams: Pro
       )}
       {can(ctx, 'prospecting.search') && (
         <Card title="Nova busca" className="mt-4">
-          <SearchCompanies />
+          <SearchCompanies left={await trialSearchesLeft(ctx)} />
         </Card>
       )}
       <Card title="Consultar CNPJ" subtitle="Cadastro Nacional de Empresas — dados públicos da Receita Federal" className="mt-4">

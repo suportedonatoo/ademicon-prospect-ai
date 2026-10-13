@@ -24,7 +24,7 @@ export const searchInput = z.object({
   cnae: z.string().max(20).optional(),
   size: z.string().max(20).optional(),
   situation: z.string().max(20).optional(),
-  limit: z.coerce.number().int().min(1).max(50).default(20),
+  limit: z.coerce.number().int().min(1).max(20).default(20), // 20 = uma requisição paga ao Google
 });
 
 /** Grava a busca e as empresas ainda não coletadas (mesma referência de fonte = mesma empresa). */
@@ -57,9 +57,20 @@ export async function saveSearchResults(orgId: string, provider: { key: string; 
   return { search, added: fresh.length };
 }
 
+/** Período de teste: cada pessoa faz no máximo estas buscas manuais (o Super Admin não tem limite). */
+export const TRIAL_SEARCHES = 2;
+export const TRIAL_OVER = 'Período de teste atingido: você já usou as 2 buscas disponíveis.';
+
+/** Buscas manuais que o usuário ainda pode fazer (null = sem limite). */
+export async function trialSearchesLeft(ctx: Ctx) {
+  if (ctx.roleKey === 'SUPER_ADMIN') return null;
+  return Math.max(0, TRIAL_SEARCHES - (await db.prospectSearch.count({ where: { organizationId: ctx.orgId, createdById: ctx.userId ?? '__none__' } })));
+}
+
 export async function searchBusinesses(ctx: Ctx, raw: unknown) {
   assertCan(ctx, 'prospecting.search');
   const f = searchInput.parse(raw);
+  if ((await trialSearchesLeft(ctx)) === 0) throw BadRequest(TRIAL_OVER);
   const provider = f.provider === 'google_maps' ? providers.googleMaps : f.provider === 'bing_maps' ? providers.bingMaps : providers.companyRegistry;
   const results = 'searchBusinesses' in provider ? await provider.searchBusinesses(f) : await provider.search(f);
   const { search, added } = await saveSearchResults(ctx.orgId, provider, f, results, ctx.userId);
