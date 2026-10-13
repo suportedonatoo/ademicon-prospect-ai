@@ -36,7 +36,7 @@ export function MasterPage({ site, initialProduct, keepQuery = '' }: { site: Sit
       <Tracker site={site.subdomain} />
 
       {/* Cabeçalho */}
-      <header className="sticky top-0 z-30 bg-[#f6f8f3] border-b border-line">
+      <header className="sticky top-0 z-30 bg-white border-b border-line">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
           <a href="#topo" className="flex items-center gap-3 min-w-0" aria-label={pj ? `${brand.name} · ${pj.name}` : brand.name}>
             <BrandLogo name={brand.name} />
@@ -69,7 +69,7 @@ export function MasterPage({ site, initialProduct, keepQuery = '' }: { site: Sit
               {/* eslint-disable-next-line @next/next/no-img-element -- banner oficial configurável (arquivo local ou URL) */}
               <img src={heroImage} alt={site.title} className="block w-full h-auto" />
               <div className="p-5 sm:p-6 flex flex-wrap items-center gap-3">
-                <a href="#simular" className="inline-flex items-center rounded-xl bg-lime text-ink font-semibold px-6 h-12">
+                <a href="#simular" className="inline-flex items-center rounded-xl bg-brand-500 hover:bg-brand-600 text-white font-semibold px-6 h-12">
                   Simular um consórcio
                 </a>
                 <ContactButtons site={site.subdomain} pjName={unitName} contact={contact} variant="dark" size="lg" />
@@ -77,12 +77,12 @@ export function MasterPage({ site, initialProduct, keepQuery = '' }: { site: Sit
             </>
           ) : (
             <>
-              <p className="text-xs font-medium uppercase tracking-[0.1em] text-lime">{pj ? `${pj.name} · ${pj.city}/${pj.uf}` : 'Atendimento online · no Brasil e no exterior'}</p>
+              <p className="text-xs font-medium uppercase tracking-[0.1em] text-brand-500">{pj ? `${pj.name} · ${pj.city}/${pj.uf}` : 'Atendimento online · no Brasil e no exterior'}</p>
               <h1 className="mt-5 text-[34px] sm:text-[46px] font-bold tracking-tight leading-[1.08]">{site.title}</h1>
               <p className="mt-5 text-white/75 text-[17px] max-w-xl">{site.subtitle}</p>
               {pj && pj.citiesServed.length > 1 && <p className="mt-2 text-sm text-white/55">Atendemos {pj.citiesServed.join(', ')}.</p>}
               <div className="mt-7 flex flex-wrap items-center gap-3">
-                <a href="#simular" className="inline-flex items-center rounded-xl bg-lime text-ink font-semibold px-6 h-12">
+                <a href="#simular" className="inline-flex items-center rounded-xl bg-brand-500 hover:bg-brand-600 text-white font-semibold px-6 h-12">
                   Simular um consórcio
                 </a>
                 <ContactButtons site={site.subdomain} pjName={unitName} contact={contact} variant="dark" size="lg" />
@@ -107,12 +107,12 @@ export function MasterPage({ site, initialProduct, keepQuery = '' }: { site: Sit
         ).map(([href, icon, title, text, cta]) => (
           <li key={href}>
             <a href={href} className="flex h-full flex-col rounded-3xl border border-line bg-white p-6 hover:border-brand-200">
-              <span className="grid place-items-center size-10 rounded-xl bg-brand-50 text-brand-700">
+              <span className="grid place-items-center size-10 rounded-xl bg-brand-50 text-brand-500">
                 <Icon name={icon} className="size-5" />
               </span>
               <b className="mt-4 text-[17px]">{title}</b>
               <span className="mt-2 flex-1 text-sm text-muted">{text}</span>
-              <span className="mt-4 text-sm font-medium text-brand-700">{cta} →</span>
+              <span className="mt-4 text-sm font-medium text-brand-600">{cta} →</span>
             </a>
           </li>
         ))}

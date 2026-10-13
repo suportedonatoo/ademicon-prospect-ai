@@ -404,7 +404,7 @@ export function SimulatorFlow({
           {/* honeypot anti-bot: invisível para pessoas */}
           <input tabIndex={-1} autoComplete="off" aria-hidden className="hidden" value={contact.website} onChange={(e) => setContact({ ...contact, website: e.target.value })} />
           <label className="flex gap-2.5 items-start text-[13px] text-ink-2 cursor-pointer">
-            <input type="checkbox" className="mt-0.5 size-4 accent-[#131c17]" checked={contact.consent} onChange={(e) => setContact({ ...contact, consent: e.target.checked })} />
+            <input type="checkbox" className="mt-0.5 size-4 accent-[#e8332a]" checked={contact.consent} onChange={(e) => setContact({ ...contact, consent: e.target.checked })} />
             <span>
               {CONSENT_TEXT(pjName)}
               {privacyUrl && (
