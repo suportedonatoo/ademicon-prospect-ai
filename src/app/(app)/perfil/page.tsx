@@ -45,6 +45,8 @@ export default async function ProfilePage({ searchParams }: { searchParams: Prom
     );
   }
 
+  // Perfil de outro consultor sem permissão: tela "sem acesso" em vez de erro genérico.
+  if (id !== ctx.consultantId && !can(ctx, 'consultant.read')) redirect('/sem-acesso');
   const { consultant: c, aiProfile, stats } = await getConsultantProfile(ctx, id);
   const own = ctx.consultantId === c.id;
   const canEditAi = own || can(ctx, 'consultant.manage');
