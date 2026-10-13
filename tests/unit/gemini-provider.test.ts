@@ -48,10 +48,14 @@ describe('GeminiAIProvider', () => {
     expect(out.reply.length).toBeGreaterThan(0);
   });
 
-  it('healthCheck distingue chave inválida de modelo inexistente', async () => {
-    vi.stubGlobal('fetch', reply(404, {}));
-    expect((await new GeminiAIProvider('k', 'gemini-x').healthCheck()).detail).toMatch(/modelo "gemini-x" não encontrado/);
+  it('healthCheck gera de verdade: acusa modelo descontinuado e chave inválida', async () => {
+    vi.stubGlobal('fetch', reply(404, { error: { message: 'This model is no longer available to new users.' } }));
+    const gone = await new GeminiAIProvider('k', 'gemini-x').healthCheck();
+    expect(gone.ok).toBe(false);
+    expect(gone.detail).toMatch(/no longer available/);
     vi.stubGlobal('fetch', reply(403, {}));
-    expect((await new GeminiAIProvider('k', 'gemini-2.5-flash').healthCheck()).detail).toMatch(/chave inválida/);
+    expect((await new GeminiAIProvider('k', 'gemini-3.5-flash-lite').healthCheck()).detail).toMatch(/chave inválida/);
+    vi.stubGlobal('fetch', reply(200, { candidates: [{ content: { parts: [{ text: 'ok' }] } }], modelVersion: 'gemini-3.5-flash-lite' }));
+    expect((await new GeminiAIProvider('k', 'gemini-3.5-flash-lite').healthCheck()).ok).toBe(true);
   });
 });

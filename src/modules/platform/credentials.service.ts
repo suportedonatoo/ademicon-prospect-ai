@@ -64,7 +64,7 @@ export const CREDENTIAL_GROUPS: CredentialGroup[] = [
       { key: 'AI_PROVIDER', label: 'Modo', secret: false, options: ['mock', 'anthropic', 'gemini'], hint: 'mock = roteiro grátis · anthropic = Claude · gemini = Google (chave do AI Studio)' },
       { key: 'AI_API_KEY', label: 'API key', secret: true },
       { key: 'AI_VISITOR_MODE', label: 'Chat da página (visitante anônimo)', secret: false, options: ['roteiro', 'ia'], hint: 'roteiro = grátis · ia = usa a IA paga também aqui' },
-      { key: 'AI_MODEL', label: 'Modelo', secret: false, hint: 'Gemini: gemini-2.5-flash · Claude: claude-haiku-4-5, claude-sonnet-5-5 ou claude-opus-5-5. O botão Testar conexão confere se o modelo existe.' },
+      { key: 'AI_MODEL', label: 'Modelo', secret: false, hint: 'Gemini: gemini-3.5-flash-lite (rápido e barato) ou gemini-3.8-flash · Claude: claude-haiku-4-5, claude-sonnet-5-5 ou claude-opus-5-5. O botão Testar conexão confere se o modelo existe.' },
     ],
   },
   {

@@ -7,7 +7,7 @@ import { IDEAS_SYSTEM, ideasUserPrompt, parseIdeas, templateIdeas } from './idea
 // Provider Google Gemini (API REST do AI Studio, sem SDK). Mesmo prompt e mesmo schema do provider Claude.
 // Em qualquer falha (rede, cota do plano gratuito, parse), cai para o MockAIProvider — a conversa nunca quebra.
 const BASE = 'https://generativelanguage.googleapis.com/v1beta';
-export const GEMINI_DEFAULT_MODEL = 'gemini-2.5-flash';
+export const GEMINI_DEFAULT_MODEL = 'gemini-3.5-flash-lite';
 
 const nullable = (type: string, extra: object = {}) => ({ type, nullable: true, ...extra });
 /** Mesmo formato do TurnSchema, no dialeto de schema aceito pelo Gemini. */
@@ -63,12 +63,15 @@ export class GeminiAIProvider implements AIProvider {
     return { status: res.status, json: await res.json().catch(() => ({})) };
   }
 
-  /** Confere a chave e o modelo consultando o cadastro do modelo (não gera texto, não gasta cota de geração). */
+  /**
+   * Confere a chave e o modelo GERANDO uma resposta mínima. Só consultar o cadastro do modelo não basta:
+   * o Google mantém modelos descontinuados no cadastro e recusa na hora de gerar.
+   */
   async healthCheck() {
     try {
-      const { status, json } = await this.call(`models/${this.model}`);
-      if (status === 200) return { ok: true, mode: 'real' as const, detail: `Conectado · ${json.displayName ?? this.model}` };
-      const why = status === 400 || status === 401 || status === 403 ? 'chave inválida ou sem permissão' : status === 404 ? `modelo "${this.model}" não encontrado` : (json.error?.message ?? `HTTP ${status}`);
+      const { status, json } = await this.call(`models/${this.model}:generateContent`, { contents: [{ role: 'user', parts: [{ text: 'ok' }] }], generationConfig: { maxOutputTokens: 16 } });
+      if (status === 200) return { ok: true, mode: 'real' as const, detail: `Conectado · ${json.modelVersion ?? this.model}` };
+      const why = status === 401 || status === 403 ? 'chave inválida ou sem permissão' : status === 429 ? 'cota do plano esgotada no momento' : (json.error?.message ?? `HTTP ${status}`);
       return { ok: false, mode: 'real' as const, detail: `Gemini recusou: ${why}` };
     } catch (e) {
       return { ok: false, mode: 'real' as const, detail: `Gemini inacessível: ${String((e as Error).message ?? e)}` };
