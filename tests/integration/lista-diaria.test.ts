@@ -54,7 +54,7 @@ describe('Lista diária de empresas', () => {
   });
 
   it('consultor não descarta empresa que não é dele', async () => {
-    const other = await db.businessProspect.findFirstOrThrow({ where: { organizationId: A.org.id, assignedConsultantId: null } });
+    const other = await db.businessProspect.create({ data: { organizationId: A.org.id, name: 'Empresa De Outro', category: 'padarias', city: 'Jundiaí', uf: 'SP', source: 'teste' } });
     await discardProspect(consultor, other.id);
     expect((await db.businessProspect.findUniqueOrThrow({ where: { id: other.id } })).status).toBe('NEW');
   });

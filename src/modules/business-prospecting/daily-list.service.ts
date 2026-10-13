@@ -14,13 +14,23 @@ export const DAILY_TARGET = 20;
 /** A rotina roda nesta hora (fuso da organização). */
 export const DAILY_HOUR = 7;
 
-// ponytail: segmentos fixos e cidades das PJs ativas. Quando uma região esgotar (a mesma busca devolve
-// sempre as mesmas 60 empresas), o caminho é buscar por bairro e deixar o consultor escolher segmentos.
+// ponytail: segmentos e cidades fixos. Quando esgotar (a mesma busca devolve sempre as mesmas 60
+// empresas), o caminho é buscar por bairro e acrescentar cidades/segmentos aqui.
 const SEGMENTS = [
   'transportadoras', 'construtoras', 'clínicas médicas', 'clínicas odontológicas', 'oficinas mecânicas', 'imobiliárias', 'escritórios de contabilidade',
   'autoescolas', 'locadoras de veículos', 'lojas de materiais de construção', 'distribuidoras', 'indústrias', 'escolas particulares', 'academias',
   'restaurantes', 'supermercados', 'farmácias', 'hotéis e pousadas', 'empresas de logística', 'escritórios de advocacia', 'empresas de engenharia',
   'lojas de autopeças', 'empresas de energia solar', 'pet shops', 'salões de beleza', 'padarias', 'gráficas', 'marmorarias', 'serralherias', 'empresas de segurança',
+];
+
+/** Atendimento sem limite de região: empresas brasileiras, das maiores cidades do país. */
+const CITIES: [string, string][] = [
+  ['São Paulo', 'SP'], ['Rio de Janeiro', 'RJ'], ['Belo Horizonte', 'MG'], ['Brasília', 'DF'], ['Curitiba', 'PR'], ['Porto Alegre', 'RS'], ['Salvador', 'BA'],
+  ['Fortaleza', 'CE'], ['Recife', 'PE'], ['Goiânia', 'GO'], ['Manaus', 'AM'], ['Belém', 'PA'], ['Campinas', 'SP'], ['Florianópolis', 'SC'], ['Vitória', 'ES'],
+  ['Ribeirão Preto', 'SP'], ['São José dos Campos', 'SP'], ['Sorocaba', 'SP'], ['Santos', 'SP'], ['Jundiaí', 'SP'], ['Guarulhos', 'SP'], ['Osasco', 'SP'],
+  ['Santo André', 'SP'], ['São Bernardo do Campo', 'SP'], ['Barueri', 'SP'], ['Joinville', 'SC'], ['Londrina', 'PR'], ['Maringá', 'PR'], ['Uberlândia', 'MG'],
+  ['Juiz de Fora', 'MG'], ['Niterói', 'RJ'], ['Campo Grande', 'MS'], ['Cuiabá', 'MT'], ['Natal', 'RN'], ['João Pessoa', 'PB'], ['Maceió', 'AL'], ['Aracaju', 'SE'],
+  ['São Luís', 'MA'], ['Teresina', 'PI'], ['Caxias do Sul', 'RS'], ['Blumenau', 'SC'],
 ];
 
 /** Dia local (AAAA-MM-DD → Date em UTC, como o Postgres guarda um DATE) e hora local da organização. */
@@ -42,14 +52,14 @@ async function refillPool(orgId: string, need: number) {
   const provider = providers.googleMaps;
   // Sem chave o provedor devolve empresas FICTÍCIAS: nunca entregar isso a consultores de verdade.
   if (provider.mode !== 'real' && isProduction) return { requests: 0, skipped: 'sem chave do Google Maps' };
-  const pjs = await db.pJ.findMany({ where: { organizationId: orgId, active: true }, select: { city: true, uf: true, citiesServed: true } });
-  const cities = [...new Map(pjs.flatMap((p) => [p.city, ...p.citiesServed].map((city) => [`${city}|${p.uf}`, { city, uf: p.uf }] as const))).values()];
-  if (!cities.length) return { requests: 0, skipped: 'nenhuma PJ ativa com cidade' };
-
-  // Combinações segmento × cidade, da menos recentemente buscada para a mais recente.
+  // Combinações segmento × cidade, da menos recentemente buscada para a mais recente. Entre as nunca
+  // buscadas, a ordem é embaralhada (fixa) para a lista do dia misturar segmentos e cidades.
   const done = await db.prospectSearch.findMany({ where: { organizationId: orgId, createdById: null }, select: { filters: true, createdAt: true }, orderBy: { createdAt: 'asc' }, take: 5000 });
   const last = new Map(done.map((s) => [`${(s.filters as { category?: string }).category}|${(s.filters as { city?: string }).city}`, s.createdAt.getTime()]));
-  const combos = SEGMENTS.flatMap((category) => cities.map((c) => ({ category, ...c }))).sort((a, b) => (last.get(`${a.category}|${a.city}`) ?? 0) - (last.get(`${b.category}|${b.city}`) ?? 0));
+  const total = SEGMENTS.length * CITIES.length;
+  const combos = SEGMENTS.flatMap((category, si) => CITIES.map(([city, uf], ci) => ({ category, city, uf, mix: ((si * CITIES.length + ci) * 7919) % total })))
+    .sort((a, b) => (last.get(`${a.category}|${a.city}`) ?? 0) - (last.get(`${b.category}|${b.city}`) ?? 0) || a.mix - b.mix)
+    .map(({ category, city, uf }) => ({ category, city, uf }));
 
   let requests = 0;
   for (const f of combos) {
