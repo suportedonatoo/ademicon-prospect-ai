@@ -40,7 +40,7 @@ export default async function ConfigurarIaPage({ searchParams }: { searchParams:
   }
 
   // Perfil de outro consultor sem permissão: tela "sem acesso" em vez de erro genérico.
-  if (id !== ctx.consultantId && !can(ctx, 'consultant.read')) redirect('/sem-acesso');
+  if (id !== ctx.consultantId && !can(ctx, 'consultant.read')) redirect('/sem-acesso?motivo=perfil');
   const { consultant: c, aiProfile } = await getConsultantProfile(ctx, id);
   const own = ctx.consultantId === c.id;
   const canEdit = own || can(ctx, 'consultant.manage');
