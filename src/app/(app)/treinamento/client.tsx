@@ -1,12 +1,13 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { api, toast } from '@/lib/client';
 import { buttonClass, cx } from '@/components/ui';
 import { Field, Modal, inputClass } from '@/components/client';
 
-type Item = { id: string; title: string; description: string | null; url: string; embed: string | null; category: string; order: number; active: boolean; completed: boolean };
+type Item = { id: string; title: string; description: string | null; url: string; embed: string | null; lesson?: string | null; category: string; order: number; active: boolean; completed: boolean };
 type V = { title: string; description: string; url: string; category: string; order: string; active: boolean };
 
 export function TrainingForm({ item, label }: { item?: Item; label?: string }) {
@@ -69,13 +70,14 @@ export function TrainingForm({ item, label }: { item?: Item; label?: string }) {
   );
 }
 
-export function TrainingCard({ item, superAdmin }: { item: Item; superAdmin: boolean }) {
+/** Marca/desmarca um conteúdo como concluído (cartão da lista e rodapé da aula). */
+export function CompleteButton({ id, completed, size = 'md' }: { id: string; completed: boolean; size?: 'sm' | 'md' }) {
   const router = useRouter();
   const [busy, setBusy] = useState(false);
   const toggle = async () => {
     setBusy(true);
     try {
-      await api(`/training/${item.id}`, { body: { completed: !item.completed } });
+      await api(`/training/${id}`, { body: { completed: !completed } });
       router.refresh();
     } catch (e) {
       toast((e as Error).message, 'error');
@@ -83,6 +85,15 @@ export function TrainingCard({ item, superAdmin }: { item: Item; superAdmin: boo
       setBusy(false);
     }
   };
+  return (
+    <button className={buttonClass(completed ? 'secondary' : 'primary', size)} disabled={busy} onClick={toggle}>
+      {completed ? '✓ Concluído' : 'Marcar como concluído'}
+    </button>
+  );
+}
+
+export function TrainingCard({ item, superAdmin }: { item: Item; superAdmin: boolean }) {
+  const router = useRouter();
   const remove = async () => {
     if (!confirm(`Remover "${item.title}"?`)) return;
     try {
@@ -102,15 +113,18 @@ export function TrainingCard({ item, superAdmin }: { item: Item; superAdmin: boo
       <div className="p-4 flex-1 flex flex-col">
         <b>{item.title}</b>
         {item.description && <p className="text-sm text-muted mt-1 flex-1">{item.description}</p>}
-        {!item.embed && (
-          <a href={item.url} target="_blank" rel="noreferrer" className="text-sm text-brand-600 hover:underline mt-2">
-            Abrir material ↗
-          </a>
-        )}
+        {!item.embed &&
+          (item.lesson ? (
+            <Link href={`/treinamento/aula/${item.lesson}`} className="text-sm text-brand-600 hover:underline mt-2">
+              Abrir aula →
+            </Link>
+          ) : (
+            <a href={item.url} target="_blank" rel="noreferrer" className="text-sm text-brand-600 hover:underline mt-2">
+              Abrir material ↗
+            </a>
+          ))}
         <div className="flex flex-wrap items-center gap-2 mt-3">
-          <button className={buttonClass(item.completed ? 'secondary' : 'primary', 'sm')} disabled={busy} onClick={toggle}>
-            {item.completed ? '✓ Concluído' : 'Marcar como concluído'}
-          </button>
+          <CompleteButton id={item.id} completed={item.completed} size="sm" />
           {!item.active && <span className="text-xs text-muted">não publicado</span>}
           {superAdmin && (
             <>

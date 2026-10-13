@@ -38,7 +38,7 @@ export default async function TrainingPage() {
               .map((i) => (
                 <TrainingCard
                   key={i.id}
-                  item={{ id: i.id, title: i.title, description: i.description, url: i.url, embed: i.embed, category: i.category, order: i.order, active: i.active, completed: !!i.completedAt }}
+                  item={{ id: i.id, title: i.title, description: i.description, url: i.url, embed: i.embed, lesson: i.lesson, category: i.category, order: i.order, active: i.active, completed: !!i.completedAt }}
                   superAdmin={superAdmin}
                 />
               ))}

@@ -1,0 +1,2779 @@
+[
+ {
+  "slug": "00",
+  "code": "",
+  "trail": "Comece aqui",
+  "title": "Treinamento da plataforma",
+  "subtitle": "Como acessar e usar a plataforma no dia a dia — passo a passo, com as telas.",
+  "minutes": 0,
+  "blocks": [
+   {
+    "t": "callout",
+    "kind": "objetivo",
+    "label": "Como fazer",
+    "text": "siga os módulos na ordem. Cada um é curto e termina com um resumo \"Você aprendeu\". Consultores fazem a trilha C; gestores fazem a trilha C e depois a G."
+   },
+   {
+    "t": "index"
+   },
+   {
+    "t": "callout",
+    "kind": "dica",
+    "label": "Dica",
+    "text": "marque cada módulo como concluído na área **Treinamento** da plataforma; a gestão acompanha o progresso da equipe."
+   },
+   {
+    "t": "callout",
+    "kind": "nota",
+    "label": "Dúvidas ou problema de acesso?",
+    "text": "Fale com o gestor da unidade."
+   }
+  ],
+  "learned": []
+ },
+ {
+  "slug": "c01",
+  "code": "C01",
+  "trail": "Trilha do consultor",
+  "title": "Boas-vindas: como a plataforma funciona",
+  "subtitle": "O caminho do cliente do anúncio até a venda, e o seu papel em cada etapa.",
+  "minutes": 6,
+  "blocks": [
+   {
+    "t": "callout",
+    "kind": "objetivo",
+    "label": "Objetivo",
+    "text": "Entender o que a plataforma faz por você e o que continua sendo trabalho seu."
+   },
+   {
+    "t": "h2",
+    "text": "Para que serve"
+   },
+   {
+    "t": "p",
+    "text": "A plataforma junta num só lugar tudo o que acontece com um cliente interessado em consórcio. Ela **capta** quem chega pelo site, pelos anúncios, pelo WhatsApp e pelo Instagram, **conversa** com quem ainda está pesquisando, **separa** quem tem interesse de verdade e **entrega para você** o cliente pronto para a conversa de venda."
+   },
+   {
+    "t": "flow",
+    "items": [
+     "Cliente vê um anúncio ou o seu link",
+     "Simula no site",
+     "Deixa o contato",
+     "Assistente (IA) tira dúvidas",
+     "Lead quente chega para você",
+     "Você negocia e fecha"
+    ]
+   },
+   {
+    "t": "h2",
+    "text": "O que a IA faz e o que é com você"
+   },
+   {
+    "t": "table",
+    "head": [
+     "A IA (assistente virtual)",
+     "Você (consultor)"
+    ],
+    "rows": [
+     [
+      "Responde na hora, 24 h por dia, se apresentando como assistente",
+      "Conversa de venda, proposta e fechamento"
+     ],
+     [
+      "Tira dúvidas comuns (como funciona, lance, contemplação)",
+      "Valores, condições e grupos (sempre pelo material oficial)"
+     ],
+     [
+      "Pergunta o que falta: produto, valor, cidade, prazo",
+      "Relacionamento, confiança e acompanhamento"
+     ],
+     [
+      "Avisa você quando o cliente esquenta",
+      "Registrar tudo na plataforma"
+     ]
+    ]
+   },
+   {
+    "t": "figure",
+    "src": "c01-1.webp",
+    "w": 1440,
+    "h": 900,
+    "title": "A sua tela inicial (Meu painel)",
+    "body": []
+   },
+   {
+    "t": "h2",
+    "text": "Os três tipos de lead"
+   },
+   {
+    "t": "table",
+    "head": [
+     "Temperatura",
+     "O que significa",
+     "O que fazer"
+    ],
+    "rows": [
+     [
+      "🔥 Quente",
+      "Pediu para ser chamado ou mostrou muito interesse",
+      "Atender primeiro, o quanto antes"
+     ],
+     [
+      "Morno",
+      "Deixou contato, ainda decidindo",
+      "Acompanhar; a IA continua conversando"
+     ],
+     [
+      "Frio",
+      "Só pesquisando",
+      "A IA cuida; você é avisado se esquentar"
+     ]
+    ]
+   },
+   {
+    "t": "h2",
+    "text": "Como fazer este treinamento"
+   },
+   {
+    "t": "p",
+    "text": "Faça os módulos **na ordem**. Cada um leva poucos minutos e tem fotos das telas com **quadros vermelhos numerados** mostrando onde clicar; a explicação de cada número fica logo abaixo da foto."
+   }
+  ],
+  "learned": [
+   "A plataforma capta, conversa e separa os clientes.",
+   "Você recebe o lead quente pronto para a venda.",
+   "Quentes primeiro, sempre."
+  ]
+ },
+ {
+  "slug": "c02",
+  "code": "C02",
+  "trail": "Trilha do consultor",
+  "title": "Primeiro acesso",
+  "subtitle": "Entrar na plataforma pelo computador e pelo celular.",
+  "minutes": 4,
+  "blocks": [
+   {
+    "t": "callout",
+    "kind": "objetivo",
+    "label": "Objetivo",
+    "text": "Conseguir entrar na plataforma com o e-mail e a senha provisória."
+   },
+   {
+    "t": "callout",
+    "kind": "dica",
+    "label": "Como ler as fotos",
+    "text": "os quadros **vermelhos numerados** mostram onde clicar; a explicação de cada número está logo abaixo da foto."
+   },
+   {
+    "t": "h2",
+    "text": "Do que você precisa"
+   },
+   {
+    "t": "list",
+    "items": [
+     "**Endereço:** https://stacksolution.com.br",
+     "**Login:** o e-mail que você recebeu do gestor",
+     "**Senha provisória:** recebida por um canal privado",
+     "Computador ou celular com navegador (Chrome, Edge ou Safari). Não precisa instalar nada."
+    ]
+   },
+   {
+    "t": "h2",
+    "text": "Passo a passo"
+   },
+   {
+    "t": "steps",
+    "items": [
+     "Abra o navegador e digite **https://stacksolution.com.br**.",
+     "Digite o seu **e-mail**.",
+     "Digite a **senha provisória**, exatamente como recebeu (maiúsculas e minúsculas contam).",
+     "Clique em **Entrar**."
+    ]
+   },
+   {
+    "t": "figure",
+    "src": "c02-1.webp",
+    "w": 1440,
+    "h": 900,
+    "title": "Tela de login no computador",
+    "body": [
+     {
+      "t": "legend",
+      "items": [
+       "**E-mail** que você recebeu.",
+       "**Senha** provisória.",
+       "Botão **Entrar**."
+      ]
+     }
+    ]
+   },
+   {
+    "t": "figure",
+    "src": "c02-2.webp",
+    "w": 780,
+    "h": 1688,
+    "title": "Tela de login no celular",
+    "body": [
+     {
+      "t": "legend",
+      "items": [
+       "E-mail.",
+       "Senha.",
+       "Entrar."
+      ]
+     }
+    ]
+   },
+   {
+    "t": "callout",
+    "kind": "dica",
+    "label": "Dica",
+    "text": "Salve o endereço nos favoritos do navegador. No celular, coloque o ícone na tela inicial (Módulo C24)."
+   },
+   {
+    "t": "h2",
+    "text": "Se der algum problema"
+   },
+   {
+    "t": "table",
+    "head": [
+     "O que aparece",
+     "O que fazer"
+    ],
+    "rows": [
+     [
+      "\"E-mail ou senha inválidos.\"",
+      "Confira o e-mail e digite a senha de novo, com calma. No celular, cuidado com o corretor que coloca letra maiúscula sozinho."
+     ],
+     [
+      "\"Muitas requisições. Tente novamente em instantes.\"",
+      "Por segurança, depois de 10 tentativas erradas o acesso fica bloqueado por até 15 minutos. Espere e tente de novo."
+     ],
+     [
+      "Esqueci a senha",
+      "Peça ao gestor da unidade uma nova senha provisória."
+     ]
+    ]
+   }
+  ],
+  "learned": [
+   "Endereço, e-mail e senha provisória.",
+   "Funciona no computador e no celular.",
+   "Errou muitas vezes? Espere 15 minutos."
+  ]
+ },
+ {
+  "slug": "c03",
+  "code": "C03",
+  "trail": "Trilha do consultor",
+  "title": "Sua senha e a segurança da conta",
+  "subtitle": "Trocar a senha provisória e cuidar do seu acesso.",
+  "minutes": 4,
+  "blocks": [
+   {
+    "t": "callout",
+    "kind": "objetivo",
+    "label": "Objetivo",
+    "text": "Trocar a senha provisória por uma só sua e saber proteger a conta."
+   },
+   {
+    "t": "h2",
+    "text": "Troque a senha no primeiro acesso"
+   },
+   {
+    "t": "steps",
+    "items": [
+     "Clique no **seu nome**, no canto superior direito.",
+     "Escolha **Trocar senha**.",
+     "Informe a **senha provisória** e crie a **sua** senha (mínimo de 8 caracteres).",
+     "Confirme. Daqui em diante, use só a senha nova."
+    ]
+   },
+   {
+    "t": "h2",
+    "text": "Como criar uma boa senha"
+   },
+   {
+    "t": "list",
+    "items": [
+     "Pelo menos 8 caracteres, misturando letras e números.",
+     "Não use data de nascimento, nome, telefone ou \"123456\".",
+     "Não use a mesma senha do e-mail ou do banco."
+    ]
+   },
+   {
+    "t": "h2",
+    "text": "Cuidados com a conta"
+   },
+   {
+    "t": "list",
+    "items": [
+     "**A senha é pessoal.** Tudo o que é feito com o seu acesso fica registrado no seu nome.",
+     "Em computador que não é seu, clique no seu nome → **Sair** ao terminar.",
+     "Em **Notificações e dispositivos** você vê os aparelhos conectados e pode **encerrar as outras sessões** se perder o celular (Módulo C23)."
+    ]
+   },
+   {
+    "t": "callout",
+    "kind": "atencao",
+    "label": "Atenção",
+    "text": "Ninguém da equipe vai pedir a sua senha por mensagem. Se alguém pedir, não informe e avise o gestor."
+   }
+  ],
+  "learned": [
+   "Troque a senha provisória logo no primeiro acesso.",
+   "Senha forte e só sua.",
+   "Use \"Sair\" em computador compartilhado."
+  ]
+ },
+ {
+  "slug": "c04",
+  "code": "C04",
+  "trail": "Trilha do consultor",
+  "title": "O menu e a barra de cima",
+  "subtitle": "Onde fica cada coisa na plataforma.",
+  "minutes": 6,
+  "blocks": [
+   {
+    "t": "callout",
+    "kind": "objetivo",
+    "label": "Objetivo",
+    "text": "Saber para que serve cada item do menu, a busca, o sino e o menu do seu nome."
+   },
+   {
+    "t": "callout",
+    "kind": "dica",
+    "label": "Como ler as fotos",
+    "text": "os quadros **vermelhos numerados** mostram onde clicar; a explicação de cada número está logo abaixo da foto."
+   },
+   {
+    "t": "h2",
+    "text": "O menu da esquerda"
+   },
+   {
+    "t": "figure",
+    "src": "c04-1.webp",
+    "w": 1440,
+    "h": 900,
+    "title": "Menu do consultor",
+    "body": [
+     {
+      "t": "legend",
+      "items": [
+       "**Meu painel**: seus números e os leads separados por temperatura. Comece sempre por aqui.",
+       "**Divulgação (kit do dia)**: textos prontos para postar com o seu link.",
+       "**Inbox (WhatsApp e Instagram)**: todas as conversas, num só lugar.",
+       "**Meus leads**: a lista completa, com busca e filtros.",
+       "**Minhas vendas (pipeline)**: o funil de vendas.",
+       "**Tarefas**: seus compromissos com os clientes.",
+       "**Prospectar no Google**: busca de empresas para abordagem ativa.",
+       "**Treinamento**: estes materiais e os vídeos da equipe.",
+       "**Meu perfil**: foto, números, links e o seu assistente."
+      ]
+     }
+    ]
+   },
+   {
+    "t": "h2",
+    "text": "A barra de cima"
+   },
+   {
+    "t": "figure",
+    "src": "c04-2.webp",
+    "w": 1440,
+    "h": 900,
+    "title": "Busca, avisos e o seu nome",
+    "body": [
+     {
+      "t": "legend",
+      "items": [
+       "**Busca** (atalho **Ctrl + K**).",
+       "**Sino**: os seus avisos; o número mostra os não lidos.",
+       "**Seu nome**: abre o seu menu pessoal."
+      ]
+     }
+    ]
+   },
+   {
+    "t": "figure",
+    "src": "c04-3.webp",
+    "w": 1440,
+    "h": 900,
+    "title": "Buscando um cliente",
+    "body": [
+     {
+      "t": "legend",
+      "items": [
+       "Digite parte do nome, telefone ou e-mail. Os resultados aparecem enquanto você digita; clique para abrir."
+      ]
+     }
+    ]
+   },
+   {
+    "t": "figure",
+    "src": "c04-4.webp",
+    "w": 1440,
+    "h": 900,
+    "title": "O menu do seu nome",
+    "body": [
+     {
+      "t": "legend",
+      "items": [
+       "**Notificações e dispositivos**: onde receber avisos e aparelhos conectados.",
+       "**Sair**: encerra o acesso."
+      ]
+     }
+    ]
+   },
+   {
+    "t": "callout",
+    "kind": "dica",
+    "label": "Dica",
+    "text": "Na versão no ar, esse menu também tem **Trocar senha** (Módulo C03)."
+   }
+  ],
+  "learned": [
+   "Menu da esquerda = áreas do trabalho.",
+   "Ctrl + K busca qualquer cliente.",
+   "O sino mostra o que precisa da sua atenção."
+  ]
+ },
+ {
+  "slug": "c05",
+  "code": "C05",
+  "trail": "Trilha do consultor",
+  "title": "Meu painel: seus números",
+  "subtitle": "Ler os indicadores do período.",
+  "minutes": 5,
+  "blocks": [
+   {
+    "t": "callout",
+    "kind": "objetivo",
+    "label": "Objetivo",
+    "text": "Entender cada número do painel e acompanhar o seu resultado."
+   },
+   {
+    "t": "callout",
+    "kind": "dica",
+    "label": "Como ler as fotos",
+    "text": "os quadros **vermelhos numerados** mostram onde clicar; a explicação de cada número está logo abaixo da foto."
+   },
+   {
+    "t": "figure",
+    "src": "c05-1.webp",
+    "w": 1440,
+    "h": 900,
+    "title": "Os números do painel",
+    "body": [
+     {
+      "t": "legend",
+      "items": [
+       "**Leads recebidos**: quantos clientes chegaram para você no período. Embaixo aparece quantos vieram **pelo seu link**.",
+       "**Em aberto**: quantos estão em atendimento com você e quantos estão **sem contato ainda** (prioridade!).",
+       "**Vendas**: quantas vendas fechou e o valor vendido.",
+       "**Minha conversão (CVR)**: vendas ÷ leads recebidos. É o número que mostra o seu resultado.",
+       "**CVR no mês** e **tempo de resposta**: quanto você converte no mês e quanto demora para responder.",
+       "**Período**: Hoje, 7 dias, 30 dias ou Este mês. Todos os números mudam juntos."
+      ]
+     }
+    ]
+   },
+   {
+    "t": "h2",
+    "text": "De onde vêm os seus leads"
+   },
+   {
+    "t": "list",
+    "items": [
+     "**Divisão igual**: leads do site mestre e de anúncios gerais, divididos igualmente entre todos.",
+     "**Seu link próprio** e **indicações**: são só seus (Módulos C16 a C19).",
+     "**Anúncios que você pagou** (sozinho ou em grupo): só para quem pagou."
+    ]
+   },
+   {
+    "t": "callout",
+    "kind": "dica",
+    "label": "Dica",
+    "text": "Quer receber mais? Divulgue o seu link todo dia e peça indicações. A divisão igual é a base; o que você traz sozinho é extra."
+   },
+   {
+    "t": "h2",
+    "text": "Tempo de resposta"
+   },
+   {
+    "t": "p",
+    "text": "Cliente quente esfria rápido. Quanto **menor** o seu tempo de resposta, maior a chance de venda. A gestão acompanha esse número."
+   }
+  ],
+  "learned": [
+   "CVR = vendas ÷ leads recebidos.",
+   "\"Sem contato ainda\" é prioridade.",
+   "O que você traz sozinho é extra."
+  ]
+ },
+ {
+  "slug": "c06",
+  "code": "C06",
+  "trail": "Trilha do consultor",
+  "title": "Meu painel: quentes, mornos e frios",
+  "subtitle": "Por qual cliente começar.",
+  "minutes": 5,
+  "blocks": [
+   {
+    "t": "callout",
+    "kind": "objetivo",
+    "label": "Objetivo",
+    "text": "Saber priorizar os leads pela temperatura."
+   },
+   {
+    "t": "callout",
+    "kind": "dica",
+    "label": "Como ler as fotos",
+    "text": "os quadros **vermelhos numerados** mostram onde clicar; a explicação de cada número está logo abaixo da foto."
+   },
+   {
+    "t": "figure",
+    "src": "c06-1.webp",
+    "w": 1440,
+    "h": 900,
+    "title": "As três colunas",
+    "body": [
+     {
+      "t": "legend",
+      "items": [
+       "🔥 **Quentes**: atender primeiro.",
+       "**Mornos**: acompanhar.",
+       "**Frios**: a IA cuida; você é avisado se esquentar."
+      ]
+     }
+    ]
+   },
+   {
+    "t": "figure",
+    "src": "c06-2.webp",
+    "w": 1440,
+    "h": 900,
+    "title": "O que aparece em cada lead",
+    "body": [
+     {
+      "t": "legend",
+      "items": [
+       "**Nome**: clique para abrir a ficha do cliente.",
+       "Produto, **valor desejado**, de onde veio e **há quanto tempo falou**.",
+       "**Conversa** →: abre direto a conversa no Inbox."
+      ]
+     }
+    ]
+   },
+   {
+    "t": "h2",
+    "text": "Como o lead esquenta"
+   },
+   {
+    "t": "p",
+    "text": "A temperatura muda sozinha conforme o cliente age: pedir para ser chamado, simular de novo, responder rápido, perguntar de parcela e prazo. Você recebe um aviso no sino quando um lead vira **quente**."
+   },
+   {
+    "t": "callout",
+    "kind": "nota",
+    "label": "Na prática",
+    "text": "Regra de ouro: abra o painel, atenda os quentes, depois os \"sem contato ainda\", depois os mornos."
+   }
+  ],
+  "learned": [
+   "Quentes primeiro.",
+   "Clique no nome para a ficha; em \"Conversa →\" para o WhatsApp.",
+   "A temperatura muda sozinha."
+  ]
+ },
+ {
+  "slug": "c07",
+  "code": "C07",
+  "trail": "Trilha do consultor",
+  "title": "A sua rotina diária",
+  "subtitle": "Um roteiro simples para o dia render.",
+  "minutes": 4,
+  "blocks": [
+   {
+    "t": "callout",
+    "kind": "objetivo",
+    "label": "Objetivo",
+    "text": "Ter uma rotina prática de uso da plataforma."
+   },
+   {
+    "t": "h2",
+    "text": "Começo do dia (10 minutos)"
+   },
+   {
+    "t": "steps",
+    "items": [
+     "Abra o **Meu painel** e veja os **quentes**.",
+     "Responda os quentes e os **sem contato ainda**.",
+     "Veja as **Tarefas** de hoje.",
+     "Abra a **Divulgação**, copie o kit do dia e publique (2 minutos)."
+    ]
+   },
+   {
+    "t": "h2",
+    "text": "Durante o dia"
+   },
+   {
+    "t": "list",
+    "items": [
+     "Deixe os avisos ligados (Módulo C23) e responda quando o sino tocar.",
+     "Ao falar com um cliente, **registre** na ficha (nota, tarefa, etapa).",
+     "Arraste o cliente no **funil** quando a negociação avançar."
+    ]
+   },
+   {
+    "t": "h2",
+    "text": "Fim do dia (5 minutos)"
+   },
+   {
+    "t": "steps",
+    "items": [
+     "Confira se nenhum quente ficou sem resposta.",
+     "Crie as tarefas de amanhã (retornos, propostas).",
+     "Depois de cada venda, peça uma **indicação** (Módulo C19)."
+    ]
+   },
+   {
+    "t": "callout",
+    "kind": "dica",
+    "label": "Dica",
+    "text": "Quem segue a rotina todo dia aparece com tempo de resposta menor e conversão maior no painel da gestão."
+   }
+  ],
+  "learned": [
+   "Quentes → tarefas → kit do dia.",
+   "Registre tudo durante o dia.",
+   "Feche o dia com as tarefas de amanhã."
+  ]
+ },
+ {
+  "slug": "c08",
+  "code": "C08",
+  "trail": "Trilha do consultor",
+  "title": "Inbox: as conversas",
+  "subtitle": "Onde chegam as mensagens dos seus clientes.",
+  "minutes": 5,
+  "blocks": [
+   {
+    "t": "callout",
+    "kind": "objetivo",
+    "label": "Objetivo",
+    "text": "Saber encontrar e organizar as conversas."
+   },
+   {
+    "t": "callout",
+    "kind": "dica",
+    "label": "Como ler as fotos",
+    "text": "os quadros **vermelhos numerados** mostram onde clicar; a explicação de cada número está logo abaixo da foto."
+   },
+   {
+    "t": "p",
+    "text": "Todas as conversas com os seus clientes chegam no **Inbox**, venham de qual número de WhatsApp vierem (principal ou reserva) ou do Instagram."
+   },
+   {
+    "t": "figure",
+    "src": "c08-1.webp",
+    "w": 1440,
+    "h": 900,
+    "title": "Lista de conversas",
+    "body": [
+     {
+      "t": "legend",
+      "items": [
+       "**Todas**: tudo.",
+       "**IA ativa**: conversas em que o assistente está respondendo.",
+       "**Consultor ativo**: conversas que você assumiu.",
+       "Cada conversa mostra o nome, a última mensagem, o **score** e se quem está atendendo é a **IA** ou o **CONSULTOR**."
+      ]
+     }
+    ]
+   },
+   {
+    "t": "callout",
+    "kind": "dica",
+    "label": "Dica",
+    "text": "O número colorido (score) vai de 0 a 100. Quanto maior, mais pronto o cliente está."
+   }
+  ],
+  "learned": [
+   "Tudo chega no Inbox.",
+   "Filtre por IA ativa ou Consultor ativo.",
+   "Score alto = cliente mais pronto."
+  ]
+ },
+ {
+  "slug": "c09",
+  "code": "C09",
+  "trail": "Trilha do consultor",
+  "title": "Inbox: a IA e quando assumir",
+  "subtitle": "Acompanhar o assistente e assumir o atendimento.",
+  "minutes": 7,
+  "blocks": [
+   {
+    "t": "callout",
+    "kind": "objetivo",
+    "label": "Objetivo",
+    "text": "Saber assumir, pausar e encerrar uma conversa e avaliar as respostas da IA."
+   },
+   {
+    "t": "callout",
+    "kind": "dica",
+    "label": "Como ler as fotos",
+    "text": "os quadros **vermelhos numerados** mostram onde clicar; a explicação de cada número está logo abaixo da foto."
+   },
+   {
+    "t": "figure",
+    "src": "c09-1.webp",
+    "w": 1440,
+    "h": 900,
+    "title": "Uma conversa sendo atendida pela IA",
+    "body": [
+     {
+      "t": "legend",
+      "items": [
+       "**IA ATIVA**: o assistente está respondendo esse cliente.",
+       "**Assumir**: você passa a responder e a IA para nessa conversa.",
+       "**Pausar IA**: a IA para, mas ninguém assume ainda.",
+       "**Encerrar**: fecha a conversa quando terminar.",
+       "**Enviar para meu celular**: continue de onde estiver.",
+       "**Campo de resposta**: se você escrever aqui, a conversa passa para você automaticamente."
+      ]
+     }
+    ]
+   },
+   {
+    "t": "h2",
+    "text": "Quando assumir"
+   },
+   {
+    "t": "list",
+    "items": [
+     "O cliente pediu para falar com uma pessoa.",
+     "Ele virou **quente** (você recebe o aviso).",
+     "Ele pergunta valores, condições ou quer proposta.",
+     "A IA não soube responder ou respondeu errado."
+    ]
+   },
+   {
+    "t": "figure",
+    "src": "c09-2.webp",
+    "w": 1440,
+    "h": 900,
+    "title": "Conversa já assumida por você",
+    "body": [
+     {
+      "t": "legend",
+      "items": [
+       "Agora só você responde. Escreva e clique em **Enviar**."
+      ]
+     }
+    ]
+   },
+   {
+    "t": "h2",
+    "text": "Avalie as respostas da IA"
+   },
+   {
+    "t": "figure",
+    "src": "c09-3.webp",
+    "w": 1440,
+    "h": 900,
+    "title": "Avaliação embaixo de cada resposta",
+    "body": [
+     {
+      "t": "legend",
+      "items": [
+       "**Boa**",
+       "**Ruim**",
+       "**Incorreta**",
+       "**Revisar**: peça para a equipe revisar."
+      ]
+     }
+    ]
+   },
+   {
+    "t": "p",
+    "text": "Marque quando a resposta não estiver boa: a equipe usa isso para ajustar o assistente."
+   },
+   {
+    "t": "callout",
+    "kind": "atencao",
+    "label": "Atenção",
+    "text": "Ao assumir, siga a mesma regra da IA: nada de prometer contemplação, prazo ou parcela fora do material oficial."
+   }
+  ],
+  "learned": [
+   "IA ATIVA = assistente respondendo.",
+   "Escrever ou clicar em Assumir pausa a IA.",
+   "Avalie as respostas para melhorar o assistente."
+  ]
+ },
+ {
+  "slug": "c10",
+  "code": "C10",
+  "trail": "Trilha do consultor",
+  "title": "AI Copilot: resumo, sugestões e objeções",
+  "subtitle": "As ferramentas de apoio do lado direito do Inbox.",
+  "minutes": 6,
+  "blocks": [
+   {
+    "t": "callout",
+    "kind": "objetivo",
+    "label": "Objetivo",
+    "text": "Usar a IA a seu favor na conversa de venda."
+   },
+   {
+    "t": "callout",
+    "kind": "dica",
+    "label": "Como ler as fotos",
+    "text": "os quadros **vermelhos numerados** mostram onde clicar; a explicação de cada número está logo abaixo da foto."
+   },
+   {
+    "t": "figure",
+    "src": "c10-1.webp",
+    "w": 1440,
+    "h": 900,
+    "title": "Ferramentas do AI Copilot",
+    "body": [
+     {
+      "t": "legend",
+      "items": [
+       "**Resumir**: resumo do que já foi conversado.",
+       "**Sugerir resposta**: a IA sugere o que responder.",
+       "**Analisar objeção**: ajuda quando o cliente trava (\"está caro\", \"vou pensar\").",
+       "**Próxima ação**: o que fazer agora com esse cliente.",
+       "**Analisar oportunidade**: chance e pontos de atenção da venda.",
+       "**Criar follow-up**: agenda o próximo contato."
+      ]
+     }
+    ]
+   },
+   {
+    "t": "figure",
+    "src": "c10-2.webp",
+    "w": 1440,
+    "h": 900,
+    "title": "Uma sugestão gerada",
+    "body": [
+     {
+      "t": "legend",
+      "items": [
+       "Leia, ajuste com as suas palavras e só então envie."
+      ]
+     }
+    ]
+   },
+   {
+    "t": "h3",
+    "text": "Battlecard"
+   },
+   {
+    "t": "p",
+    "text": "No alto do painel direito aparece o **Battlecard**: objetivo do cliente, interesse, objeção principal e a sugestão da IA para tratá-la, com a fonte (base de conhecimento)."
+   },
+   {
+    "t": "callout",
+    "kind": "atencao",
+    "label": "Atenção",
+    "text": "A sugestão é um rascunho. **Você é responsável** pelo que envia: revise valores e promessas antes."
+   }
+  ],
+  "learned": [
+   "Resumir e Sugerir resposta poupam tempo.",
+   "Battlecard mostra a objeção e como tratar.",
+   "Sempre revise antes de enviar."
+  ]
+ },
+ {
+  "slug": "c11",
+  "code": "C11",
+  "trail": "Trilha do consultor",
+  "title": "Ficha do lead: dados, score e origem",
+  "subtitle": "Tudo sobre o cliente no topo da ficha.",
+  "minutes": 6,
+  "blocks": [
+   {
+    "t": "callout",
+    "kind": "objetivo",
+    "label": "Objetivo",
+    "text": "Ler a ficha e agir a partir dela."
+   },
+   {
+    "t": "callout",
+    "kind": "dica",
+    "label": "Como ler as fotos",
+    "text": "os quadros **vermelhos numerados** mostram onde clicar; a explicação de cada número está logo abaixo da foto."
+   },
+   {
+    "t": "figure",
+    "src": "c11-1.webp",
+    "w": 1440,
+    "h": 900,
+    "title": "O topo da ficha",
+    "body": [
+     {
+      "t": "legend",
+      "items": [
+       "**Nome** e etiquetas: etapa, temperatura, intenção e de onde veio.",
+       "**Alterar status**: atualize a situação do cliente.",
+       "**Nova tarefa**: agende o próximo passo.",
+       "**Lead Score** (0 a 100): o quanto ele está pronto para comprar.",
+       "**Contato e interesse**: telefone, e-mail, cidade, produto, valor, objetivo e prazo."
+      ]
+     }
+    ]
+   },
+   {
+    "t": "figure",
+    "src": "c11-2.webp",
+    "w": 1440,
+    "h": 900,
+    "title": "De onde o cliente veio",
+    "body": [
+     {
+      "t": "legend",
+      "items": [
+       "Anúncio, site, link próprio, canal ou indicação. Se veio por indicação, aparece **\"Indicado por …\"**."
+      ]
+     }
+    ]
+   },
+   {
+    "t": "figure",
+    "src": "c11-3.webp",
+    "w": 1440,
+    "h": 900,
+    "title": "Criando uma tarefa pela ficha",
+    "body": [
+     {
+      "t": "legend",
+      "items": [
+       "Escolha o tipo (contato, retorno, proposta, reunião, follow-up), a prioridade e a data."
+      ]
+     }
+    ]
+   }
+  ],
+  "learned": [
+   "Score mostra o quanto o cliente está pronto.",
+   "Origem mostra de onde ele veio.",
+   "Nova tarefa agenda o próximo passo."
+  ]
+ },
+ {
+  "slug": "c12",
+  "code": "C12",
+  "trail": "Trilha do consultor",
+  "title": "Ficha do lead: histórico, anotações e LGPD",
+  "subtitle": "Registrar o atendimento e respeitar o consentimento.",
+  "minutes": 6,
+  "blocks": [
+   {
+    "t": "callout",
+    "kind": "objetivo",
+    "label": "Objetivo",
+    "text": "Registrar tudo e entender o consentimento do cliente."
+   },
+   {
+    "t": "callout",
+    "kind": "dica",
+    "label": "Como ler as fotos",
+    "text": "os quadros **vermelhos numerados** mostram onde clicar; a explicação de cada número está logo abaixo da foto."
+   },
+   {
+    "t": "figure",
+    "src": "c12-1.webp",
+    "w": 1440,
+    "h": 900,
+    "title": "Atividades e histórico",
+    "body": [
+     {
+      "t": "legend",
+      "items": [
+       "**Atividades e histórico**: tudo o que aconteceu, em ordem.",
+       "**Campo de nota**: registre ligações, combinados e observações.",
+       "**Salvar**: grava no histórico."
+      ]
+     }
+    ]
+   },
+   {
+    "t": "callout",
+    "kind": "dica",
+    "label": "Dica",
+    "text": "Exemplo de boa nota: \"Liguei às 15h. Quer carta de R$ 300 mil para apartamento. Mora em Lisboa. Retorno sexta com proposta.\""
+   },
+   {
+    "t": "figure",
+    "src": "c12-2.webp",
+    "w": 1440,
+    "h": 900,
+    "title": "A oportunidade de venda",
+    "body": [
+     {
+      "t": "legend",
+      "items": [
+       "A **oportunidade** é a negociação: produto, valor e etapa. Ela também aparece no funil (Módulo C14)."
+      ]
+     }
+    ]
+   },
+   {
+    "t": "figure",
+    "src": "c12-3.webp",
+    "w": 1440,
+    "h": 900,
+    "title": "Consentimento e distribuição",
+    "body": [
+     {
+      "t": "legend",
+      "items": [
+       "**Governança · LGPD**: se o cliente autorizou contato pelo WhatsApp e se pediu para não receber mais mensagens.",
+       "**Distribuição**: para quem o lead foi e por qual regra."
+      ]
+     }
+    ]
+   },
+   {
+    "t": "callout",
+    "kind": "atencao",
+    "label": "Atenção",
+    "text": "Se o cliente pediu para não receber mensagens (opt-out), respeite. A plataforma bloqueia as mensagens automáticas; não insista por fora."
+   }
+  ],
+  "learned": [
+   "Registre tudo em notas.",
+   "A oportunidade acompanha a negociação.",
+   "Respeite o opt-out."
+  ]
+ },
+ {
+  "slug": "c13",
+  "code": "C13",
+  "trail": "Trilha do consultor",
+  "title": "Meus leads: lista, busca e filtros",
+  "subtitle": "Encontrar qualquer cliente seu.",
+  "minutes": 5,
+  "blocks": [
+   {
+    "t": "callout",
+    "kind": "objetivo",
+    "label": "Objetivo",
+    "text": "Usar a lista de leads para organizar o trabalho."
+   },
+   {
+    "t": "callout",
+    "kind": "dica",
+    "label": "Como ler as fotos",
+    "text": "os quadros **vermelhos numerados** mostram onde clicar; a explicação de cada número está logo abaixo da foto."
+   },
+   {
+    "t": "figure",
+    "src": "c13-1.webp",
+    "w": 1440,
+    "h": 900,
+    "title": "A lista de leads",
+    "body": [
+     {
+      "t": "legend",
+      "items": [
+       "**Busca** por nome, telefone ou e-mail.",
+       "**Filtros**: status, temperatura, origem, produto, campanha.",
+       "Coluna **Lead**: nome e contato (clique para abrir a ficha).",
+       "**Score**.",
+       "**Status** atual."
+      ]
+     }
+    ]
+   },
+   {
+    "t": "h2",
+    "text": "Filtros úteis no dia a dia"
+   },
+   {
+    "t": "table",
+    "head": [
+     "Quero ver…",
+     "Filtre por"
+    ],
+    "rows": [
+     [
+      "Só os quentes",
+      "Temperatura = Quente"
+     ],
+     [
+      "Quem chegou pelo meu link",
+      "Origem / landing do consultor"
+     ],
+     [
+      "Quem está parado",
+      "Status = Distribuído e ordenar pelos mais antigos"
+     ]
+    ]
+   }
+  ],
+  "learned": [
+   "A lista mostra todos os seus clientes.",
+   "Filtre por temperatura e origem.",
+   "Clique no nome para a ficha."
+  ]
+ },
+ {
+  "slug": "c14",
+  "code": "C14",
+  "trail": "Trilha do consultor",
+  "title": "Minhas vendas: o funil",
+  "subtitle": "Arrastar o cliente pelas etapas da negociação.",
+  "minutes": 6,
+  "blocks": [
+   {
+    "t": "callout",
+    "kind": "objetivo",
+    "label": "Objetivo",
+    "text": "Manter o funil atualizado."
+   },
+   {
+    "t": "p",
+    "text": "Cada coluna é uma etapa: **Novo, Qualificado, Oportunidade, Contato, Necessidade, Simulação, Proposta, Negociação, Fechado e Perdido**. Cada cartão é um cliente."
+   },
+   {
+    "t": "figure",
+    "src": "c14-1.webp",
+    "w": 1440,
+    "h": 900,
+    "title": "O funil de vendas",
+    "body": []
+   },
+   {
+    "t": "steps",
+    "items": [
+     "Clique e segure o cartão do cliente.",
+     "Arraste até a coluna da nova etapa (aparece \"Arraste para cá\").",
+     "Solte: a etapa fica registrada no histórico.",
+     "Fechou? Leve para **Fechado**. Não vai fechar? Use **Marcar como perdido** e informe o **motivo da perda** (obrigatório)."
+    ]
+   },
+   {
+    "t": "callout",
+    "kind": "dica",
+    "label": "Dica",
+    "text": "O motivo da perda mostra para a gestão o que mais faz o cliente desistir (preço, prazo, concorrência). Escreva com cuidado."
+   }
+  ],
+  "learned": [
+   "Uma coluna por etapa.",
+   "Arraste o cartão quando avançar.",
+   "Perdido sempre com motivo."
+  ]
+ },
+ {
+  "slug": "c15",
+  "code": "C15",
+  "trail": "Trilha do consultor",
+  "title": "Tarefas e agenda",
+  "subtitle": "Seus compromissos com os clientes.",
+  "minutes": 4,
+  "blocks": [
+   {
+    "t": "callout",
+    "kind": "objetivo",
+    "label": "Objetivo",
+    "text": "Organizar o dia pelas tarefas."
+   },
+   {
+    "t": "callout",
+    "kind": "dica",
+    "label": "Como ler as fotos",
+    "text": "os quadros **vermelhos numerados** mostram onde clicar; a explicação de cada número está logo abaixo da foto."
+   },
+   {
+    "t": "figure",
+    "src": "c15-1.webp",
+    "w": 1440,
+    "h": 900,
+    "title": "A lista de tarefas",
+    "body": [
+     {
+      "t": "legend",
+      "items": [
+       "**Concluir**: marque quando terminar."
+      ]
+     }
+    ]
+   },
+   {
+    "t": "list",
+    "items": [
+     "As **urgentes** e **atrasadas** aparecem primeiro.",
+     "A plataforma cria tarefas sozinha, como **\"Ligar agora\"** quando um lead quente pede contato pelo site.",
+     "Para criar uma tarefa, abra a ficha do cliente → **Nova tarefa** (Módulo C11)."
+    ]
+   },
+   {
+    "t": "h2",
+    "text": "Levar a tarefa para a sua agenda"
+   },
+   {
+    "t": "p",
+    "text": "O botão **+ Google Agenda** coloca a tarefa direto na sua agenda do Google, com horário e nome do cliente."
+   }
+  ],
+  "learned": [
+   "Urgentes e atrasadas primeiro.",
+   "Concluir ao terminar.",
+   "+ Google Agenda leva para a sua agenda."
+  ]
+ },
+ {
+  "slug": "c16",
+  "code": "C16",
+  "trail": "Trilha do consultor",
+  "title": "Seus dois links e o que o cliente vê",
+  "subtitle": "Site mestre × link próprio, e a jornada do cliente no site.",
+  "minutes": 7,
+  "blocks": [
+   {
+    "t": "callout",
+    "kind": "objetivo",
+    "label": "Objetivo",
+    "text": "Saber qual link usar e entender o que acontece com o cliente."
+   },
+   {
+    "t": "callout",
+    "kind": "dica",
+    "label": "Como ler as fotos",
+    "text": "os quadros **vermelhos numerados** mostram onde clicar; a explicação de cada número está logo abaixo da foto."
+   },
+   {
+    "t": "figure",
+    "src": "c16-1.webp",
+    "w": 1440,
+    "h": 900,
+    "title": "Meus links para publicar",
+    "body": [
+     {
+      "t": "legend",
+      "items": [
+       "**Site mestre**: quem deixa contato entra na **divisão igual** entre todos.",
+       "**Meu link próprio**: a página é igual, mas o cliente vira **lead seu** e não entra na divisão."
+      ]
+     }
+    ]
+   },
+   {
+    "t": "callout",
+    "kind": "dica",
+    "label": "Dica",
+    "text": "Nas fotos aparece um endereço de teste. Na plataforma, no mesmo lugar, aparece o endereço oficial do seu link."
+   },
+   {
+    "t": "table",
+    "head": [
+     "Use o…",
+     "Quando"
+    ],
+    "rows": [
+     [
+      "Link próprio",
+      "Bio do Instagram, status, grupos, cartão de visita, indicações: tudo o que **você** divulga."
+     ],
+     [
+      "Site mestre",
+      "Quando a unidade pedir para divulgar o site geral."
+     ]
+    ]
+   },
+   {
+    "t": "h2",
+    "text": "O que o cliente vê"
+   },
+   {
+    "t": "figure",
+    "src": "c16-2.webp",
+    "w": 1440,
+    "h": 900,
+    "title": "A página do seu link",
+    "body": []
+   },
+   {
+    "t": "p",
+    "text": "A página é **igual** à do site mestre e **não mostra o seu nome nem a sua foto**."
+   },
+   {
+    "t": "figure",
+    "src": "c16-3.webp",
+    "w": 1440,
+    "h": 900,
+    "title": "1º: o cliente simula",
+    "body": [
+     {
+      "t": "legend",
+      "items": [
+       "**Simular apenas**: vê a simulação sem deixar dados.",
+       "**Simulação com interesse**: já deixa o contato."
+      ]
+     }
+    ]
+   },
+   {
+    "t": "figure",
+    "src": "c16-4.webp",
+    "w": 1440,
+    "h": 900,
+    "title": "2º: resultado e dúvidas",
+    "body": [
+     {
+      "t": "legend",
+      "items": [
+       "O cliente pode perguntar ao **assistente** ali mesmo.",
+       "**Tenho interesse**: abre o formulário de contato."
+      ]
+     }
+    ]
+   },
+   {
+    "t": "figure",
+    "src": "c16-5.webp",
+    "w": 1440,
+    "h": 900,
+    "title": "3º: contato recebido",
+    "body": [
+     {
+      "t": "legend",
+      "items": [
+       "**Continuar no WhatsApp**: o cliente manda a primeira mensagem e o assistente responde na hora. A conversa aparece no seu Inbox."
+      ]
+     }
+    ]
+   }
+  ],
+  "learned": [
+   "Link próprio = lead seu.",
+   "A página não mostra o seu nome.",
+   "Contato recebido → WhatsApp → Inbox."
+  ]
+ },
+ {
+  "slug": "c17",
+  "code": "C17",
+  "trail": "Trilha do consultor",
+  "title": "Kit de divulgação do dia",
+  "subtitle": "Três textos prontos por dia com o seu link.",
+  "minutes": 5,
+  "blocks": [
+   {
+    "t": "callout",
+    "kind": "objetivo",
+    "label": "Objetivo",
+    "text": "Publicar o kit do dia em 2 minutos."
+   },
+   {
+    "t": "callout",
+    "kind": "dica",
+    "label": "Como ler as fotos",
+    "text": "os quadros **vermelhos numerados** mostram onde clicar; a explicação de cada número está logo abaixo da foto."
+   },
+   {
+    "t": "figure",
+    "src": "c17-1.webp",
+    "w": 1440,
+    "h": 900,
+    "title": "Kit de hoje",
+    "body": [
+     {
+      "t": "legend",
+      "items": [
+       "**Kit de hoje**: três textos novos por dia, aprovados pela gestão.",
+       "**Onde vai postar?**: escolha o lugar; o link dentro do texto muda conforme o lugar.",
+       "**Copiar texto**: copie e cole no Instagram, status ou grupo.",
+       "**Compartilhar no WhatsApp**: abre o WhatsApp com o texto pronto."
+      ]
+     }
+    ]
+   },
+   {
+    "t": "callout",
+    "kind": "dica",
+    "label": "Dica",
+    "text": "Cada consultor recebe os textos numa ordem diferente, para não aparecerem 10 posts iguais no mesmo grupo."
+   },
+   {
+    "t": "figure",
+    "src": "c17-2.webp",
+    "w": 1440,
+    "h": 900,
+    "title": "Quanto a sua divulgação trouxe",
+    "body": [
+     {
+      "t": "legend",
+      "items": [
+       "**Leads pelos meus links**: canais + indicações.",
+       "**Leads por indicação**."
+      ]
+     }
+    ]
+   },
+   {
+    "t": "callout",
+    "kind": "atencao",
+    "label": "Atenção",
+    "text": "Não altere valores nem prometa nada fora do texto aprovado. Nada de disparo em massa: publique e compartilhe normalmente."
+   }
+  ],
+  "learned": [
+   "3 textos por dia, já com o seu link.",
+   "Escolha onde vai postar antes de copiar.",
+   "Sem disparo em massa."
+  ]
+ },
+ {
+  "slug": "c18",
+  "code": "C18",
+  "trail": "Trilha do consultor",
+  "title": "Canais: saiba o que traz cliente",
+  "subtitle": "Um link para cada lugar onde você divulga.",
+  "minutes": 5,
+  "blocks": [
+   {
+    "t": "callout",
+    "kind": "objetivo",
+    "label": "Objetivo",
+    "text": "Criar canais e descobrir quais grupos e redes trazem cliente."
+   },
+   {
+    "t": "callout",
+    "kind": "dica",
+    "label": "Como ler as fotos",
+    "text": "os quadros **vermelhos numerados** mostram onde clicar; a explicação de cada número está logo abaixo da foto."
+   },
+   {
+    "t": "p",
+    "text": "Cada canal é um link próprio para **um lugar** (um grupo, o status, o Instagram). Assim a plataforma conta quantos leads e vendas cada lugar trouxe. Você já começa com 3: Status do WhatsApp, Instagram e Grupos."
+   },
+   {
+    "t": "figure",
+    "src": "c18-1.webp",
+    "w": 1440,
+    "h": 900,
+    "title": "Criando um canal",
+    "body": [
+     {
+      "t": "legend",
+      "items": [
+       "**Nome do canal**: por exemplo \"Grupo Brasileiros em Lisboa\".",
+       "**+ Criar canal**. Escolha também a rede e se ele leva para o **seu link** ou para o **site mestre**."
+      ]
+     }
+    ]
+   },
+   {
+    "t": "figure",
+    "src": "c18-2.webp",
+    "w": 1440,
+    "h": 900,
+    "title": "Resultado de cada canal",
+    "body": [
+     {
+      "t": "legend",
+      "items": [
+       "O canal criado.",
+       "**Leads** que ele trouxe.",
+       "**Vendas** que ele trouxe.",
+       "**copiar link**: use **só naquele lugar**."
+      ]
+     }
+    ]
+   },
+   {
+    "t": "callout",
+    "kind": "dica",
+    "label": "Dica",
+    "text": "Depois de algumas semanas, repita nos canais que trazem venda e pare onde não traz nada."
+   }
+  ],
+  "learned": [
+   "Um link para cada lugar.",
+   "A tabela mostra leads e vendas por canal.",
+   "Invista onde dá resultado."
+  ]
+ },
+ {
+  "slug": "c19",
+  "code": "C19",
+  "trail": "Trilha do consultor",
+  "title": "Indicações",
+  "subtitle": "Peça indicações com um link só da pessoa.",
+  "minutes": 5,
+  "blocks": [
+   {
+    "t": "callout",
+    "kind": "objetivo",
+    "label": "Objetivo",
+    "text": "Gerar links de indicação e mandar a mensagem pronta."
+   },
+   {
+    "t": "callout",
+    "kind": "dica",
+    "label": "Como ler as fotos",
+    "text": "os quadros **vermelhos numerados** mostram onde clicar; a explicação de cada número está logo abaixo da foto."
+   },
+   {
+    "t": "figure",
+    "src": "c19-1.webp",
+    "w": 1440,
+    "h": 900,
+    "title": "Gerando um link de indicação",
+    "body": [
+     {
+      "t": "legend",
+      "items": [
+       "**Quem vai indicar?**: nome de um cliente, amigo ou parceiro.",
+       "**+ Gerar link de indicação**."
+      ]
+     }
+    ]
+   },
+   {
+    "t": "figure",
+    "src": "c19-2.webp",
+    "w": 1440,
+    "h": 900,
+    "title": "Mensagem pronta para mandar",
+    "body": [
+     {
+      "t": "legend",
+      "items": [
+       "**Copiar mensagem**.",
+       "**Enviar no WhatsApp**: abre o WhatsApp com a mensagem e o link."
+      ]
+     }
+    ]
+   },
+   {
+    "t": "figure",
+    "src": "c19-3.webp",
+    "w": 1440,
+    "h": 900,
+    "title": "Suas indicações",
+    "body": [
+     {
+      "t": "legend",
+      "items": [
+       "Quem indica.",
+       "**copiar mensagem** de novo.",
+       "**enviar no WhatsApp** de novo."
+      ]
+     }
+    ]
+   },
+   {
+    "t": "p",
+    "text": "Quem chegar pelo link vira **lead seu**, e na ficha aparece **\"Indicado por …\"**."
+   },
+   {
+    "t": "callout",
+    "kind": "nota",
+    "label": "Na prática",
+    "text": "O melhor momento para pedir indicação é logo depois de uma venda ou de um atendimento elogiado."
+   }
+  ],
+  "learned": [
+   "Um link por pessoa que indica.",
+   "Mensagem pronta para WhatsApp.",
+   "Lead indicado é seu."
+  ]
+ },
+ {
+  "slug": "c20",
+  "code": "C20",
+  "trail": "Trilha do consultor",
+  "title": "Meu perfil: foto e números de WhatsApp",
+  "subtitle": "A sua foto e os seus números.",
+  "minutes": 4,
+  "blocks": [
+   {
+    "t": "callout",
+    "kind": "objetivo",
+    "label": "Objetivo",
+    "text": "Deixar o perfil completo."
+   },
+   {
+    "t": "callout",
+    "kind": "dica",
+    "label": "Como ler as fotos",
+    "text": "os quadros **vermelhos numerados** mostram onde clicar; a explicação de cada número está logo abaixo da foto."
+   },
+   {
+    "t": "figure",
+    "src": "c20-1.webp",
+    "w": 1440,
+    "h": 900,
+    "title": "O seu perfil",
+    "body": [
+     {
+      "t": "legend",
+      "items": [
+       "**+ foto**: JPG, PNG ou WEBP até 3 MB. Aparece só dentro da plataforma, nunca para o cliente.",
+       "**Números de WhatsApp**: o 1º é o principal; os outros são reserva automática se o principal cair."
+      ]
+     }
+    ]
+   },
+   {
+    "t": "callout",
+    "kind": "dica",
+    "label": "Dica",
+    "text": "Ter pelo menos 2 números evita que as conversas parem se um número cair. Os números são cadastrados pela equipe da plataforma; peça ao gestor."
+   }
+  ],
+  "learned": [
+   "Coloque a sua foto.",
+   "Principal + reserva.",
+   "Números novos: peça ao gestor."
+  ]
+ },
+ {
+  "slug": "c21",
+  "code": "C21",
+  "trail": "Trilha do consultor",
+  "title": "Minha IA: personalize o seu assistente",
+  "subtitle": "Como o assistente se apresenta para os seus clientes.",
+  "minutes": 5,
+  "blocks": [
+   {
+    "t": "callout",
+    "kind": "objetivo",
+    "label": "Objetivo",
+    "text": "Ajustar o nome e o jeito de falar do seu assistente."
+   },
+   {
+    "t": "callout",
+    "kind": "dica",
+    "label": "Como ler as fotos",
+    "text": "os quadros **vermelhos numerados** mostram onde clicar; a explicação de cada número está logo abaixo da foto."
+   },
+   {
+    "t": "figure",
+    "src": "c21-1.webp",
+    "w": 1440,
+    "h": 900,
+    "title": "Minha IA",
+    "body": [
+     {
+      "t": "legend",
+      "items": [
+       "**Usar IA personalizada nos meus atendimentos**: liga a personalização.",
+       "**Nome do assistente** (opcional), por exemplo \"Ana\".",
+       "**Apresentação**: como ele se apresenta. Precisa deixar claro que é um **assistente virtual**."
+      ]
+     }
+    ]
+   },
+   {
+    "t": "list",
+    "items": [
+     "**Estilo**: somado ao estilo da empresa. Ex.: \"tom acolhedor, chama o cliente pelo nome\".",
+     "**Emojis**: padrão da empresa, usar com moderação ou não usar.",
+     "A prévia mostra como fica a primeira mensagem."
+    ]
+   },
+   {
+    "t": "callout",
+    "kind": "atencao",
+    "label": "Atenção",
+    "text": "As regras da empresa (não prometer, LGPD, base de conhecimento oficial) valem para todos e não mudam com a personalização."
+   }
+  ],
+  "learned": [
+   "Dê um nome e um tom ao seu assistente.",
+   "Ele sempre se apresenta como assistente virtual.",
+   "As regras da empresa continuam valendo."
+  ]
+ },
+ {
+  "slug": "c22",
+  "code": "C22",
+  "trail": "Trilha do consultor",
+  "title": "Instagram na plataforma",
+  "subtitle": "Mensagens diretas do seu Instagram no Inbox.",
+  "minutes": 5,
+  "blocks": [
+   {
+    "t": "callout",
+    "kind": "objetivo",
+    "label": "Objetivo",
+    "text": "Conectar a sua conta do Instagram."
+   },
+   {
+    "t": "p",
+    "text": "Com o Instagram conectado, as mensagens diretas da sua conta entram no Inbox como leads seus."
+   },
+   {
+    "t": "steps",
+    "items": [
+     "A conta precisa ser **profissional** (Comercial ou Criador de conteúdo): Instagram → Configurações → **Tipo de conta e ferramentas**.",
+     "Aceite o **convite de testador**: Instagram → Configurações → **Apps e sites** → **Convites de testador**.",
+     "Na plataforma: **Meu perfil** → cartão **Instagram** → **Conectar Instagram** → entre com a sua conta e autorize.",
+     "É **uma conta de Instagram por consultor**."
+    ]
+   },
+   {
+    "t": "callout",
+    "kind": "atencao",
+    "label": "Atenção",
+    "text": "Só faça quando o gestor avisar que o seu convite de testador foi enviado. Sem o convite, a conexão não funciona."
+   }
+  ],
+  "learned": [
+   "Conta profissional.",
+   "Aceite o convite de testador.",
+   "Conecte em Meu perfil."
+  ]
+ },
+ {
+  "slug": "c23",
+  "code": "C23",
+  "trail": "Trilha do consultor",
+  "title": "Avisos e notificações",
+  "subtitle": "Receber o aviso certo, na hora certa.",
+  "minutes": 6,
+  "blocks": [
+   {
+    "t": "callout",
+    "kind": "objetivo",
+    "label": "Objetivo",
+    "text": "Configurar os avisos no computador e no celular."
+   },
+   {
+    "t": "callout",
+    "kind": "dica",
+    "label": "Como ler as fotos",
+    "text": "os quadros **vermelhos numerados** mostram onde clicar; a explicação de cada número está logo abaixo da foto."
+   },
+   {
+    "t": "figure",
+    "src": "c23-1.webp",
+    "w": 1440,
+    "h": 900,
+    "title": "O sino",
+    "body": [
+     {
+      "t": "legend",
+      "items": [
+       "Clique no **sino** para ver os avisos: lead quente, cliente respondeu, tarefa vencendo."
+      ]
+     }
+    ]
+   },
+   {
+    "t": "figure",
+    "src": "c23-2.webp",
+    "w": 1440,
+    "h": 900,
+    "title": "O que receber e onde",
+    "body": []
+   },
+   {
+    "t": "p",
+    "text": "Para cada tipo de aviso, marque onde quer receber: **computador**, **celular (push)**, **extensão** ou **e-mail**. O sino sempre guarda tudo. Clique em **Salvar**."
+   },
+   {
+    "t": "figure",
+    "src": "c23-3.webp",
+    "w": 1440,
+    "h": 900,
+    "title": "Este aparelho e horário de silêncio",
+    "body": [
+     {
+      "t": "legend",
+      "items": [
+       "**Ativar push aqui**: liga os avisos neste aparelho. Faça no computador **e** no celular.",
+       "**Horário de silêncio**: avisos não urgentes ficam guardados e chegam depois. Lead quente sempre passa."
+      ]
+     }
+    ]
+   },
+   {
+    "t": "p",
+    "text": "Caminho: clique no seu nome → **Notificações e dispositivos**."
+   }
+  ],
+  "learned": [
+   "Ative os avisos no computador e no celular.",
+   "Escolha o que receber.",
+   "Lead quente sempre avisa."
+  ]
+ },
+ {
+  "slug": "c24",
+  "code": "C24",
+  "trail": "Trilha do consultor",
+  "title": "Celular: a plataforma como aplicativo",
+  "subtitle": "Ícone na tela inicial e uso pelo celular.",
+  "minutes": 5,
+  "blocks": [
+   {
+    "t": "callout",
+    "kind": "objetivo",
+    "label": "Objetivo",
+    "text": "Usar a plataforma no celular como um aplicativo."
+   },
+   {
+    "t": "callout",
+    "kind": "dica",
+    "label": "Como ler as fotos",
+    "text": "os quadros **vermelhos numerados** mostram onde clicar; a explicação de cada número está logo abaixo da foto."
+   },
+   {
+    "t": "figure",
+    "src": "c24-1.webp",
+    "w": 780,
+    "h": 1688,
+    "title": "O painel no celular",
+    "body": [
+     {
+      "t": "legend",
+      "items": [
+       "O botão de **menu** abre todas as áreas."
+      ]
+     }
+    ]
+   },
+   {
+    "t": "figure",
+    "src": "c24-2.webp",
+    "w": 780,
+    "h": 1688,
+    "title": "Menu aberto",
+    "body": [
+     {
+      "t": "legend",
+      "items": [
+       "Toque na área que quer abrir."
+      ]
+     }
+    ]
+   },
+   {
+    "t": "h2",
+    "text": "Colocar o ícone na tela inicial"
+   },
+   {
+    "t": "table",
+    "head": [
+     "Celular",
+     "Como fazer"
+    ],
+    "rows": [
+     [
+      "Android (Chrome)",
+      "Abra https://stacksolution.com.br, toque nos **três pontinhos** → **Adicionar à tela inicial** → Adicionar."
+     ],
+     [
+      "iPhone (Safari)",
+      "Abra https://stacksolution.com.br no **Safari**, toque em **Compartilhar** (quadrado com seta) → **Adicionar à Tela de Início** → Adicionar."
+     ]
+    ]
+   },
+   {
+    "t": "callout",
+    "kind": "dica",
+    "label": "Dica",
+    "text": "Abra a plataforma pelo ícone e ative os avisos (Módulo C23). No iPhone, os avisos só funcionam pelo ícone."
+   },
+   {
+    "t": "figure",
+    "src": "c24-3.webp",
+    "w": 780,
+    "h": 1688,
+    "title": "Inbox no celular",
+    "body": []
+   }
+  ],
+  "learned": [
+   "Ícone na tela inicial.",
+   "Avisos ativados pelo ícone.",
+   "Tudo funciona no celular."
+  ]
+ },
+ {
+  "slug": "c25",
+  "code": "C25",
+  "trail": "Trilha do consultor",
+  "title": "Prospectar empresas no Google",
+  "subtitle": "Abordagem ativa de empresas.",
+  "minutes": 5,
+  "blocks": [
+   {
+    "t": "callout",
+    "kind": "objetivo",
+    "label": "Objetivo",
+    "text": "Encontrar empresas e transformá-las em leads."
+   },
+   {
+    "t": "callout",
+    "kind": "dica",
+    "label": "Como ler as fotos",
+    "text": "os quadros **vermelhos numerados** mostram onde clicar; a explicação de cada número está logo abaixo da foto."
+   },
+   {
+    "t": "figure",
+    "src": "c25-1.webp",
+    "w": 1440,
+    "h": 900,
+    "title": "Nova busca",
+    "body": [
+     {
+      "t": "legend",
+      "items": [
+       "Escolha o tipo de empresa e a cidade. A lista traz contato e endereço."
+      ]
+     }
+    ]
+   },
+   {
+    "t": "figure",
+    "src": "c25-2.webp",
+    "w": 1440,
+    "h": 900,
+    "title": "Consultar CNPJ",
+    "body": [
+     {
+      "t": "legend",
+      "items": [
+       "Digite o CNPJ para ver os dados públicos da Receita: razão social, situação, atividade, porte."
+      ]
+     }
+    ]
+   },
+   {
+    "t": "list",
+    "items": [
+     "Gostou da empresa? **Converter**: ela vira lead seu (sem mensagens automáticas).",
+     "Não serve? **Descartar**.",
+     "Respeite quem pedir para não ser contatado."
+    ]
+   },
+   {
+    "t": "callout",
+    "kind": "dica",
+    "label": "Dica",
+    "text": "Ideias de público: empresas com frota (veículos), comércio que quer imóvel próprio, máquinas e equipamentos."
+   }
+  ],
+  "learned": [
+   "Busque por tipo e cidade.",
+   "Confira o CNPJ.",
+   "Converter vira lead seu."
+  ]
+ },
+ {
+  "slug": "c26",
+  "code": "C26",
+  "trail": "Trilha do consultor",
+  "title": "Regras de ouro: atendimento, LGPD e o que não prometer",
+  "subtitle": "O que protege você, o cliente e a marca.",
+  "minutes": 5,
+  "blocks": [
+   {
+    "t": "callout",
+    "kind": "objetivo",
+    "label": "Objetivo",
+    "text": "Conhecer as regras que valem para todos."
+   },
+   {
+    "t": "steps",
+    "items": [
+     "**Responda os quentes primeiro.** Cliente quente esfria rápido.",
+     "**Registre tudo na plataforma.** É ela que mostra o seu desempenho.",
+     "**Não prometa** contemplação, prazo ou parcela fora do material oficial.",
+     "**Respeite o \"não\".** Opt-out é registrado e deve ser respeitado.",
+     "**Sua senha é pessoal.**",
+     "**Divulgue todo dia** com o kit e peça indicações.",
+     "**Nada de disparo em massa** ou listas compradas."
+    ]
+   },
+   {
+    "t": "h2",
+    "text": "LGPD em palavras simples"
+   },
+   {
+    "t": "list",
+    "items": [
+     "Só fale com quem **autorizou** o contato.",
+     "Use os dados do cliente **só** para o atendimento que ele pediu.",
+     "Não copie listas de clientes para fora da plataforma.",
+     "Se o cliente pedir para apagar os dados dele, avise o gestor."
+    ]
+   },
+   {
+    "t": "callout",
+    "kind": "atencao",
+    "label": "Atenção",
+    "text": "Consórcio não tem contemplação garantida. Nunca diga \"você vai ser contemplado em X meses\"."
+   }
+  ],
+  "learned": [
+   "Quentes primeiro, tudo registrado.",
+   "Nada de promessa fora do oficial.",
+   "Respeite o opt-out e a LGPD."
+  ]
+ },
+ {
+  "slug": "c27",
+  "code": "C27",
+  "trail": "Trilha do consultor",
+  "title": "Dúvidas frequentes",
+  "subtitle": "As perguntas mais comuns, respondidas.",
+  "minutes": 5,
+  "blocks": [
+   {
+    "t": "callout",
+    "kind": "objetivo",
+    "label": "Objetivo",
+    "text": "Resolver sozinho os problemas mais comuns."
+   },
+   {
+    "t": "table",
+    "head": [
+     "Pergunta",
+     "Resposta"
+    ],
+    "rows": [
+     [
+      "Por que recebi menos leads que um colega?",
+      "Os leads do site mestre são divididos igualmente. Quem divulga o link próprio e pede indicações recebe, além da divisão, o que trouxe sozinho."
+     ],
+     [
+      "A IA respondeu errado.",
+      "Assuma a conversa, corrija com o cliente e marque a resposta como **Incorreta**."
+     ],
+     [
+      "O cliente quer falar comigo, não com a IA.",
+      "Clique em **Assumir**."
+     ],
+     [
+      "Não recebo avisos no celular.",
+      "Abra pelo ícone da tela inicial e clique em **Ativar push aqui** (C23 e C24)."
+     ],
+     [
+      "Meu número de WhatsApp caiu.",
+      "As conversas seguem pelo número reserva. Avise o gestor."
+     ],
+     [
+      "Não consigo entrar.",
+      "Veja o Módulo C02 ou fale com o gestor."
+     ],
+     [
+      "Posso mudar o texto do kit?",
+      "Não. Use os textos aprovados; sugestões vão para o gestor."
+     ]
+    ]
+   },
+   {
+    "t": "callout",
+    "kind": "nota",
+    "label": "Na prática",
+    "text": "Não achou a resposta? Fale com o gestor da unidade."
+   },
+   {
+    "t": "p",
+    "text": "Fim da trilha. Dúvidas? Fale com o gestor da unidade.",
+    "small": true
+   }
+  ],
+  "learned": [
+   "A maioria das dúvidas está aqui.",
+   "Problema de acesso: gestor.",
+   "Sugestões: gestor."
+  ]
+ },
+ {
+  "slug": "g01",
+  "code": "G01",
+  "trail": "Trilha do gestor",
+  "title": "O painel da gestão",
+  "subtitle": "O seu menu e os números da unidade.",
+  "minutes": 6,
+  "blocks": [
+   {
+    "t": "callout",
+    "kind": "objetivo",
+    "label": "Objetivo",
+    "text": "Conhecer o menu e o painel do gestor."
+   },
+   {
+    "t": "callout",
+    "kind": "dica",
+    "label": "Como ler as fotos",
+    "text": "os quadros **vermelhos numerados** mostram onde clicar; a explicação de cada número está logo abaixo da foto."
+   },
+   {
+    "t": "p",
+    "text": "Esta trilha é para **gestores** (Admin da unidade). Faça antes a trilha do consultor (C01 a C27): é a tela que a equipe usa todo dia."
+   },
+   {
+    "t": "figure",
+    "src": "g01-1.webp",
+    "w": 1440,
+    "h": 900,
+    "title": "Menu do gestor",
+    "body": [
+     {
+      "t": "legend",
+      "items": [
+       "**Painel**",
+       "**Anúncios**",
+       "**Divulgação**",
+       "**Leads**",
+       "**Inbox**",
+       "**Pipeline de vendas**",
+       "**Landing (funil)**",
+       "**Relatórios**",
+       "**Treinamento**"
+      ]
+     }
+    ]
+   },
+   {
+    "t": "figure",
+    "src": "g01-2.webp",
+    "w": 1440,
+    "h": 900,
+    "title": "Números da unidade",
+    "body": [
+     {
+      "t": "legend",
+      "items": [
+       "Leads recebidos, quentes, mornos, frios e vendas do período.",
+       "**Período**: Hoje, 7 dias, 30 dias, Este mês."
+      ]
+     }
+    ]
+   }
+  ],
+  "learned": [
+   "Menu próprio do gestor.",
+   "Painel mostra a unidade inteira.",
+   "Escolha o período."
+  ]
+ },
+ {
+  "slug": "g02",
+  "code": "G02",
+  "trail": "Trilha do gestor",
+  "title": "Acompanhando a equipe",
+  "subtitle": "Atenção, origem dos leads e desempenho de cada consultor.",
+  "minutes": 7,
+  "blocks": [
+   {
+    "t": "callout",
+    "kind": "objetivo",
+    "label": "Objetivo",
+    "text": "Agir rápido quando um lead fica sem atendimento."
+   },
+   {
+    "t": "callout",
+    "kind": "dica",
+    "label": "Como ler as fotos",
+    "text": "os quadros **vermelhos numerados** mostram onde clicar; a explicação de cada número está logo abaixo da foto."
+   },
+   {
+    "t": "figure",
+    "src": "g02-1.webp",
+    "w": 1440,
+    "h": 900,
+    "title": "Atenção e origem",
+    "body": [
+     {
+      "t": "legend",
+      "items": [
+       "**De onde vieram**: orgânico (divisão igual), links dos consultores, anúncios em grupo e individuais.",
+       "**Canais**: WhatsApp, Google pago e orgânico, Meta, Instagram, landing."
+      ]
+     }
+    ]
+   },
+   {
+    "t": "p",
+    "text": "No topo do painel, o aviso **Atenção** mostra leads **aguardando consultor** e leads **sem primeiro contato há mais de 2 h**. Comece por ele."
+   },
+   {
+    "t": "figure",
+    "src": "g02-2.webp",
+    "w": 1440,
+    "h": 900,
+    "title": "Desempenho por consultor",
+    "body": [
+     {
+      "t": "legend",
+      "items": [
+       "**Tempo de resposta**",
+       "**Último acesso**",
+       "**CVR** (vendas ÷ leads)"
+      ]
+     }
+    ]
+   },
+   {
+    "t": "h2",
+    "text": "Rotina do gestor"
+   },
+   {
+    "t": "steps",
+    "items": [
+     "Todo dia: veja **Atenção** e cobre o primeiro contato dos leads parados.",
+     "Todo dia: confira quem não acessa (último acesso) e quem demora a responder.",
+     "Toda semana: veja **De onde vieram** e a **Divulgação** (G07).",
+     "Todo mês: compare a conversão de cada consultor e converse com quem está abaixo."
+    ]
+   }
+  ],
+  "learned": [
+   "Atenção = leads parados.",
+   "Tempo de resposta e último acesso.",
+   "Rotina diária e semanal."
+  ]
+ },
+ {
+  "slug": "g03",
+  "code": "G03",
+  "trail": "Trilha do gestor",
+  "title": "Leads da unidade: filtros e exportação",
+  "subtitle": "Todos os leads, de toda a equipe.",
+  "minutes": 5,
+  "blocks": [
+   {
+    "t": "callout",
+    "kind": "objetivo",
+    "label": "Objetivo",
+    "text": "Filtrar e exportar os leads."
+   },
+   {
+    "t": "callout",
+    "kind": "dica",
+    "label": "Como ler as fotos",
+    "text": "os quadros **vermelhos numerados** mostram onde clicar; a explicação de cada número está logo abaixo da foto."
+   },
+   {
+    "t": "figure",
+    "src": "g03-1.webp",
+    "w": 1440,
+    "h": 900,
+    "title": "Leads da unidade",
+    "body": [
+     {
+      "t": "legend",
+      "items": [
+       "**Filtros**: status, temperatura, origem, responsável, produto, campanha.",
+       "**Exportar CSV**.",
+       "**XLSX** (Excel).",
+       "**Responsável**: o consultor de cada lead."
+      ]
+     }
+    ]
+   },
+   {
+    "t": "callout",
+    "kind": "atencao",
+    "label": "Atenção",
+    "text": "Arquivos exportados têm dados pessoais (LGPD). Guarde com cuidado e não envie para fora da empresa."
+   }
+  ],
+  "learned": [
+   "Filtre por consultor e origem.",
+   "Exporte em CSV ou Excel.",
+   "Cuidado com dados pessoais."
+  ]
+ },
+ {
+  "slug": "g04",
+  "code": "G04",
+  "trail": "Trilha do gestor",
+  "title": "Inbox da equipe e transferências",
+  "subtitle": "Acompanhar as conversas e redistribuir.",
+  "minutes": 5,
+  "blocks": [
+   {
+    "t": "callout",
+    "kind": "objetivo",
+    "label": "Objetivo",
+    "text": "Transferir uma conversa para outro consultor."
+   },
+   {
+    "t": "callout",
+    "kind": "dica",
+    "label": "Como ler as fotos",
+    "text": "os quadros **vermelhos numerados** mostram onde clicar; a explicação de cada número está logo abaixo da foto."
+   },
+   {
+    "t": "figure",
+    "src": "g04-1.webp",
+    "w": 1440,
+    "h": 900,
+    "title": "Conversa aberta pelo gestor",
+    "body": [
+     {
+      "t": "legend",
+      "items": [
+       "**Transferir**: passa a conversa (e o lead) para outro consultor."
+      ]
+     }
+    ]
+   },
+   {
+    "t": "figure",
+    "src": "g04-2.webp",
+    "w": 1440,
+    "h": 900,
+    "title": "Escolhendo o consultor",
+    "body": [
+     {
+      "t": "legend",
+      "items": [
+       "Escolha o consultor de destino e confirme. Ele é avisado e a IA fica pausada."
+      ]
+     }
+    ]
+   },
+   {
+    "t": "list",
+    "items": [
+     "Use quando um consultor estiver de férias, doente ou sobrecarregado.",
+     "A transferência fica registrada no histórico do lead."
+    ]
+   }
+  ],
+  "learned": [
+   "Acompanhe as conversas de todos.",
+   "Transferir quando precisar.",
+   "Tudo fica registrado."
+  ]
+ },
+ {
+  "slug": "g05",
+  "code": "G05",
+  "trail": "Trilha do gestor",
+  "title": "Funil e relatórios",
+  "subtitle": "O funil de vendas de toda a equipe e os relatórios.",
+  "minutes": 5,
+  "blocks": [
+   {
+    "t": "callout",
+    "kind": "objetivo",
+    "label": "Objetivo",
+    "text": "Acompanhar a negociação da equipe."
+   },
+   {
+    "t": "figure",
+    "src": "g05-1.webp",
+    "w": 1440,
+    "h": 900,
+    "title": "Funil da equipe",
+    "body": []
+   },
+   {
+    "t": "p",
+    "text": "Mesmo funil do consultor (Módulo C14), com os clientes de todos. Veja onde os clientes param e os **motivos de perda** mais comuns."
+   },
+   {
+    "t": "figure",
+    "src": "g05-2.webp",
+    "w": 1440,
+    "h": 900,
+    "title": "Relatórios",
+    "body": []
+   }
+  ],
+  "learned": [
+   "Funil de todos.",
+   "Onde os clientes param.",
+   "Relatórios para análise."
+  ]
+ },
+ {
+  "slug": "g06",
+  "code": "G06",
+  "trail": "Trilha do gestor",
+  "title": "Anúncios: grupo e individual",
+  "subtitle": "Cadastrar anúncios pagos e dividir os leads.",
+  "minutes": 7,
+  "blocks": [
+   {
+    "t": "callout",
+    "kind": "objetivo",
+    "label": "Objetivo",
+    "text": "Cadastrar um anúncio e entender a divisão dos leads."
+   },
+   {
+    "t": "callout",
+    "kind": "dica",
+    "label": "Como ler as fotos",
+    "text": "os quadros **vermelhos numerados** mostram onde clicar; a explicação de cada número está logo abaixo da foto."
+   },
+   {
+    "t": "figure",
+    "src": "g06-1.webp",
+    "w": 1440,
+    "h": 900,
+    "title": "Anúncios patrocinados",
+    "body": [
+     {
+      "t": "legend",
+      "items": [
+       "**+ Novo anúncio**"
+      ]
+     }
+    ]
+   },
+   {
+    "t": "table",
+    "head": [
+     "Tipo",
+     "Divisão dos leads"
+    ],
+    "rows": [
+     [
+      "Individual",
+      "Um consultor pagou: todos os leads são dele."
+     ],
+     [
+      "Em grupo",
+      "Vários pagaram: divididos igualmente **só entre quem pagou**."
+     ],
+     [
+      "Orgânico (sem anúncio)",
+      "Divididos igualmente entre **todos**."
+     ]
+    ]
+   },
+   {
+    "t": "figure",
+    "src": "g06-2.webp",
+    "w": 1440,
+    "h": 900,
+    "title": "Novo anúncio",
+    "body": [
+     {
+      "t": "legend",
+      "items": [
+       "Nome, rede (Google Ads, Meta, Instagram, outro), **quem pagou**, verba e ID da campanha."
+      ]
+     }
+    ]
+   },
+   {
+    "t": "steps",
+    "items": [
+     "Clique em **+ Novo anúncio**.",
+     "Preencha e marque **quem pagou**.",
+     "Salve e use o **link do anúncio** mostrado como destino da campanha.",
+     "Acompanhe custo por lead e leads de cada consultor na lista."
+    ]
+   }
+  ],
+  "learned": [
+   "Individual: tudo para quem pagou.",
+   "Grupo: dividido entre quem pagou.",
+   "Use o link do anúncio na campanha."
+  ]
+ },
+ {
+  "slug": "g07",
+  "code": "G07",
+  "trail": "Trilha do gestor",
+  "title": "Divulgação: resultados da equipe",
+  "subtitle": "O que o kit, os canais e as indicações estão trazendo.",
+  "minutes": 5,
+  "blocks": [
+   {
+    "t": "callout",
+    "kind": "objetivo",
+    "label": "Objetivo",
+    "text": "Ler os resultados da divulgação."
+   },
+   {
+    "t": "callout",
+    "kind": "dica",
+    "label": "Como ler as fotos",
+    "text": "os quadros **vermelhos numerados** mostram onde clicar; a explicação de cada número está logo abaixo da foto."
+   },
+   {
+    "t": "figure",
+    "src": "g07-1.webp",
+    "w": 1440,
+    "h": 900,
+    "title": "Resultados",
+    "body": [
+     {
+      "t": "legend",
+      "items": [
+       "**Por consultor**: canais, leads por canal, por indicação e vendas.",
+       "**Canais que mais trazem cliente**: onde vale repetir."
+      ]
+     }
+    ]
+   },
+   {
+    "t": "callout",
+    "kind": "dica",
+    "label": "Dica",
+    "text": "Compartilhe com a equipe os canais que mais vendem: é a melhor dica de divulgação."
+   }
+  ],
+  "learned": [
+   "Leads e vendas por consultor.",
+   "Canais campeões.",
+   "Repita o que funciona."
+  ]
+ },
+ {
+  "slug": "g08",
+  "code": "G08",
+  "trail": "Trilha do gestor",
+  "title": "Modelos do kit: aprovar os textos",
+  "subtitle": "Os textos que a equipe publica todo dia.",
+  "minutes": 6,
+  "blocks": [
+   {
+    "t": "callout",
+    "kind": "objetivo",
+    "label": "Objetivo",
+    "text": "Criar, revisar e aprovar os modelos do kit."
+   },
+   {
+    "t": "callout",
+    "kind": "dica",
+    "label": "Como ler as fotos",
+    "text": "os quadros **vermelhos numerados** mostram onde clicar; a explicação de cada número está logo abaixo da foto."
+   },
+   {
+    "t": "figure",
+    "src": "g08-1.webp",
+    "w": 1440,
+    "h": 900,
+    "title": "Modelos do kit",
+    "body": [
+     {
+      "t": "legend",
+      "items": [
+       "**Aguardando aprovação**: ainda não vai para a equipe.",
+       "**Aprovar**: entra no kit de todos.",
+       "**editar** o texto.",
+       "**+ Novo modelo**."
+      ]
+     }
+    ]
+   },
+   {
+    "t": "figure",
+    "src": "g08-2.webp",
+    "w": 1440,
+    "h": 900,
+    "title": "Escrevendo um modelo",
+    "body": [
+     {
+      "t": "legend",
+      "items": [
+       "Título, rede, público e texto. Use {link} onde entra o link do consultor e {primeiro_nome} para o nome dele."
+      ]
+     }
+    ]
+   },
+   {
+    "t": "callout",
+    "kind": "atencao",
+    "label": "Atenção",
+    "text": "Só aprove textos dentro da comunicação oficial da Ademicon: sem taxas, valores ou promessa de contemplação. Texto editado sai do kit até ser aprovado de novo."
+   }
+  ],
+  "learned": [
+   "Só aprovado vai para o kit.",
+   "{link} e {primeiro_nome}.",
+   "Nada fora da comunicação oficial."
+  ]
+ },
+ {
+  "slug": "g09",
+  "code": "G09",
+  "trail": "Trilha do gestor",
+  "title": "Funil do site (landing)",
+  "subtitle": "Visitas, simulações, contatos e vendas do site.",
+  "minutes": 5,
+  "blocks": [
+   {
+    "t": "callout",
+    "kind": "objetivo",
+    "label": "Objetivo",
+    "text": "Ler o funil do site."
+   },
+   {
+    "t": "figure",
+    "src": "g09-1.webp",
+    "w": 1440,
+    "h": 1691,
+    "title": "Funil do site",
+    "body": []
+   },
+   {
+    "t": "list",
+    "items": [
+     "**Visitas** → **Simulações** → **Frio / Morno / Quente** → **Convertidos**.",
+     "Cliques no WhatsApp e no telefone.",
+     "**Google orgânico × pago**: o que veio de anúncio e o que veio de busca."
+    ]
+   },
+   {
+    "t": "callout",
+    "kind": "dica",
+    "label": "Dica",
+    "text": "Muita visita e pouca simulação? O anúncio pode estar atraindo o público errado."
+   }
+  ],
+  "learned": [
+   "Visitas até vendas.",
+   "Orgânico × pago.",
+   "Ajuste anúncios pelo funil."
+  ]
+ },
+ {
+  "slug": "g10",
+  "code": "G10",
+  "trail": "Trilha do gestor",
+  "title": "Publicar materiais de treinamento (Super Admin)",
+  "subtitle": "Subir estes PDFs e acompanhar quem concluiu.",
+  "minutes": 5,
+  "blocks": [
+   {
+    "t": "callout",
+    "kind": "objetivo",
+    "label": "Objetivo",
+    "text": "Publicar o treinamento na plataforma."
+   },
+   {
+    "t": "callout",
+    "kind": "dica",
+    "label": "Como ler as fotos",
+    "text": "os quadros **vermelhos numerados** mostram onde clicar; a explicação de cada número está logo abaixo da foto."
+   },
+   {
+    "t": "p",
+    "text": "Quem publica os materiais é a **equipe da plataforma (Super Admin)**. A equipe vê os materiais em **Treinamento** e marca o que concluiu."
+   },
+   {
+    "t": "figure",
+    "src": "g10-1.webp",
+    "w": 1440,
+    "h": 900,
+    "title": "Treinamento (visão do Super Admin)",
+    "body": [
+     {
+      "t": "legend",
+      "items": [
+       "**+ Adicionar conteúdo**.",
+       "**Progresso da equipe**: quem concluiu cada material."
+      ]
+     }
+    ]
+   },
+   {
+    "t": "figure",
+    "src": "g10-2.webp",
+    "w": 1440,
+    "h": 900,
+    "title": "Adicionar conteúdo",
+    "body": [
+     {
+      "t": "legend",
+      "items": [
+       "Título, descrição, **link** (vídeo do YouTube/Vimeo ou link do PDF), módulo/categoria e ordem."
+      ]
+     }
+    ]
+   },
+   {
+    "t": "steps",
+    "items": [
+     "Suba o PDF num local com link (por exemplo Google Drive, com acesso \"qualquer pessoa com o link\").",
+     "Em Treinamento → **+ Adicionar conteúdo**, cole o link.",
+     "Use a categoria **Trilha do consultor** ou **Trilha do gestor** e a ordem do módulo (C01 = 1, C02 = 2…)."
+    ]
+   }
+  ],
+  "learned": [
+   "Super Admin publica.",
+   "Link do PDF ou vídeo.",
+   "Progresso da equipe."
+  ]
+ },
+ {
+  "slug": "g11",
+  "code": "G11",
+  "trail": "Trilha do gestor",
+  "title": "O que é com a equipe da plataforma",
+  "subtitle": "Pedidos que vão para o suporte (Super Admin).",
+  "minutes": 3,
+  "blocks": [
+   {
+    "t": "callout",
+    "kind": "objetivo",
+    "label": "Objetivo",
+    "text": "Saber o que pedir e para quem."
+   },
+   {
+    "t": "table",
+    "head": [
+     "Precisa de…",
+     "Quem faz"
+    ],
+    "rows": [
+     [
+      "Cadastrar ou desligar consultor",
+      "Equipe da plataforma (Super Admin)"
+     ],
+     [
+      "Cadastrar ou trocar número de WhatsApp",
+      "Equipe da plataforma"
+     ],
+     [
+      "Trocar o link próprio de um consultor",
+      "Equipe da plataforma"
+     ],
+     [
+      "Senha nova para um consultor",
+      "Equipe da plataforma"
+     ],
+     [
+      "Integrações: WhatsApp oficial, Instagram, Google/Meta Ads",
+      "Equipe da plataforma"
+     ],
+     [
+      "Anúncios, aprovação do kit, acompanhamento",
+      "Você (gestor)"
+     ]
+    ]
+   },
+   {
+    "t": "callout",
+    "kind": "nota",
+    "label": "Na prática",
+    "text": "Ao pedir algo, informe o nome e o e-mail do consultor e o que precisa. Isso agiliza."
+   },
+   {
+    "t": "p",
+    "text": "Fim da trilha. Dúvidas? Fale com o gestor da unidade.",
+    "small": true
+   }
+  ],
+  "learned": [
+   "Cadastros e integrações: suporte.",
+   "Anúncios e kit: gestor.",
+   "Peça com nome e e-mail."
+  ]
+ }
+]

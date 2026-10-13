@@ -28,13 +28,18 @@ export function embedUrl(url: string): string | null {
   return null;
 }
 
+/** Aula da própria plataforma (/treinamento/aula/c01) ligada a um conteúdo; aceita também o link antigo do PDF. */
+export function lessonSlug(url: string): string | null {
+  return url.match(/\/(?:treinamento\/aula|training\/pdf)\/(00|[cg]\d\d)(?:\.pdf)?$/i)?.[1].toLowerCase() ?? null;
+}
+
 export async function listTraining(ctx: Ctx, opts: { includeInactive?: boolean } = {}) {
   const items = await db.trainingItem.findMany({
     where: { organizationId: ctx.orgId, ...(opts.includeInactive ? {} : { active: true }) },
     orderBy: [{ category: 'asc' }, { order: 'asc' }, { createdAt: 'asc' }],
   });
   const done = ctx.userId ? await db.trainingProgress.findMany({ where: { organizationId: ctx.orgId, userId: ctx.userId }, select: { itemId: true, completedAt: true } }) : [];
-  return items.map((i) => ({ ...i, embed: embedUrl(i.url), completedAt: done.find((d) => d.itemId === i.id)?.completedAt ?? null }));
+  return items.map((i) => ({ ...i, embed: embedUrl(i.url), lesson: lessonSlug(i.url), completedAt: done.find((d) => d.itemId === i.id)?.completedAt ?? null }));
 }
 
 export async function saveTraining(ctx: Ctx, raw: unknown, id?: string) {
