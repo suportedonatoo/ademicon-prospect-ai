@@ -1,3 +1,4 @@
+import { env } from '@/lib/env';
 import { db } from '@/lib/db';
 import { logger } from '@/lib/logger';
 import { publish } from '@/lib/events';
@@ -71,9 +72,18 @@ export async function consultantNumbers(orgId: string, consultantId: string) {
 }
 
 /** Número principal utilizável do consultor (para abrir conversa nova com lead dele). */
+/**
+ * Números do consultor por onde dá para ENVIAR. Na API oficial só serve número que está na conta da Meta
+ * (tem phone_number_id). O número pessoal cadastrado só como contato não envia: a conversa segue pelo bot.
+ */
+async function sendableConsultantNumbers(orgId: string, consultantId: string) {
+  const official = env.WHATSAPP_PROVIDER === 'cloud-api';
+  return db.whatsAppNumber.findMany({ where: { organizationId: orgId, consultantId, ...(official ? { providerNumberId: { not: null } } : {}) }, select: numberSelect, orderBy: [{ priority: 'asc' }, { createdAt: 'asc' }] });
+}
+
 export async function primaryNumberFor(orgId: string, consultantId: string | null | undefined) {
   if (!consultantId) return null;
-  return nextUsable(await consultantNumbers(orgId, consultantId));
+  return nextUsable(await sendableConsultantNumbers(orgId, consultantId));
 }
 
 /**
@@ -86,9 +96,10 @@ export async function resolveSendingNumber(orgId: string, conv: { whatsappNumber
   if (current && isHealthy(current) && !excludeIds.includes(current.id)) return { number: current, previous: null };
   const exclude = [...excludeIds, ...(current ? [current.id] : [])];
   const ownerId = current?.consultantId ?? conv.assignedConsultantId;
-  let next = ownerId ? nextUsable(await consultantNumbers(orgId, ownerId), exclude) : null;
-  // Sem dono: números da operação (nunca usa o número pessoal de outro consultor).
-  if (!next && !ownerId) next = nextUsable(await db.whatsAppNumber.findMany({ where: { organizationId: orgId, consultantId: null }, select: numberSelect }), exclude);
+  let next = ownerId ? nextUsable(await sendableConsultantNumbers(orgId, ownerId), exclude) : null;
+  // Sem dono — ou, na API oficial, dono sem número na conta da Meta: números da operação (o bot).
+  // Nunca usa o número pessoal de outro consultor.
+  if (!next && (!ownerId || env.WHATSAPP_PROVIDER === 'cloud-api')) next = nextUsable(await db.whatsAppNumber.findMany({ where: { organizationId: orgId, consultantId: null }, select: numberSelect }), exclude);
   return { number: next, previous: current };
 }
 
