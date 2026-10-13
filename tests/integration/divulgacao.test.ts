@@ -92,7 +92,12 @@ describe('Divulgação: kit do dia, canais e indicação', () => {
   });
 
   it('canal para o site mestre: o lead entra na divisão, mas a origem continua registrada', async () => {
-    const link = await createTrackedLink(consultor, { kind: 'CANAL', name: 'Grupo Brasileiros em Lisboa', network: 'GRUPOS', target: 'MESTRE' });
+    // Site mestre é só para a gestão: para o consultor, o pedido vira link próprio.
+    const proprio = await createTrackedLink(consultor, { kind: 'CANAL', name: 'Tentativa do consultor', network: 'GRUPOS', target: 'MESTRE' });
+    expect(proprio.target).toBe('PROPRIO');
+    await db.trackedLink.delete({ where: { id: proprio.id } });
+    const gestor: Ctx = { ...consultor, roleKey: 'MANAGER' };
+    const link = await createTrackedLink(gestor, { kind: 'CANAL', name: 'Grupo Brasileiros em Lisboa', network: 'GRUPOS', target: 'MESTRE' });
     expect(link.url.startsWith(masterLandingUrl().replace(/\/$/, ''))).toBe(true);
     const visit = await trackSiteVisit(svc, 'central', { c: link.code, event: 'PAGE_VIEW' });
     const sim = await simulateCold(svc, 'central', { sessionKey: visit.sessionKey, product: 'IMOVEL', value: 250000 });

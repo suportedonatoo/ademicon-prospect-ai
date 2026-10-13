@@ -18,6 +18,7 @@ export default async function OutreachPage() {
     );
   }
   const d = await myOutreach(ctx);
+  const allowMaster = ctx.roleKey !== 'CONSULTANT';
   const all = [...d.channels, ...d.referrals];
   const total = (k: 'leads' | 'hot' | 'sales') => all.reduce((n, l) => n + l[k], 0);
 
@@ -47,13 +48,13 @@ export default async function OutreachPage() {
       </Card>
 
       <Card title="Meus canais" subtitle="Um link para cada lugar onde você divulga. Crie um para cada grupo ou rede e use só ali — o número de leads mostra o que funciona." className="mb-4">
-        <NewChannel />
+        <NewChannel allowMaster={allowMaster} />
         <Table className="mt-4">
           <thead>
             <tr>
               <Th>Canal</Th>
               <Th>Rede</Th>
-              <Th>Leva para</Th>
+              {allowMaster && <Th>Leva para</Th>}
               <Th className="text-right">Leads</Th>
               <Th className="text-right">Quentes</Th>
               <Th className="text-right">Vendas</Th>
@@ -68,7 +69,7 @@ export default async function OutreachPage() {
                   <div className="text-xs text-muted truncate max-w-80 font-mono">{c.url.replace(/^https?:\/\//, '')}</div>
                 </Td>
                 <Td className="text-xs">{networkLabel(c.network)}</Td>
-                <Td className="text-xs">{c.target === 'MESTRE' ? 'Site mestre (divisão)' : 'Meu link'}</Td>
+                {allowMaster && <Td className="text-xs">{c.target === 'MESTRE' ? 'Site mestre (divisão)' : 'Meu link'}</Td>}
                 <Td className="text-right tabular">{num(c.leads)}</Td>
                 <Td className="text-right tabular">{num(c.hot)}</Td>
                 <Td className="text-right tabular font-semibold">{num(c.sales)}</Td>

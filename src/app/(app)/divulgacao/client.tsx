@@ -79,13 +79,13 @@ function PostCard({ post, channels }: { post: Post; channels: LinkRow[] }) {
 
 // ───────── canais ─────────
 
-export function NewChannel() {
+export function NewChannel({ allowMaster }: { allowMaster: boolean }) {
   const router = useRouter();
   const [v, setV] = useState({ name: '', network: 'GRUPOS', target: 'PROPRIO' });
   const [busy, setBusy] = useState(false);
   return (
     <form
-      className="grid gap-3 sm:grid-cols-[1fr_190px_220px_auto] items-end"
+      className={`grid gap-3 items-end ${allowMaster ? 'sm:grid-cols-[1fr_190px_220px_auto]' : 'sm:grid-cols-[1fr_190px_auto]'}`}
       onSubmit={async (e) => {
         e.preventDefault();
         setBusy(true);
@@ -113,12 +113,12 @@ export function NewChannel() {
           ))}
         </select>
       </Field>
-      <Field label="Link de destino">
+      {allowMaster && <Field label="Link de destino">
         <select className={inputClass} value={v.target} onChange={(e) => setV({ ...v, target: e.target.value })}>
           <option value="PROPRIO">Meu link (o lead é meu)</option>
           <option value="MESTRE">Site mestre (divisão igual)</option>
         </select>
-      </Field>
+      </Field>}
       <button className={buttonClass('primary')} disabled={busy || v.name.trim().length < 2}>
         {busy ? 'Criando…' : '+ Criar canal'}
       </button>

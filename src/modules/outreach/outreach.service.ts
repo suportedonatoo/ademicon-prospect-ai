@@ -155,7 +155,8 @@ export async function createTrackedLink(ctx: Ctx, raw: unknown) {
   // Indicação é sempre para o link próprio: quem indica está ajudando ESTE consultor.
   const kind = input.kind;
   const network = kind === 'INDICACAO' ? 'INDICACAO' : input.network;
-  const target = kind === 'INDICACAO' ? 'PROPRIO' : input.target;
+  // Site mestre (divisão igual) só para a gestão: consultor divulga sempre o link próprio.
+  const target = kind === 'INDICACAO' || ctx.roleKey === 'CONSULTANT' ? 'PROPRIO' : input.target;
   const count = await db.trackedLink.count({ where: { consultantId, active: true } });
   if (count >= 200) throw BadRequest('Limite de 200 links ativos. Arquive os que não usa mais.');
   const link = await db.trackedLink.create({ data: { organizationId: ctx.orgId, consultantId, kind, name: input.name, network, target, code: newCode(network) } });
