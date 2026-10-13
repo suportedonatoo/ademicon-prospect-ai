@@ -80,6 +80,10 @@ async function execute(name: JobName, data: Record<string, unknown>) {
         whatsappFailover: await scanNumbers(orgId), // números fora do ar com conversas abertas → backup
       }));
     }
+    case 'prospecting.daily': {
+      const { runDailyListIfDue } = await import('@/modules/business-prospecting/daily-list.service');
+      return forEachOrg((orgId) => runDailyListIfDue(orgId));
+    }
     case 'duplicates.scan': {
       const { scanDuplicates } = await import('@/modules/leads/duplicates.service');
       return forEachOrg((orgId) => scanDuplicates(orgId));

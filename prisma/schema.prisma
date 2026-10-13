@@ -1073,11 +1073,24 @@ model BusinessProspect {
   collectedAt    DateTime        @default(now())
   status         String          @default("NEW") // NEW | CONVERTED | DISCARDED
   leadId         String?
+  /// Lista diária: consultor que recebeu a empresa e o dia da lista.
+  assignedConsultantId String?
+  assignedDay          DateTime? @db.Date
   search         ProspectSearch? @relation(fields: [searchId], references: [id])
 
+  @@index([organizationId, assignedConsultantId, assignedDay])
   @@index([organizationId, city])
   @@index([organizationId, status])
   @@index([cnpj])
+}
+
+/// Contador diário de chamadas a APIs pagas (teto de custo). Ex.: key = "google_places".
+model ApiUsage {
+  key   String
+  day   DateTime @db.Date
+  count Int      @default(0)
+
+  @@id([key, day])
 }
 
 model ImportJob {

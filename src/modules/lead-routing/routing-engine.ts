@@ -44,6 +44,8 @@ export interface Candidate {
   active: boolean;
   maxOpenLeads: number;
   openLeads: number;
+  /** Leads recebidos hoje (teto DAILY_LEAD_MAX). */
+  leadsToday?: number;
   priority: number;
   /** Roteamento avançado (V2): limite de oportunidades abertas e horário de trabalho. */
   maxOpenOpportunities?: number;
@@ -77,6 +79,9 @@ export function matchRule(rule: RoutingRuleLike, lead: LeadLike): { matched: boo
   return { matched: ok, reasons };
 }
 
+/** Nenhum consultor recebe mais do que isto por dia na distribuição. */
+export const DAILY_LEAD_MAX = 100;
+
 export function filterCandidates(candidates: Candidate[], opts: { product?: string | null; capacity?: number | null; pjIds?: string[] }) {
   const eligible: Candidate[] = [];
   const rejected: { id: string; name: string; reason: string }[] = [];
@@ -88,6 +93,7 @@ export function filterCandidates(candidates: Candidate[], opts: { product?: stri
     else if (!c.available) reason = 'indisponível';
     else if (opts.product && c.products.length && !c.products.includes(opts.product)) reason = 'sem especialização no produto';
     else if (c.openLeads >= cap) reason = `capacidade atingida (${c.openLeads}/${cap})`;
+    else if ((c.leadsToday ?? 0) >= DAILY_LEAD_MAX) reason = `limite diário atingido (${c.leadsToday}/${DAILY_LEAD_MAX})`;
     else if (c.maxOpenOpportunities && (c.openOpportunities ?? 0) >= c.maxOpenOpportunities) reason = `limite de oportunidades (${c.openOpportunities}/${c.maxOpenOpportunities})`;
     if (reason) rejected.push({ id: c.id, name: c.name, reason });
     else eligible.push(c);

@@ -1,4 +1,5 @@
 import { env } from '@/lib/env';
+import { db } from '@/lib/db';
 import type { BusinessResult, BusinessSearchFilters, MapsProvider } from '../types';
 import { int, pick, rng } from '../mock-random';
 
@@ -6,6 +7,23 @@ import { int, pick, rng } from '../mock-random';
  * Provedores de mapas. Somente APIs oficiais e licenciadas (Places API / Bing Maps API).
  * NÃO há scraping. Sem chave → mock com empresas FICTÍCIAS.
  */
+/** Dia de cobrança do Google (a cota diária e a fatura viram à meia-noite do Pacífico). */
+const GOOGLE_DAY = `(now() AT TIME ZONE 'America/Los_Angeles')::date`;
+
+/** Requisições ao Google Places ainda permitidas hoje (teto GOOGLE_MAPS_DAILY_REQUESTS). */
+export async function googleRequestsLeft() {
+  const rows = await db.$queryRawUnsafe<{ count: number }[]>(`SELECT count FROM "ApiUsage" WHERE key = 'google_places' AND day = ${GOOGLE_DAY}`);
+  return Math.max(0, env.GOOGLE_MAPS_DAILY_REQUESTS - (rows[0]?.count ?? 0));
+}
+
+/** Conta UMA requisição (cada página é cobrada) e recusa quando o teto do dia já foi usado. */
+async function takeGoogleRequest() {
+  const rows = await db.$queryRawUnsafe<{ count: number }[]>(
+    `INSERT INTO "ApiUsage" (key, day, count) VALUES ('google_places', ${GOOGLE_DAY}, 1) ON CONFLICT (key, day) DO UPDATE SET count = "ApiUsage".count + 1 RETURNING count`
+  );
+  if (rows[0].count > env.GOOGLE_MAPS_DAILY_REQUESTS) throw new Error(`Limite de ${env.GOOGLE_MAPS_DAILY_REQUESTS} buscas por dia no Google atingido. Volta a funcionar amanhã.`);
+}
+
 /**
  * GOOGLE MAPS — Places API (New), Text Search oficial. Cobrança por requisição no Google Cloud.
  * Campos pedidos (FieldMask) só os necessários para prospecção.
@@ -17,6 +35,7 @@ export class GooglePlacesProvider implements MapsProvider {
   mode = 'real' as const;
 
   private async page(textQuery: string, pageSize: number, pageToken?: string) {
+    await takeGoogleRequest();
     const res = await fetch('https://places.googleapis.com/v1/places:searchText', {
       method: 'POST',
       headers: {

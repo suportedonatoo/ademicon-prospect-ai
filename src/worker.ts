@@ -42,6 +42,7 @@ async function scheduleRepeatables() {
   await queue.upsertJobScheduler('followup-scan', { every: 15 * 60_000 }, { name: 'followup.scan', data: {} });
   await queue.upsertJobScheduler('whatsapp-reset', { pattern: '0 0 * * *', tz: 'America/Sao_Paulo' }, { name: 'whatsapp.reset_counters', data: {} });
   await queue.upsertJobScheduler('operations-scan', { every: 5 * 60_000 }, { name: 'operations.scan', data: {} });
+  await queue.upsertJobScheduler('prospecting-daily', { every: 15 * 60_000 }, { name: 'prospecting.daily', data: {} });
   await queue.upsertJobScheduler('intelligence-batch', { every: 60 * 60_000 }, { name: 'intelligence.batch', data: {} });
   await queue.upsertJobScheduler('duplicates-scan', { every: 6 * 60 * 60_000 }, { name: 'duplicates.scan', data: {} });
   await queue.upsertJobScheduler('insights-generate', { pattern: '0 6 * * *', tz: 'America/Sao_Paulo' }, { name: 'insights.generate', data: {} });

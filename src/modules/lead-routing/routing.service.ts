@@ -50,9 +50,16 @@ async function loadCandidates(orgId: string, pjIds?: string[]): Promise<Candidat
   });
   const periodMap = new Map(period.map((p) => [p.consultantId, p._count._all]));
   const now = new Date();
+  const today = await db.lead.groupBy({
+    by: ['consultantId'],
+    where: { organizationId: orgId, consultantId: { in: consultants.map((c) => c.id) }, assignedAt: { gte: new Date(now.getTime() - 24 * 3600_000) }, deletedAt: null },
+    _count: { _all: true },
+  });
+  const todayMap = new Map(today.map((t) => [t.consultantId, t._count._all]));
   return consultants.map(({ workingHours, maxOpenOpportunities, splitBaseline, splitBaselineAt, ...c }) => ({
     ...c,
     openLeads: loadMap.get(c.id) ?? 0,
+    leadsToday: todayMap.get(c.id) ?? 0, // últimas 24 h
     // Quem entrou no meio do mês começa empatado com a equipe (linha de base), não com zero.
     periodLeads: (periodMap.get(c.id) ?? 0) + baselineOf({ splitBaseline, splitBaselineAt }),
     ...(advanced ? { maxOpenOpportunities, openOpportunities: oppMap.get(c.id) ?? 0, withinWorkingHours: withinWorkingHours(workingHours as never, now) } : {}),

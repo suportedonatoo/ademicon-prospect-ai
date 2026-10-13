@@ -6,6 +6,10 @@ import { assertCan, systemCtx } from '../auth/context';
 import { providers } from '../integrations/registry';
 import { acquire } from '../leads/acquisition-engine';
 import { normalizeCnpj, normalizePhone } from '@/lib/normalize';
+import type { BusinessResult } from '../integrations/types';
+
+/** Consultor vê as empresas das buscas que ele fez e as que recebeu na lista diária. */
+const ownProspects = (ctx: Ctx) => (ctx.scope === 'OWN' ? { OR: [{ search: { createdById: ctx.userId ?? '__none__' } }, { assignedConsultantId: ctx.consultantId ?? '__none__' }] } : {});
 
 // Business Prospecting — somente fontes autorizadas (APIs oficiais/licenciadas). Sem scraping.
 // Empresas convertidas em lead NÃO recebem mensagens automáticas sem consentimento.
@@ -23,21 +27,16 @@ export const searchInput = z.object({
   limit: z.coerce.number().int().min(1).max(50).default(20),
 });
 
-export async function searchBusinesses(ctx: Ctx, raw: unknown) {
-  assertCan(ctx, 'prospecting.search');
-  const f = searchInput.parse(raw);
-  const provider = f.provider === 'google_maps' ? providers.googleMaps : f.provider === 'bing_maps' ? providers.bingMaps : providers.companyRegistry;
-  const results = 'searchBusinesses' in provider ? await provider.searchBusinesses(f) : await provider.search(f);
-  const search = await db.prospectSearch.create({ data: { organizationId: ctx.orgId, provider: `${provider.key}:${provider.mode}`, filters: f, resultCount: results.length, createdById: ctx.userId } });
-
-  // Evita duplicar a mesma empresa (mesma referência de fonte ou CNPJ) já coletada.
+/** Grava a busca e as empresas ainda não coletadas (mesma referência de fonte = mesma empresa). */
+export async function saveSearchResults(orgId: string, provider: { key: string; name: string; mode: string }, f: object, results: BusinessResult[], createdById: string | null) {
+  const search = await db.prospectSearch.create({ data: { organizationId: orgId, provider: `${provider.key}:${provider.mode}`, filters: f, resultCount: results.length, createdById } });
   const refs = results.map((r) => r.sourceRef);
-  const existing = await db.businessProspect.findMany({ where: { organizationId: ctx.orgId, sourceRef: { in: refs } }, select: { sourceRef: true } });
+  const existing = await db.businessProspect.findMany({ where: { organizationId: orgId, sourceRef: { in: refs } }, select: { sourceRef: true } });
   const known = new Set(existing.map((e) => e.sourceRef));
   const fresh = results.filter((r) => !known.has(r.sourceRef));
   await db.businessProspect.createMany({
     data: fresh.map((r) => ({
-      organizationId: ctx.orgId,
+      organizationId: orgId,
       searchId: search.id,
       name: r.name,
       category: r.category,
@@ -55,16 +54,26 @@ export async function searchBusinesses(ctx: Ctx, raw: unknown) {
       sourceRef: r.sourceRef,
     })),
   });
-  return { search, total: results.length, added: fresh.length, mode: provider.mode };
+  return { search, added: fresh.length };
 }
 
-export async function listProspects(ctx: Ctx, opts: { status?: string; city?: string; q?: string; page?: number } = {}) {
+export async function searchBusinesses(ctx: Ctx, raw: unknown) {
+  assertCan(ctx, 'prospecting.search');
+  const f = searchInput.parse(raw);
+  const provider = f.provider === 'google_maps' ? providers.googleMaps : f.provider === 'bing_maps' ? providers.bingMaps : providers.companyRegistry;
+  const results = 'searchBusinesses' in provider ? await provider.searchBusinesses(f) : await provider.search(f);
+  const { search, added } = await saveSearchResults(ctx.orgId, provider, f, results, ctx.userId);
+  return { search, total: results.length, added, mode: provider.mode };
+}
+
+export async function listProspects(ctx: Ctx, opts: { status?: string; city?: string; q?: string; page?: number; day?: Date } = {}) {
   assertCan(ctx, 'prospecting.read');
   const page = opts.page ?? 1;
   const where = {
     organizationId: ctx.orgId,
-    // Consultor vê só as empresas das buscas que ele mesmo fez.
-    ...(ctx.scope === 'OWN' ? { search: { createdById: ctx.userId ?? '__none__' } } : {}),
+    ...ownProspects(ctx),
+    // Lista diária: só o que foi entregue a este consultor naquele dia.
+    ...(opts.day ? { assignedConsultantId: ctx.consultantId ?? '__none__', assignedDay: opts.day } : {}),
     ...(opts.status ? { status: opts.status } : {}),
     ...(opts.city ? { city: opts.city } : {}),
     ...(opts.q ? { name: { contains: opts.q, mode: 'insensitive' as const } } : {}),
@@ -78,7 +87,7 @@ export async function listProspects(ctx: Ctx, opts: { status?: string; city?: st
 
 export async function convertProspect(ctx: Ctx, id: string, product?: string) {
   assertCan(ctx, 'prospecting.convert');
-  const p = await db.businessProspect.findFirst({ where: { id, organizationId: ctx.orgId, ...(ctx.scope === 'OWN' ? { search: { createdById: ctx.userId ?? '__none__' } } : {}) } });
+  const p = await db.businessProspect.findFirst({ where: { id, organizationId: ctx.orgId, ...ownProspects(ctx) } });
   if (!p) throw NotFound('Empresa');
   if (p.status === 'CONVERTED') throw BadRequest('Empresa já convertida em lead.');
   if (!p.phone && !p.cnpj) throw BadRequest('Empresa sem telefone ou CNPJ para contato.');
@@ -91,5 +100,5 @@ export async function convertProspect(ctx: Ctx, id: string, product?: string) {
 
 export async function discardProspect(ctx: Ctx, id: string) {
   assertCan(ctx, 'prospecting.convert');
-  await db.businessProspect.updateMany({ where: { id, organizationId: ctx.orgId }, data: { status: 'DISCARDED' } });
+  await db.businessProspect.updateMany({ where: { id, organizationId: ctx.orgId, ...ownProspects(ctx) }, data: { status: 'DISCARDED' } });
 }

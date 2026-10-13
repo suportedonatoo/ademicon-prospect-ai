@@ -57,6 +57,8 @@ const schema = z.object({
   /** Chave para criptografar as credenciais salvas no painel (se vazio, deriva do SESSION_SECRET). */
   CREDENTIALS_KEY: z.string().optional(),
   GOOGLE_MAPS_API_KEY: z.string().optional(),
+  /** Teto de requisições por dia ao Google Places. 30/dia = no máx. 930/mês, dentro das 1.000 gratuitas. */
+  GOOGLE_MAPS_DAILY_REQUESTS: z.coerce.number().int().min(0).default(30),
   /** Google Agenda (OAuth de cada consultor): Client ID e segredo do app no Google Cloud. */
   GOOGLE_CLIENT_ID: z.string().optional(),
   GOOGLE_CLIENT_SECRET: z.string().optional(),
