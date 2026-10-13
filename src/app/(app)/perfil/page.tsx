@@ -118,7 +118,7 @@ export default async function ProfilePage({ searchParams }: { searchParams: Prom
           {(own || ctx.roleKey === 'SUPER_ADMIN' || can(ctx, 'consultant.manage')) && <InstagramAutoDmForm consultantId={c.id} consultantName={c.name} />}
         </Card>
 
-        <PublishLinks slug={c.landingSlug} own={own} className="lg:col-span-2" />
+        <PublishLinks slug={c.landingSlug} own={own} showMaster={ctx.roleKey !== 'CONSULTANT'} className="lg:col-span-2" />
 
         <Card title="Minha IA" subtitle="Perfil, treinamento (o seu jeito de atender) e as reuniões que a IA marca na sua agenda.">
           <div className="flex flex-wrap items-center gap-3">

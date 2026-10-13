@@ -72,7 +72,7 @@ export default async function MyDashboard({ searchParams }: { searchParams: Prom
         <Stat label="CVR no mês" value={pct(d.cvrMonth * 100)} hint={`Tempo de resposta: ${minutes(d.responseMin)}`} />
       </div>
 
-      <PublishLinks slug={me?.landingSlug ?? null} own className="mt-4" />
+      <PublishLinks slug={me?.landingSlug ?? null} own showMaster={ctx.roleKey !== 'CONSULTANT'} className="mt-4" />
 
       <div className="grid gap-4 lg:grid-cols-3 mt-4">
         <Column title="Quentes" tone="bg-bad" leads={d.hot} empty="Nenhum lead quente agora." />
