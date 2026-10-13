@@ -57,7 +57,11 @@ export async function enqueue(name: JobName, data: Record<string, unknown>, opts
   }
   const { runJob } = await import('@/jobs/handlers');
   // Inline: jobs de lead não podem derrubar a requisição que os disparou.
-  if (name === 'intelligence.refresh' || name === 'push.send') {
+  if (name === 'ai.respond' && process.env.APP_ENV !== 'test') {
+    // A resposta da IA pode levar segundos: não segura o webhook (a Meta reenvia e atrasa as próximas
+    // mensagens quando a confirmação demora). O servidor é um processo contínuo, então roda em seguida.
+    void runJob(name, data, { idempotencyKey: opts.jobId }).catch((e) => logger.error('job.inline_failed', { job: name, error: String(e) }));
+  } else if (name === 'intelligence.refresh' || name === 'push.send') {
     try {
       await runJob(name, data);
     } catch (e) {

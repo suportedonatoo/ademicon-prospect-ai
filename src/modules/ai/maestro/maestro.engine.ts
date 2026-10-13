@@ -119,6 +119,7 @@ async function runTurn(orgId: string, conversationId: string, text: string | nul
     include: { messages: { orderBy: { createdAt: 'desc' }, take: 20 }, lead: true },
   });
   const lead = conversation.lead;
+  const triggerId = conversation.messages.find((m) => m.direction === 'INBOUND')?.id; // mensagem que disparou esta rodada
   if (lead.optOut) return { conversationId, reply: null, agentKey: null, handoff: false, executionId: null, skipped: 'Opt-out' };
   // IA do consultor responsável (nome/apresentação/estilo próprios); sem perfil → padrão da organização.
   const owner = conversation.assignedConsultantId ? await db.consultant.findUnique({ where: { id: conversation.assignedConsultantId }, select: { name: true, aiProfile: true } }) : null;
@@ -265,7 +266,11 @@ async function runTurn(orgId: string, conversationId: string, text: string | nul
           .join(' ')
           .trim()
       : verdict.finalReply;
-    const skipReply = (!!handoffReason && output.wantsHuman && !output.isQuestion) || replyText.length < 3;
+    // O cliente escreveu de novo enquanto esta resposta era gerada: a rodada da mensagem mais nova
+    // responde tudo de uma vez (ela já vê o histórico), em vez de chegarem duas respostas juntas.
+    const newest = await db.message.findFirst({ where: { conversationId, direction: 'INBOUND' }, orderBy: { createdAt: 'desc' }, select: { id: true } });
+    const superseded = !!text && !!triggerId && newest?.id !== triggerId;
+    const skipReply = superseded || (!!handoffReason && output.wantsHuman && !output.isQuestion) || replyText.length < 3;
     const message = skipReply
       ? null
       : await deliverMessage(orgId, conversationId, { content: replyText, senderType: 'AI', agentKey, aiExecutionId: execution.id });

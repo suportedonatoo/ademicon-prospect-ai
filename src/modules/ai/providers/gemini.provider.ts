@@ -47,18 +47,24 @@ type GeminiResponse = {
   error?: { message?: string };
 };
 
+/** Um lead não espera mais que isto por tentativa; depois o próximo modelo assume. */
+const ATTEMPT_TIMEOUT_MS = 12_000;
+/** Reservas para quando o modelo configurado está lento ou com "high demand". */
+const BACKUP_MODELS = ['gemini-3-flash-preview', 'gemini-3.1-flash-lite'];
+let sticky = { model: '', until: 0 };
+
 export class GeminiAIProvider implements AIProvider {
   name = 'gemini' as const;
   private fallback = new MockAIProvider();
 
   constructor(private apiKey: string, public model: string) {}
 
-  private async call(path: string, body?: unknown): Promise<{ status: number; json: GeminiResponse & { displayName?: string } }> {
+  private async call(path: string, body?: unknown, timeoutMs = 60_000): Promise<{ status: number; json: GeminiResponse & { displayName?: string } }> {
     const res = await fetch(`${BASE}/${path}`, {
       method: body ? 'POST' : 'GET',
       headers: { 'x-goog-api-key': this.apiKey, 'content-type': 'application/json' },
       body: body ? JSON.stringify(body) : undefined,
-      signal: AbortSignal.timeout(60_000),
+      signal: AbortSignal.timeout(timeoutMs),
     });
     return { status: res.status, json: await res.json().catch(() => ({})) };
   }
@@ -78,16 +84,37 @@ export class GeminiAIProvider implements AIProvider {
     }
   }
 
+  /**
+   * Gera com o modelo pedido e, se ele demorar ou estiver sobrecarregado (comum no plano gratuito),
+   * tenta os modelos reserva. Quem respondeu por último fica na frente por 10 minutos, para a conversa
+   * seguinte não esperar de novo o modelo lento.
+   */
   private async generate(model: string, system: string, contents: Content[], json: boolean) {
-    const { status, json: r } = await this.call(`models/${model}:generateContent`, {
-      systemInstruction: { parts: [{ text: system }] },
-      contents,
-      // Folga no limite: nos modelos que "pensam", o raciocínio também conta como saída.
-      generationConfig: { maxOutputTokens: 4000, ...(json ? { responseMimeType: 'application/json', responseSchema: RESPONSE_SCHEMA } : {}) },
-    });
-    const text = r.candidates?.[0]?.content?.parts?.map((p) => p.text ?? '').join('') ?? '';
-    if (status !== 200 || !text) throw new Error(r.error?.message ?? `HTTP ${status} finishReason=${r.candidates?.[0]?.finishReason ?? '—'}`);
-    return { text, usage: r.usageMetadata, modelUsed: r.modelVersion ?? model };
+    const chain = [...new Set([sticky.until > Date.now() ? sticky.model : model, model, ...BACKUP_MODELS])];
+    let lastError: unknown;
+    for (const m of chain) {
+      try {
+        const { status, json: r } = await this.call(
+          `models/${m}:generateContent`,
+          {
+            systemInstruction: { parts: [{ text: system }] },
+            contents,
+            // Folga no limite: nos modelos que "pensam", o raciocínio também conta como saída.
+            generationConfig: { maxOutputTokens: 4000, ...(json ? { responseMimeType: 'application/json', responseSchema: RESPONSE_SCHEMA } : {}) },
+          },
+          ATTEMPT_TIMEOUT_MS
+        );
+        const text = r.candidates?.[0]?.content?.parts?.map((p) => p.text ?? '').join('') ?? '';
+        if (status !== 200 || !text) throw new Error(r.error?.message ?? `HTTP ${status} finishReason=${r.candidates?.[0]?.finishReason ?? '—'}`);
+        if (m !== model) sticky = { model: m, until: Date.now() + 10 * 60_000 };
+        else sticky.until = 0;
+        return { text, usage: r.usageMetadata, modelUsed: r.modelVersion ?? m };
+      } catch (e) {
+        lastError = e;
+        logger.warn('ai.model_unavailable', { model: m, error: String((e as Error)?.message ?? e).slice(0, 200) });
+      }
+    }
+    throw lastError;
   }
 
   async generateTurn(i: AgentTurnInput): Promise<AgentTurnOutput> {
