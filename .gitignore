@@ -36,3 +36,4 @@ equipe-consultores.csv
 hostinger-minimo.env
 meta-conexao.md
 netlify.env
+.netlify/

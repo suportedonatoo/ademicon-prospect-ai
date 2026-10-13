@@ -1,4 +1,5 @@
 # Netlify: publica SOMENTE a landing (apps/landing). O sistema de gestão fica na Hostinger.
+# A pasta de funções fica em branco no painel: quem gera as funções e o middleware é o runtime do Next.
 [build]
   base = "apps/landing"
   command = "npm run build"
