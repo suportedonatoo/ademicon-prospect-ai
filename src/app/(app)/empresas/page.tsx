@@ -20,6 +20,9 @@ const waLink = (phone: string) => {
   return `https://wa.me/${d.length <= 11 ? `55${d}` : d}`;
 };
 
+/** O Google Maps não informa CNPJ: pesquisa pronta para o consultor achar o número. */
+const cnpjSearch = (p: { name: string; city: string; uf: string }) => `https://www.google.com/search?q=${encodeURIComponent(`"${p.name}" ${p.city} ${p.uf} CNPJ`)}`;
+
 export const metadata = { title: 'Empresas' };
 
 export default async function EmpresasPage({ searchParams }: { searchParams: Promise<Record<string, string>> }) {
@@ -64,8 +67,7 @@ export default async function EmpresasPage({ searchParams }: { searchParams: Pro
                       <a href={waLink(p.phone)} target="_blank" rel="noreferrer" className={buttonClass('secondary', 'sm')}>
                         WhatsApp
                       </a>
-                      {/* O Google Maps não informa CNPJ: abre a pesquisa para o consultor achar e consultar os sócios abaixo. */}
-                      <a href={`https://www.google.com/search?q=${encodeURIComponent(`"${p.name}" ${p.city} ${p.uf} CNPJ`)}`} target="_blank" rel="noreferrer" className={buttonClass('ghost', 'sm')}>
+                      <a href={cnpjSearch(p)} target="_blank" rel="noreferrer" className={buttonClass('ghost', 'sm')}>
                         Achar CNPJ
                       </a>
                       <ActionButton size="sm" variant="primary" path={`/prospecting/${p.id}`} body={{ action: 'convert' }} success="Virou lead seu (sem mensagens automáticas).">
@@ -138,7 +140,15 @@ export default async function EmpresasPage({ searchParams }: { searchParams: Pro
                       {p.city}/{p.uf}
                     </Td>
                     <Td className="tabular">{formatPhone(p.phone)}</Td>
-                    <Td className="tabular text-xs">{p.cnpj ? formatCnpj(p.cnpj) : '—'}</Td>
+                    <Td className="tabular text-xs">
+                      {p.cnpj ? (
+                        formatCnpj(p.cnpj)
+                      ) : (
+                        <a href={cnpjSearch(p)} target="_blank" rel="noreferrer" className="text-brand-600 hover:underline whitespace-nowrap">
+                          Achar CNPJ
+                        </a>
+                      )}
+                    </Td>
                     <Td className="text-xs text-muted">
                       {p.source}
                       <div>{date(p.collectedAt)}</div>
