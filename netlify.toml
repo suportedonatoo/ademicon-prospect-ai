@@ -12,3 +12,8 @@
 [build.environment]
   NODE_VERSION = "22"
   NEXT_TELEMETRY_DISABLED = "1"
+
+# Runtime do Next na Netlify: gera a função que serve as páginas e o middleware (endereços /c/<consultor>).
+# Declarado aqui porque, neste projeto (pasta apps/landing), a Netlify não o ativou sozinha.
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
