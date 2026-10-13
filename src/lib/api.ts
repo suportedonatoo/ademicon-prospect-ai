@@ -10,6 +10,7 @@ import { can } from '@/modules/auth/context';
 import type { PermissionKey } from '@/modules/roles/permissions';
 import { ctxFromApiKey, ctxFromSessionToken } from '@/modules/auth/auth.service';
 import { ctxFromDeviceToken } from '@/modules/devices/device.service';
+import { auditDenied } from '@/modules/audit/audit.service';
 import crypto from 'node:crypto';
 
 export const SESSION_COOKIE = 'pa_session';
@@ -87,10 +88,12 @@ type Handler<P extends RouteParams> = (args: { req: NextRequest; ctx: Ctx; param
 export function authed<P extends RouteParams = RouteParams>(opts: { permission?: PermissionKey; rate?: number; device?: boolean; idempotent?: boolean }, fn: Handler<P>) {
   return async (req: NextRequest, context: { params: Promise<P> }) => {
     const ids = traceIds(req);
+    let who: Ctx | null = null; // para registrar acessos negados
     try {
       assertSameOrigin(req);
       const ctx = await resolveCtx(req);
       if (!ctx) throw Unauthorized();
+      who = ctx;
       if (ctx.via === 'device' && !opts.device) throw Forbidden('Esta operação não está disponível para a extensão.');
       // Limite global por usuário + limite próprio da rota (contadores separados).
       await rateLimit(`api:${ctx.userId ?? ctx.userName}`, 300, 60);
@@ -110,6 +113,7 @@ export function authed<P extends RouteParams = RouteParams>(opts: { permission?:
       if (result instanceof Response) return withIds(result, ids);
       return withIds(NextResponse.json({ data: result ?? null }), ids);
     } catch (e) {
+      if (who && isAppError(e) && e.status === 403) await auditDenied(who, { method: req.method, path: req.nextUrl.pathname, reason: e.message });
       return withIds(errorResponse(e, ids), ids);
     }
   };

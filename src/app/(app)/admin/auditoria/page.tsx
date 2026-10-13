@@ -7,7 +7,7 @@ import { dateTime } from '@/lib/format';
 export const metadata = { title: 'Auditoria' };
 
 const ACTIONS = [
-  'auth.login', 'auth.login_failed', 'auth.logout', 'lead.created', 'lead.updated', 'lead.merged', 'lead.assigned', 'lead.transferred', 'lead.status_changed', 'opportunity.created', 'opportunity.stage_changed', 'opportunity.closed',
+  'auth.login', 'auth.login_failed', 'auth.denied', 'auth.logout', 'lead.created', 'lead.updated', 'lead.merged', 'lead.assigned', 'lead.transferred', 'lead.status_changed', 'opportunity.created', 'opportunity.stage_changed', 'opportunity.closed',
   'ai.configured', 'knowledge.changed', 'campaign.changed', 'landing.changed', 'simulator.changed', 'permission.changed', 'user.changed', 'routing.changed', 'whatsapp.changed', 'import.executed', 'export.executed', 'privacy.changed', 'settings.changed', 'apikey.changed', 'webhook.changed',
 ];
 

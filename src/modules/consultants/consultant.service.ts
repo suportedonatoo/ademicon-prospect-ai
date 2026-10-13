@@ -32,9 +32,10 @@ export async function listConsultants(ctx: Ctx, opts: { pjId?: string; q?: strin
       organizationId: ctx.orgId,
       ...(ctx.scope === 'PJ' ? { pjId: ctx.pjId ?? '__none__' } : {}),
       ...(ctx.scope === 'OWN' ? { id: ctx.consultantId ?? '__none__' } : {}),
-      ...(opts.pjId ? { pjId: opts.pjId } : {}),
+      ...(opts.pjId && ctx.scope === 'ORG' ? { pjId: opts.pjId } : {}),
       ...(opts.q ? { name: { contains: opts.q, mode: 'insensitive' } } : {}),
     },
+    omit: { instagramTokenEnc: true, googleCalendarTokenEnc: true }, // tokens nunca saem do servidor
     include: { pj: { select: { id: true, code: true, name: true } }, user: { select: { id: true, email: true, lastLoginAt: true } }, _count: { select: { whatsappNumbers: true } } },
     orderBy: [{ pj: { code: 'asc' } }, { name: 'asc' }],
   });

@@ -1,11 +1,15 @@
 import Link from 'next/link';
 import Script from 'next/script';
+import { redirect } from 'next/navigation';
 import { Logo } from '@/components/logo';
+import { requireCtx } from '@/modules/auth/session';
+import { can } from '@/modules/auth/context';
 
 export const metadata = { title: 'API · Documentação' };
 
 /** Swagger UI (servido via jsDelivr) lendo /api/v1/openapi.json. */
-export default function ApiDocs() {
+export default async function ApiDocs() {
+  if (!can(await requireCtx(), 'apikey.manage')) redirect('/sem-acesso');
   return (
     <>
       <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swagger-ui-dist@5/swagger-ui.css" />

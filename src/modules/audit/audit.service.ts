@@ -7,6 +7,7 @@ export type AuditAction =
   | 'auth.login'
   | 'auth.login_failed'
   | 'auth.logout'
+  | 'auth.denied'
   | 'lead.created'
   | 'lead.updated'
   | 'lead.merged'
@@ -97,4 +98,27 @@ export async function listAudit(ctx: Ctx, opts: { action?: string; entityType?: 
     db.auditLog.count({ where }),
   ]);
   return { items, total, page, pageSize };
+}
+
+/**
+ * Acesso negado (403): fica na trilha de auditoria. Na 5ª negativa do mesmo usuário em 10 minutos,
+ * os Super Admins recebem um alerta (possível tentativa de elevar privilégio).
+ */
+export async function auditDenied(ctx: Ctx, info: { method: string; path: string; reason: string }) {
+  await audit(ctx, 'auth.denied', undefined, info);
+  if (!ctx.userId) return;
+  try {
+    const recent = await db.auditLog.count({ where: { organizationId: ctx.orgId, userId: ctx.userId, action: 'auth.denied', createdAt: { gte: new Date(Date.now() - 10 * 60_000) } } });
+    if (recent !== 5) return;
+    const { notifyRoles } = await import('../notifications/notification.service');
+    await notifyRoles(ctx.orgId, ['SUPER_ADMIN'], {
+      type: 'security.denied',
+      title: `Tentativas de acesso negadas: ${ctx.userName}`,
+      body: `5 operações sem permissão em 10 minutos. Última: ${info.method} ${info.path}.`,
+      link: '/admin/auditoria?action=auth.denied',
+      priority: 'HIGH',
+    });
+  } catch (e) {
+    logger.error('audit.denied_alert_failed', { error: String(e) });
+  }
 }

@@ -30,3 +30,14 @@ export function taskScope(ctx: Ctx): Prisma.TaskWhereInput {
   if (ctx.scope === 'OWN') return { ...base, OR: [{ consultantId: ctx.consultantId ?? '__none__' }, { assigneeUserId: ctx.userId }] };
   return base;
 }
+
+/**
+ * Filtros de PJ/consultor escolhidos pelo usuário: só restringem DENTRO do escopo do perfil, nunca o
+ * substituem (um consultor não filtra por outro consultor; um gestor de PJ não filtra por outra PJ).
+ */
+export function scopedFilter(ctx: Ctx, f: { pjId?: string | null; consultantId?: string | null }): { pjId?: string; consultantId?: string } {
+  return {
+    ...(f.pjId && ctx.scope === 'ORG' ? { pjId: f.pjId } : {}),
+    ...(f.consultantId && ctx.scope !== 'OWN' ? { consultantId: f.consultantId } : {}),
+  };
+}

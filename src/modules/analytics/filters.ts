@@ -1,3 +1,4 @@
+import { scopedFilter } from '../leads/scope';
 import { Prisma } from '@prisma/client';
 import { z } from 'zod';
 import type { Ctx } from '../auth/context';
@@ -33,8 +34,7 @@ export function leadFilterWhere(ctx: Ctx, f: AnalyticsFilters, dateField: 'creat
     ...(ctx.scope === 'OWN' ? { consultantId: ctx.consultantId ?? '__none__' } : {}),
     ...(dateField === 'createdAt' ? { createdAt: { gte: f.from, lte: f.to } } : {}),
     ...(f.region ? { region: f.region } : {}),
-    ...(f.pjId ? { pjId: f.pjId } : {}),
-    ...(f.consultantId ? { consultantId: f.consultantId } : {}),
+    ...scopedFilter(ctx, f),
     ...(f.product ? { product: f.product } : {}),
     ...(f.source ? { source: f.source } : {}),
     ...(f.campaignId ? { campaignId: f.campaignId } : {}),
@@ -48,8 +48,7 @@ export function oppFilterWhere(ctx: Ctx, f: AnalyticsFilters, dateField: 'create
     ...(ctx.scope === 'OWN' ? { consultantId: ctx.consultantId ?? '__none__' } : {}),
     [dateField]: { gte: f.from, lte: f.to },
     ...(f.region ? { lead: { region: f.region } } : {}),
-    ...(f.pjId ? { pjId: f.pjId } : {}),
-    ...(f.consultantId ? { consultantId: f.consultantId } : {}),
+    ...scopedFilter(ctx, f),
     ...(f.product ? { product: f.product } : {}),
     ...(f.source ? { source: f.source } : {}),
     ...(f.campaignId ? { campaignId: f.campaignId } : {}),
@@ -63,8 +62,9 @@ export function leadSqlWhere(ctx: Ctx, f: AnalyticsFilters, alias = 'l') {
   if (ctx.scope === 'PJ') parts.push(Prisma.sql`${a}."pjId" = ${ctx.pjId ?? '__none__'}`);
   if (ctx.scope === 'OWN') parts.push(Prisma.sql`${a}."consultantId" = ${ctx.consultantId ?? '__none__'}`);
   if (f.region) parts.push(Prisma.sql`${a}."region" = ${f.region}`);
-  if (f.pjId) parts.push(Prisma.sql`${a}."pjId" = ${f.pjId}`);
-  if (f.consultantId) parts.push(Prisma.sql`${a}."consultantId" = ${f.consultantId}`);
+  const own = scopedFilter(ctx, f);
+  if (own.pjId) parts.push(Prisma.sql`${a}."pjId" = ${own.pjId}`);
+  if (own.consultantId) parts.push(Prisma.sql`${a}."consultantId" = ${own.consultantId}`);
   if (f.product) parts.push(Prisma.sql`${a}."product" = ${f.product}`);
   if (f.source) parts.push(Prisma.sql`${a}."source" = ${f.source}`);
   if (f.campaignId) parts.push(Prisma.sql`${a}."campaignId" = ${f.campaignId}`);

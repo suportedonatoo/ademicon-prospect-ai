@@ -6,7 +6,7 @@ import { BadRequest, NotFound } from '@/lib/errors';
 import type { Ctx } from '../auth/context';
 import { assertCan } from '../auth/context';
 import { audit } from '../audit/audit.service';
-import { leadScope, opportunityScope } from '../leads/scope';
+import { leadScope, opportunityScope, scopedFilter } from '../leads/scope';
 import { getDefaultPipeline } from '../pipelines/pipeline.service';
 import { notifyConsultant } from '../notifications/notification.service';
 import { LOSS_CATEGORIES, classifyLoss } from './health-engine';
@@ -31,8 +31,7 @@ export function opportunityWhere(ctx: Ctx, f: Partial<z.infer<typeof opportunity
     ...opportunityScope(ctx),
     ...(f.stageKey ? { stage: { key: f.stageKey } } : {}),
     ...(f.status ? { status: f.status } : {}),
-    ...(f.pjId ? { pjId: f.pjId } : {}),
-    ...(f.consultantId ? { consultantId: f.consultantId } : {}),
+    ...scopedFilter(ctx, f),
     ...(f.product ? { product: f.product } : {}),
     ...(f.q ? { lead: { name: { contains: f.q, mode: 'insensitive' } } } : {}),
   };

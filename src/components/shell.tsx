@@ -91,9 +91,11 @@ export function Shell({ nav, user, appName, actions, children }: { nav: NavGroup
                 <Icon name="send" className="size-3.5" />
               </button>
             </form>
-            <a href="/api-docs" target="_blank" className="flex items-center gap-1.5 text-xs text-muted hover:text-ink px-1 mt-3">
-              <Icon name="file" className="size-3.5" /> Documentação da API
-            </a>
+            {(user.role === 'SUPER_ADMIN' || user.role === 'ADMIN') && (
+              <a href="/api-docs" target="_blank" className="flex items-center gap-1.5 text-xs text-muted hover:text-ink px-1 mt-3">
+                <Icon name="file" className="size-3.5" /> Documentação da API
+              </a>
+            )}
           </div>
           <div className="lg:hidden flex items-center gap-3 rounded-2xl bg-slate-100 p-3 mt-2.5">
             <Avatar name={user.name} tone="dark" size={36} />

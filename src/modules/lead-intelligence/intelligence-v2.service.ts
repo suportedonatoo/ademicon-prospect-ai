@@ -5,7 +5,7 @@ import { NotFound } from '@/lib/errors';
 import type { Ctx } from '../auth/context';
 import { assertCan } from '../auth/context';
 import { audit } from '../audit/audit.service';
-import { leadScope } from '../leads/scope';
+import { leadScope, scopedFilter } from '../leads/scope';
 import { getOrgSettings } from '../organizations/settings';
 import { computeSubScores } from './subscores';
 import { detectIntents, signalsFromMessage, type DetectedSignal } from './signal-detector';
@@ -249,7 +249,7 @@ export async function listOpenNba(ctx: Ctx, raw: unknown) {
       validUntil: { gt: new Date() },
       ...(f.priority ? { priority: f.priority } : {}),
       ...(f.action ? { action: f.action } : {}),
-      lead: { ...leadScope(ctx), ...(f.pjId ? { pjId: f.pjId } : {}), ...(f.consultantId ? { consultantId: f.consultantId } : {}) },
+      lead: { ...leadScope(ctx), ...scopedFilter(ctx, f) },
     },
     include: { lead: { select: { id: true, name: true, temperature: true, score: true, product: true, consultant: { select: { name: true } }, pj: { select: { code: true } } } } },
     orderBy: { createdAt: 'desc' },

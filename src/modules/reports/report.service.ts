@@ -6,7 +6,7 @@ import { formatPhone } from '@/lib/normalize';
 import type { Ctx } from '../auth/context';
 import { assertCan } from '../auth/context';
 import { audit } from '../audit/audit.service';
-import { leadScope, opportunityScope } from '../leads/scope';
+import { leadScope, opportunityScope, scopedFilter } from '../leads/scope';
 import { productLabel, sourceLabel, statusLabel, temperatureLabel } from '../leads/catalog';
 
 // REPORT BUILDER (§78): entidade + colunas + filtros + agrupamento + período → tabela e exportação.
@@ -84,7 +84,7 @@ function loadLeads(ctx: Ctx, s: ReportSpec, take: number) {
       createdAt: { gte: since(s.period) },
       ...(s.source ? { source: s.source } : {}),
       ...(s.product ? { product: s.product } : {}),
-      ...(s.pjId ? { pjId: s.pjId } : {}),
+      ...scopedFilter(ctx, s),
       ...(s.status ? { status: s.status as never } : {}),
       ...(s.temperature ? { temperature: s.temperature } : {}),
     },
@@ -101,7 +101,7 @@ function loadOpps(ctx: Ctx, s: ReportSpec, take: number) {
       createdAt: { gte: since(s.period) },
       ...(s.source ? { source: s.source } : {}),
       ...(s.product ? { product: s.product } : {}),
-      ...(s.pjId ? { pjId: s.pjId } : {}),
+      ...scopedFilter(ctx, s),
       ...(s.status ? { status: s.status } : {}),
     },
     orderBy: { createdAt: 'desc' },

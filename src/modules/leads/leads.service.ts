@@ -7,7 +7,7 @@ import { normalizeName, normalizeUf } from '@/lib/normalize';
 import type { Ctx } from '../auth/context';
 import { assertCan } from '../auth/context';
 import { audit } from '../audit/audit.service';
-import { leadScope } from './scope';
+import { leadScope, scopedFilter } from './scope';
 import { assertTransition } from './state-machine';
 import { type LeadStatusKey, statusLabel } from './catalog';
 import { assertProduct } from '../products/product.service';
@@ -40,8 +40,7 @@ export function leadWhere(ctx: Ctx, f: Partial<LeadFilters>): Prisma.LeadWhereIn
   if (f.landingHeat === 'ANY') where.landingHeat = { not: null };
   else if (f.landingHeat) where.landingHeat = f.landingHeat;
   if (f.product) where.product = f.product;
-  if (f.pjId) where.pjId = f.pjId;
-  if (f.consultantId) where.consultantId = f.consultantId;
+  Object.assign(where, scopedFilter(ctx, f));
   if (f.campaignId) where.campaignId = f.campaignId;
   if (f.from || f.to) where.createdAt = { ...(f.from ? { gte: f.from } : {}), ...(f.to ? { lte: f.to } : {}) };
   if (f.q) {

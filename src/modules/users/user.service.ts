@@ -34,9 +34,16 @@ export async function saveUser(ctx: Ctx, raw: unknown, id?: string) {
   if (role.key === 'SUPER_ADMIN' && ctx.roleKey !== 'SUPER_ADMIN') throw Forbidden('Somente Super Admin pode conceder esse perfil.');
   if (role.key === 'PJ_MANAGER' && !input.pjId) throw BadRequest('Gestor de PJ precisa de uma PJ.');
   if (role.key === 'CONSULTANT' && !input.consultantId) throw BadRequest('Consultor precisa estar vinculado a um cadastro de consultor.');
+  // Vínculos precisam ser da própria organização.
+  if (input.pjId && !(await db.pJ.findFirst({ where: { id: input.pjId, organizationId: ctx.orgId }, select: { id: true } }))) throw BadRequest('PJ inválida.');
+  if (input.consultantId && !(await db.consultant.findFirst({ where: { id: input.consultantId, organizationId: ctx.orgId }, select: { id: true } }))) throw BadRequest('Consultor inválido.');
   const data = { name: input.name, email: input.email.toLowerCase(), roleId: role.id, pjId: input.pjId || null, consultantId: input.consultantId || null, status: input.status };
 
   if (id) {
+    const target = await db.user.findFirst({ where: { id, organizationId: ctx.orgId }, select: { role: { select: { key: true } } } });
+    if (!target) throw NotFound('Usuário');
+    // Só Super Admin mexe em conta de Super Admin (rebaixar, desativar ou trocar o e-mail).
+    if (target.role.key === 'SUPER_ADMIN' && ctx.roleKey !== 'SUPER_ADMIN') throw Forbidden('Somente Super Admin altera uma conta de Super Admin.');
     const user = await db.user.update({ where: { id, organizationId: ctx.orgId }, data });
     if (input.status === 'DISABLED') await db.session.deleteMany({ where: { userId: id } });
     await audit(ctx, 'user.changed', { type: 'User', id }, { action: 'updated', role: role.key, status: input.status });

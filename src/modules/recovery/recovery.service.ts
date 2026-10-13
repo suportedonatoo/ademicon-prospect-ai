@@ -84,7 +84,7 @@ export async function recoveryCenter(ctx: Ctx) {
 
   // 5) Leads esquecidos: distribuídos, sem interação há ≥ 3 dias e sem tarefa aberta
   const forgotten = await db.lead.findMany({
-    where: { ...scope, optOut: false, status: { in: ['ASSIGNED', 'IN_CONVERSATION', 'QUALIFIED'] }, consultantId: { not: null }, updatedAt: { lt: new Date(now - 3 * 24 * H) }, tasks: { none: { status: 'OPEN' } } },
+    where: { ...scope, optOut: false, status: { in: ['ASSIGNED', 'IN_CONVERSATION', 'QUALIFIED'] }, NOT: { consultantId: null }, updatedAt: { lt: new Date(now - 3 * 24 * H) }, tasks: { none: { status: 'OPEN' } } },
     select: { ...leadSel, updatedAt: true },
     orderBy: [{ score: 'desc' }],
     take: 150,

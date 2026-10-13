@@ -1,3 +1,4 @@
+import { scopedFilter } from '../leads/scope';
 import { Prisma } from '@prisma/client';
 import { db } from '@/lib/db';
 import type { Ctx } from '../auth/context';
@@ -249,8 +250,7 @@ export async function lossIntelligence(ctx: Ctx, f: AnalyticsFilters) {
     ...(ctx.scope === 'PJ' ? { pjId: ctx.pjId ?? '__none__' } : {}),
     ...(ctx.scope === 'OWN' ? { consultantId: ctx.consultantId ?? '__none__' } : {}),
     ...(f.product ? { product: f.product } : {}),
-    ...(f.pjId ? { pjId: f.pjId } : {}),
-    ...(f.consultantId ? { consultantId: f.consultantId } : {}),
+    ...scopedFilter(ctx, f),
     ...(f.campaignId ? { campaignId: f.campaignId } : {}),
   };
   const [byCategory, byStage, byProduct, byConsultant, competitors, recent, total, lostValue] = await Promise.all([

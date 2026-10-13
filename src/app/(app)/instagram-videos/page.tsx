@@ -38,6 +38,7 @@ export default async function InstagramVideosPage({ searchParams }: { searchPara
   const c = await db.consultant.findFirst({ where: { id, organizationId: ctx.orgId }, select: { id: true, name: true, instagramAccountId: true, instagramUsername: true } });
   if (!c) redirect('/');
   const own = ctx.consultantId === c.id;
+  if (!own && ctx.roleKey !== 'SUPER_ADMIN' && !can(ctx, 'consultant.manage')) redirect('/sem-acesso');
 
   return (
     <>

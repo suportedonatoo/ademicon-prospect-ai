@@ -4,7 +4,7 @@ import { publish } from '@/lib/events';
 import { NotFound } from '@/lib/errors';
 import type { Ctx } from '../auth/context';
 import { assertCan } from '../auth/context';
-import { taskScope } from '../leads/scope';
+import { leadScope, opportunityScope, taskScope } from '../leads/scope';
 import { notifyConsultant } from '../notifications/notification.service';
 
 export const TASK_TYPES = { CONTACT: 'Contato', FOLLOW_UP: 'Follow-up', CALLBACK: 'Retorno', PROPOSAL: 'Proposta', MEETING: 'Reunião' } as const;
@@ -39,7 +39,11 @@ export async function listTasks(ctx: Ctx, opts: { status?: string; mine?: boolea
 export async function createTask(ctx: Ctx, raw: unknown, origin: 'MANUAL' | 'AUTOMATION' | 'FOLLOW_UP' = 'MANUAL') {
   assertCan(ctx, 'task.create');
   const input = taskInput.parse(raw);
-  let consultantId = input.consultantId ?? null;
+  // Lead, oportunidade e consultor informados precisam estar dentro do escopo de quem cria.
+  if (input.leadId && !(await db.lead.findFirst({ where: { ...leadScope(ctx), id: input.leadId }, select: { id: true } }))) throw NotFound('Lead');
+  if (input.opportunityId && !(await db.opportunity.findFirst({ where: { ...opportunityScope(ctx), id: input.opportunityId }, select: { id: true } }))) throw NotFound('Oportunidade');
+  let consultantId = ctx.scope === 'OWN' ? ctx.consultantId : (input.consultantId ?? null);
+  if (consultantId && consultantId !== ctx.consultantId && !(await db.consultant.findFirst({ where: { id: consultantId, organizationId: ctx.orgId, ...(ctx.scope === 'PJ' ? { pjId: ctx.pjId ?? '__none__' } : {}) }, select: { id: true } }))) throw NotFound('Consultor');
   if (!consultantId && input.leadId) consultantId = (await db.lead.findFirst({ where: { id: input.leadId, organizationId: ctx.orgId }, select: { consultantId: true } }))?.consultantId ?? null;
   if (!consultantId) consultantId = ctx.consultantId;
   const task = await db.task.create({
