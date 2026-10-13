@@ -46,6 +46,7 @@ export class RealCompanyRegistryProvider implements CompanyRegistryProvider {
       uf?: string;
       ddd_telefone_1?: string;
       email?: string | null;
+      qsa?: { nome_socio?: string; qualificacao_socio?: string }[];
       message?: string;
     };
     if (!res.ok) throw new Error(`Consulta de CNPJ: ${b.message ?? res.status}`);
@@ -59,6 +60,8 @@ export class RealCompanyRegistryProvider implements CompanyRegistryProvider {
       uf: b.uf || undefined,
       phone: b.ddd_telefone_1 || undefined,
       email: b.email || undefined,
+      // Quadro societário (dado público da Receita): quem decide na empresa.
+      partners: (b.qsa ?? []).filter((q) => q.nome_socio).map((q) => ({ name: q.nome_socio!, role: q.qualificacao_socio || undefined })),
     };
   }
 

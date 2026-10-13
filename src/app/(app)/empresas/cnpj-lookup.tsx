@@ -5,7 +5,7 @@ import { api, toast } from '@/lib/client';
 import { buttonClass } from '@/components/ui';
 import { inputClass } from '@/components/client';
 
-type Company = { legalName: string; tradeName?: string; cnae?: string; size?: string; situation?: string; city?: string; uf?: string; phone?: string; email?: string };
+type Company = { legalName: string; tradeName?: string; cnae?: string; size?: string; situation?: string; city?: string; uf?: string; phone?: string; email?: string; partners?: { name: string; role?: string }[] };
 
 /** Consulta de CNPJ no Cadastro Nacional de Empresas (Receita Federal, via BrasilAPI). */
 export function CnpjLookup() {
@@ -63,6 +63,19 @@ export function CnpjLookup() {
           <div>
             <dt className="text-xs text-muted">Telefone / e-mail</dt>
             <dd>{[res.company.phone, res.company.email].filter(Boolean).join(' · ') || '—'}</dd>
+          </div>
+          <div className="sm:col-span-2">
+            <dt className="text-xs text-muted">Sócios e administradores</dt>
+            <dd>
+              {res.company.partners?.length
+                ? res.company.partners.map((s) => (
+                    <span key={s.name + s.role} className="block">
+                      {s.name}
+                      {s.role && <span className="text-muted"> · {s.role}</span>}
+                    </span>
+                  ))
+                : '—'}
+            </dd>
           </div>
           {res.mode === 'mock' && <p className="sm:col-span-2 text-xs text-warn">Modo simulado — dados fictícios.</p>}
         </dl>

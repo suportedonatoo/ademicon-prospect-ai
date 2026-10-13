@@ -76,7 +76,7 @@ export interface MapsProvider extends IntegrationProvider {
 }
 
 export interface CompanyRegistryProvider extends IntegrationProvider {
-  lookupCnpj(cnpj: string): Promise<{ legalName: string; tradeName?: string; cnae?: string; size?: string; situation?: string; city?: string; uf?: string; phone?: string; email?: string } | null>;
+  lookupCnpj(cnpj: string): Promise<{ legalName: string; tradeName?: string; cnae?: string; size?: string; situation?: string; city?: string; uf?: string; phone?: string; email?: string; partners?: { name: string; role?: string }[] } | null>;
   search(filters: BusinessSearchFilters): Promise<BusinessResult[]>;
 }
 
