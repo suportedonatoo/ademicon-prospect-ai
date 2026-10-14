@@ -1,5 +1,6 @@
 'use client';
 
+import { WhatsAppContactButton } from '@/components/whatsapp-contact';
 import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
@@ -321,14 +322,9 @@ export function Inbox({
                   <b>{selected.lead.name.split(' ')[0]} ainda não escreveu para o número da Ademicon.</b> Pela regra do WhatsApp, a primeira mensagem não pode sair daqui sem custo. Faça o primeiro
                   contato pelo seu WhatsApp com o convite abaixo: quando o cliente responder pelo link, a conversa aparece aqui e a IA continua o atendimento.
                 </p>
-                <a
-                  className={buttonClass('primary', 'sm')}
-                  target="_blank"
-                  rel="noreferrer"
-                  href={inviteLink(selected.lead.phone, selected.lead.name, selected.me, selected.botPhone)}
-                >
+                <WhatsAppContactButton className={buttonClass('primary', 'sm')} leadId={selected.lead.id} url={inviteLink(selected.lead.phone, selected.lead.name, selected.me, selected.botPhone)}>
                   Enviar convite pelo meu WhatsApp
-                </a>
+                </WhatsAppContactButton>
               </div>
             )}
             {perms.reply && (

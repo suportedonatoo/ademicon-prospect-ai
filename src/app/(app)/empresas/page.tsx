@@ -8,6 +8,7 @@ import { date } from '@/lib/format';
 import { SearchCompanies } from './search';
 import { CnpjLookup } from './cnpj-lookup';
 import Link from 'next/link';
+import { WhatsAppContactButton } from '@/components/whatsapp-contact';
 import { db } from '@/lib/db';
 import { env } from '@/lib/env';
 import { buttonClass } from '@/components/ui';
@@ -64,9 +65,9 @@ export default async function EmpresasPage({ searchParams }: { searchParams: Pro
                       <a href={`tel:${p.phone.replace(/\D/g, '')}`} className={buttonClass('secondary', 'sm')}>
                         Ligar
                       </a>
-                      <a href={waLink(p.phone)} target="_blank" rel="noreferrer" className={buttonClass('secondary', 'sm')}>
+                      <WhatsAppContactButton url={waLink(p.phone)} prospectId={p.id} className={buttonClass('secondary', 'sm')}>
                         WhatsApp
-                      </a>
+                      </WhatsAppContactButton>
                       <a href={cnpjSearch(p)} target="_blank" rel="noreferrer" className={buttonClass('ghost', 'sm')}>
                         Achar CNPJ
                       </a>

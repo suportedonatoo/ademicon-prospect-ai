@@ -78,6 +78,20 @@ export default async function LeadPage({ params }: { params: Promise<{ id: strin
           </div>
         </div>
         <div className="flex items-center gap-4">
+          {(() => {
+            const ok = lead.consents.find((c) => c.channel === 'WHATSAPP' && c.status === 'GRANTED');
+            if (ok) return <Badge tone="green">WhatsApp autorizado · {date(ok.createdAt)}{(ok.evidence as { by?: string })?.by ? ` · ${(ok.evidence as { by?: string }).by}` : ''}</Badge>;
+            return lead.phone && !lead.optOut && can(ctx, 'lead.update') ? (
+              <ActionButton
+                size="sm"
+                path={`/leads/${lead.id}/whatsapp-optin`}
+                confirm="Confirma que o cliente autorizou, nesta conversa, receber contato pelo WhatsApp? O registro fica com a data e o seu nome."
+                success="Autorização registrada."
+              >
+                Cliente aceitou contato por WhatsApp
+              </ActionButton>
+            ) : null;
+          })()}
           {lead.phone && !lead.optOut && can(ctx, 'conversation.read') && (
             <Link href={`/conversas/abrir?lead=${lead.id}`} className={buttonClass('primary', 'sm')}>
               Chamar no Inbox
