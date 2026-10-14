@@ -1,3 +1,4 @@
+import { INSURANCE_RATE, PLAN_DISCLAIMER, PLAN_TABLE } from '../simulators/plan-table';
 import { z } from 'zod';
 import { db } from '@/lib/db';
 import { publish } from '@/lib/events';
@@ -80,15 +81,20 @@ export async function siteLabel(ctx: Ctx, pj: { name: string } | null) {
 export async function getSite(ctx: Ctx, subdomain: string) {
   const { pj, simulator, consultant } = await loadSite(ctx, subdomain);
   const settings = await getOrgSettings(ctx.orgId);
-  const products = (simulator.products as unknown as SimulatorProductConfig[]).map((p) => ({
-    key: p.key,
-    label: p.label,
-    termOptions: p.termOptions,
-    minValue: p.minValue,
-    maxValue: p.maxValue,
-    installmentRange: installmentRange(p, simulator.parametersVerified),
-  }));
-  const simulatorOut = { products, parametersVerified: simulator.parametersVerified, disclaimer: simulator.disclaimer };
+  const products = (simulator.products as unknown as SimulatorProductConfig[]).map((p) => {
+    // Tabela de planos (plan-table.ts): a landing recalcula a parcela a cada movimento da barra.
+    const plan = PLAN_TABLE[p.key] ?? null;
+    return {
+      key: p.key,
+      label: p.label,
+      termOptions: plan ? [plan.prazo] : p.termOptions,
+      minValue: plan?.min ?? p.minValue,
+      maxValue: plan?.max ?? p.maxValue,
+      installmentRange: installmentRange(p, simulator.parametersVerified),
+      plan: plan && { ...plan, seguro: INSURANCE_RATE },
+    };
+  });
+  const simulatorOut = { products, parametersVerified: simulator.parametersVerified, disclaimer: products.some((x) => x.plan) ? PLAN_DISCLAIMER : simulator.disclaimer };
   if (!pj) {
     const c = settings.centralLanding;
     return {

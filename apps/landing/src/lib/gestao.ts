@@ -10,6 +10,19 @@ export interface SiteProduct {
   minValue: number;
   maxValue: number;
   installmentRange: { min: number; max: number };
+  /** Tabela de planos: parcela = crédito × (plano + ta + fr) ÷ prazo (+ seguro opcional). */
+  plan?: PlanParams | null;
+}
+
+export interface PlanParams {
+  ta: number;
+  fr: number;
+  prazo: number;
+  plano: number;
+  min: number;
+  max: number;
+  passo: number;
+  seguro: number;
 }
 
 export interface Site {

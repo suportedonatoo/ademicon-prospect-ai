@@ -3,6 +3,8 @@
 // configurados e verificados, mostramos apenas a divisão simples do crédito pelo prazo,
 // claramente identificada. Nada de taxas inventadas.
 
+import { PLAN_DISCLAIMER, PLAN_TABLE, planCredit, planInstallment, type PlanParams } from './plan-table';
+
 export interface SimulatorProductConfig {
   key: string;
   label: string;
@@ -34,7 +36,7 @@ export interface SimulationResult {
   mode: 'CREDITO' | 'PARCELA';
   value: number;
   installmentTarget?: number;
-  options: { termMonths: number; installment: number; credit: number; basis: 'PARAMETROS_OFICIAIS' | 'DIVISAO_SIMPLES' }[];
+  options: { termMonths: number; installment: number; credit: number; basis: 'PARAMETROS_OFICIAIS' | 'DIVISAO_SIMPLES'; installmentWithInsurance?: number }[];
   parametersApplied: { adminFeePct: number | null; reserveFundPct: number | null };
   disclaimer: string;
   /** Presente quando há faixa oficial e não há prazo/taxa oficiais: NÃO há tabela estimada (options vazio). */
@@ -82,8 +84,23 @@ function officialRangeResult(cfg: SimulatorProductConfig, mode: 'CREDITO' | 'PAR
   };
 }
 
+/** Resultado pela tabela de planos (plan-table.ts): um prazo, parcela exata e a versão com seguro. */
+function planResult(key: string, p: PlanParams, mode: 'CREDITO' | 'PARCELA', credit: number, installmentTarget?: number): SimulationResult {
+  return {
+    product: key,
+    mode,
+    value: credit,
+    ...(installmentTarget != null ? { installmentTarget: round2(installmentTarget) } : {}),
+    options: [{ termMonths: p.prazo, installment: planInstallment(p, credit), credit, basis: 'PARAMETROS_OFICIAIS', installmentWithInsurance: planInstallment(p, credit, true) }],
+    parametersApplied: { adminFeePct: round2(p.ta * 100), reserveFundPct: round2(p.fr * 100) },
+    disclaimer: PLAN_DISCLAIMER,
+  };
+}
+
 /** Simulação por CRÉDITO: parcela = crédito × fator ÷ prazo. */
 export function simulate(cfg: SimulatorProductConfig, value: number, verified: boolean, disclaimer: string): SimulationResult {
+  const plan = PLAN_TABLE[cfg.key];
+  if (plan) return planResult(cfg.key, plan, 'CREDITO', value);
   const { hasOfficial, factor } = costFactor(cfg, verified);
   if (!hasOfficial && hasOfficialRange(cfg)) return officialRangeResult(cfg, 'CREDITO', value, disclaimer);
   return {
@@ -103,6 +120,8 @@ export function simulate(cfg: SimulatorProductConfig, value: number, verified: b
 
 /** Faixa de parcela possível para o produto (menor crédito no maior prazo … maior crédito no menor prazo). */
 export function installmentRange(cfg: SimulatorProductConfig, verified: boolean) {
+  const plan = PLAN_TABLE[cfg.key];
+  if (plan) return { min: planInstallment(plan, plan.min), max: planInstallment(plan, plan.max) };
   if (hasOfficialRange(cfg)) return { min: Number(cfg.officialInstallmentMin), max: Number(cfg.officialInstallmentMax) };
   const { factor } = costFactor(cfg, verified);
   const terms = cfg.termOptions.length ? cfg.termOptions : [1];
@@ -115,6 +134,8 @@ export function installmentRange(cfg: SimulatorProductConfig, verified: boolean)
  * do produto são omitidos. `value` = crédito do prazo intermediário (referência do lead).
  */
 export function simulateByInstallment(cfg: SimulatorProductConfig, installment: number, verified: boolean, disclaimer: string): SimulationResult {
+  const plan = PLAN_TABLE[cfg.key];
+  if (plan) return planResult(cfg.key, plan, 'PARCELA', planCredit(plan, installment), installment);
   const { hasOfficial, factor } = costFactor(cfg, verified);
   if (!hasOfficial && hasOfficialRange(cfg)) return officialRangeResult(cfg, 'PARCELA', installment, disclaimer);
   const options = cfg.termOptions
@@ -141,6 +162,8 @@ export function validateInstallment(cfg: SimulatorProductConfig, installment: nu
 }
 
 export function validateValue(cfg: SimulatorProductConfig, value: number): string | null {
+  const plan = PLAN_TABLE[cfg.key];
+  if (plan) cfg = { ...cfg, minValue: plan.min, maxValue: plan.max };
   if (!Number.isFinite(value) || value <= 0) return 'Informe o valor desejado.';
   if (value < cfg.minValue) return `Valor mínimo para ${cfg.label}: R$ ${cfg.minValue.toLocaleString('pt-BR')}.`;
   if (value > cfg.maxValue) return `Valor máximo para ${cfg.label}: R$ ${cfg.maxValue.toLocaleString('pt-BR')}.`;

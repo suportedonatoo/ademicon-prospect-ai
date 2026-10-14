@@ -54,7 +54,7 @@ describe('Simulação → Lead → Score → Routing (+ attribution)', () => {
       { simulatorSlug: A.simulator.slug, landingSlug: A.landing.slug, sessionKey: t.sessionKey, product: 'IMOVEL', value: 400000, city: 'Jundiaí', uf: 'SP', name: 'João Teste', whatsapp: uniquePhone(), email: 'joao@t.test', requestContact: true, consentWhatsapp: false },
       { ip: '1.1.1.1', userAgent: 'vitest' }
     );
-    expect(res.result.options[0].basis).toBe('DIVISAO_SIMPLES');
+    expect(res.result.options[0].basis).toBe('PARAMETROS_OFICIAIS'); // tabela de planos (plan-table.ts)
     const lead = await db.lead.findFirstOrThrow({ where: { organizationId: A.org.id, name: 'João Teste' }, include: { consultant: true } });
     expect(lead.source).toBe('GOOGLE_ADS');
     expect(['MORNO', 'QUENTE']).toContain(lead.temperature);

@@ -50,7 +50,7 @@ describe('NLU', () => {
 });
 
 describe('Simulador (não-fabricação)', () => {
-  const cfg = { key: 'IMOVEL', label: 'Imóvel', termOptions: [100], minValue: 1, maxValue: 1e7, adminFeePct: 20, reserveFundPct: 2 };
+  const cfg = { key: 'PRODUTO_SEM_TABELA', label: 'Imóvel', termOptions: [100], minValue: 1, maxValue: 1e7, adminFeePct: 20, reserveFundPct: 2 };
   it('sem parâmetros verificados usa só crédito ÷ prazo', () => {
     const r = simulate(cfg, 100000, false, 'Aviso.');
     expect(r.options[0]).toMatchObject({ installment: 1000, basis: 'DIVISAO_SIMPLES' });

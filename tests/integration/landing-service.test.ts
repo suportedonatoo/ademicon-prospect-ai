@@ -43,7 +43,7 @@ describe('Serviço de landing das PJs', () => {
     expect(visit.channel).toBe('GOOGLE_ORGANIC');
     const sim = await simulateCold(svc, SUB, { sessionKey: visit.sessionKey, product: 'IMOVEL', value: 300000 });
     expect(sim.heat).toBe('FRIO');
-    expect(sim.result.options[0].basis).toBe('DIVISAO_SIMPLES');
+    expect(sim.result.options[0].basis).toBe('PARAMETROS_OFICIAIS'); // tabela de planos (plan-table.ts)
     const row = await db.simulation.findUniqueOrThrow({ where: { id: sim.simulationId } });
     expect(row).toMatchObject({ heat: 'FRIO', leadId: null, pjId: A.pjA.id, channel: 'GOOGLE_ORGANIC' });
     expect(await db.lead.count({ where: { organizationId: A.org.id } })).toBe(leadsBefore);

@@ -7,7 +7,10 @@ const base: SimulatorProductConfig[] = [
   { key: 'MOTO', label: 'Moto', termOptions: [36, 50, 60], minValue: 10000, maxValue: 120000 },
   { key: 'OUTRO', label: 'Outro', termOptions: [12], minValue: 1000, maxValue: 5000 },
 ];
-const [imovel, moto, outro] = withOfficialRanges(base);
+// Os produtos da tabela de planos (plan-table.ts) usam a fórmula; aqui fica o caminho de quem só tem faixa oficial.
+const [imovelFaixa, motoFaixa, outro] = withOfficialRanges(base);
+const imovel = { ...imovelFaixa, key: 'IMOVEL_SEM_TABELA' };
+const moto = { ...motoFaixa, key: 'MOTO_SEM_TABELA' };
 
 describe('faixas oficiais da Ademicon no simulador', () => {
   it('aplica crédito e parcela oficiais por tipo; produto sem faixa oficial fica igual', () => {

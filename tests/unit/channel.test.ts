@@ -4,7 +4,7 @@ import { sourceFromSession } from '@/modules/simulators/simulator.service';
 import { installmentRange, simulateByInstallment, validateInstallment } from '@/modules/simulators/simulation-engine';
 
 describe('Simulação por parcela (Simular Plano por: Parcela)', () => {
-  const cfg = { key: 'IMOVEL', label: 'Imóvel', termOptions: [120, 180, 200], minValue: 50000, maxValue: 1000000 };
+  const cfg = { key: 'PRODUTO_SEM_TABELA', label: 'Imóvel', termOptions: [120, 180, 200], minValue: 50000, maxValue: 1000000 };
   it('faixa da parcela = menor crédito no maior prazo … maior crédito no menor prazo', () => {
     expect(installmentRange(cfg, false)).toEqual({ min: 250, max: 8333.33 });
   });

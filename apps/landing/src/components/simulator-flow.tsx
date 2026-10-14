@@ -5,6 +5,7 @@ import { PRODUCT_COPY, sortProducts } from '@/content/master';
 import { getSessionKey, post } from './session';
 import { ChatBox } from './chat-box';
 import { trackContactClick } from './contact-buttons';
+import type { PlanParams } from '@/lib/gestao';
 
 interface Product {
   key: string;
@@ -13,6 +14,7 @@ interface Product {
   minValue: number;
   maxValue: number;
   installmentRange: { min: number; max: number };
+  plan?: PlanParams | null;
 }
 
 type Mode = 'PARCELA' | 'CREDITO';
@@ -23,7 +25,7 @@ interface SimResult {
     mode: Mode;
     value: number;
     installmentTarget?: number;
-    options: { termMonths: number; installment: number; credit: number; basis: string }[];
+    options: { termMonths: number; installment: number; credit: number; basis: string; installmentWithInsurance?: number }[];
     disclaimer: string;
     /** Faixas oficiais da administradora (sem tabela estimada). */
     officialRange?: { creditMin: number; creditMax: number; installmentMin: number; installmentMax: number };
@@ -50,8 +52,15 @@ function maskPhone(v: string) {
   return `(${d.slice(0, 2)}) ${d.slice(2, d.length - 4)}-${d.slice(-4)}`;
 }
 
+/** Mesma fórmula do sistema (plan-table.ts): recalcula a cada movimento da barra. */
+const planInstallment = (p: PlanParams, credit: number, seguro = false) =>
+  Math.round(((credit * (p.plano + p.ta + p.fr)) / p.prazo + (seguro ? credit * (1 + p.ta + p.fr) * p.seguro : 0)) * 100) / 100;
+const planCredit = (p: PlanParams, installment: number) =>
+  Math.min(p.max, Math.max(p.min, Math.floor((installment * p.prazo) / (p.plano + p.ta + p.fr) / p.passo) * p.passo));
+
 /** Valor inicial sugerido: ~45% da faixa, arredondado. */
 function suggested(p: Product, mode: Mode) {
+  if (p.plan && mode === 'CREDITO') return Math.max(p.plan.min, Math.round((p.plan.min + (p.plan.max - p.plan.min) * 0.2) / p.plan.passo) * p.plan.passo);
   if (mode === 'PARCELA') {
     const { min, max } = p.installmentRange;
     return Math.max(min, Math.round((min + (max - min) * 0.45) / 100) * 100);
@@ -70,20 +79,23 @@ export function SimulatorFlow({
   pjName,
   privacyUrl,
   initialProduct,
+  disclaimer,
 }: {
   site: string;
   products: Product[];
   pjName: string;
   privacyUrl: string | null;
   initialProduct?: string;
+  disclaimer?: string;
 }) {
   const products = useMemo(() => sortProducts(rawProducts), [rawProducts]);
   const start = products.find((p) => p.key === initialProduct) ?? products[0];
   const [step, setStep] = useState<Step>('simular');
   const [productKey, setProductKey] = useState(start?.key ?? '');
   const product = products.find((p) => p.key === productKey) ?? products[0];
-  const [mode, setMode] = useState<Mode>('PARCELA');
-  const [amount, setAmount] = useState<number>(() => (start ? suggested(start, 'PARCELA') : 0));
+  // Com tabela de planos, a barra define o crédito e a parcela aparece na hora.
+  const [mode, setMode] = useState<Mode>(start?.plan ? 'CREDITO' : 'PARCELA');
+  const [amount, setAmount] = useState<number>(() => (start ? suggested(start, start.plan ? 'CREDITO' : 'PARCELA') : 0));
   const [sim, setSim] = useState<SimResult | null>(null);
   const [heat, setHeat] = useState<Heat>('MORNO');
   const [contact, setContact] = useState({ name: '', whatsapp: '', email: '', bestTime: '', consent: false, website: '' });
@@ -98,7 +110,7 @@ export function SimulatorFlow({
   if (!product) return <div className="rounded-3xl bg-white border border-line p-6">Simulador indisponível no momento.</div>;
 
   const range = mode === 'PARCELA' ? product.installmentRange : { min: product.minValue, max: product.maxValue };
-  const step_ = mode === 'PARCELA' ? 10 : 1000;
+  const step_ = mode === 'PARCELA' ? 10 : (product.plan?.passo ?? 1000);
   const outOfRange = amount < range.min || amount > range.max;
   const fill = `${Math.min(100, Math.max(0, ((amount - range.min) / (range.max - range.min || 1)) * 100))}%`;
   const productName = (p: Product) => PRODUCT_COPY[p.key]?.title ?? p.label;
@@ -247,6 +259,25 @@ export function SimulatorFlow({
               <span>{brl2(range.min)}</span>
               <span>{brl2(range.max)}</span>
             </div>
+            {product.plan && !outOfRange && (
+              <div className="mt-4 rounded-xl bg-brand-50/60 px-4 py-3" aria-live="polite">
+                {mode === 'CREDITO' ? (
+                  <>
+                    <p className="text-sm text-ink-2">Parcela estimada em {product.plan.prazo} meses</p>
+                    <p className="text-2xl font-bold text-brand-600 tabular-nums">
+                      {brl2(planInstallment(product.plan, amount))}
+                      <span className="text-sm font-medium text-muted">/mês</span>
+                    </p>
+                    <p className="text-xs text-muted tabular-nums">Com seguro prestamista: {brl2(planInstallment(product.plan, amount, true))}/mês</p>
+                  </>
+                ) : (
+                  <>
+                    <p className="text-sm text-ink-2">Crédito estimado em {product.plan.prazo} meses</p>
+                    <p className="text-2xl font-bold text-brand-600 tabular-nums">{brl0(planCredit(product.plan, amount))}</p>
+                  </>
+                )}
+              </div>
+            )}
           </div>
 
           {error && (
@@ -263,6 +294,7 @@ export function SimulatorFlow({
             </button>
           </div>
           <p className="text-[11.5px] text-muted text-center -mt-2">“Simular apenas” não pede seus dados. Com interesse, um consultor te atende.</p>
+          {product.plan && disclaimer && <p className="text-[11px] leading-snug text-muted">{disclaimer}</p>}
         </form>
       )}
 
@@ -315,6 +347,7 @@ export function SimulatorFlow({
                     <>
                       <b className="tabular-nums">{brl2(o.installment)}</b>
                       <span className="text-xs text-muted">/mês</span>
+                      {o.installmentWithInsurance != null && <span className="block text-xs text-muted tabular-nums">com seguro: {brl2(o.installmentWithInsurance)}</span>}
                     </>
                   )}
                 </span>

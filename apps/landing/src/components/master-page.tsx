@@ -91,7 +91,7 @@ export function MasterPage({ site, initialProduct, keepQuery = '' }: { site: Sit
           )}
         </section>
         <div id="simular" className="scroll-mt-24">
-          <SimulatorFlow site={site.subdomain} products={products} pjName={unitName} privacyUrl={brand.privacyUrl} initialProduct={initialProduct} />
+          <SimulatorFlow site={site.subdomain} products={products} pjName={unitName} privacyUrl={brand.privacyUrl} initialProduct={initialProduct} disclaimer={site.simulator.disclaimer} />
         </div>
       </div>
 
