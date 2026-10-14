@@ -5,6 +5,8 @@ import { isAppError } from '@/lib/errors';
 import { Inbox } from './inbox';
 import { listConsultants } from '@/modules/consultants/consultant.service';
 import { conversationState } from '@/modules/conversations/conversation.service';
+import { insideServiceWindow } from '@/modules/messaging/messaging.service';
+import { db } from '@/lib/db';
 
 export const metadata = { title: 'Inbox' };
 
@@ -21,6 +23,9 @@ export default async function ConversationsPage({ searchParams }: { searchParams
       if (!isAppError(e)) throw e;
     }
   }
+  // Sem mensagem do cliente nas últimas 24 h, a Meta não aceita texto livre: o primeiro contato vai pelo convite.
+  const windowOpen = selected ? selected.channel !== 'WHATSAPP' || (await insideServiceWindow(selected.id)) : true;
+  const botPhone = selected?.whatsappNumberId ? ((await db.whatsAppNumber.findUnique({ where: { id: selected.whatsappNumberId }, select: { phone: true } }))?.phone ?? null) : null;
   const consultants = can(ctx, 'lead.assign') ? await listConsultants(ctx) : [];
   return (
     <Inbox
@@ -48,6 +53,9 @@ export default async function ConversationsPage({ searchParams }: { searchParams
           channel: selected.channel,
           number: numbers.find((n) => n.id === selected.whatsappNumberId)?.name ?? null,
           currentAgent: selected.currentAgent,
+          windowOpen,
+          botPhone,
+          me: ctx.userName,
           messages: selected.messages.map((m) => ({ id: m.id, direction: m.direction, senderType: m.senderType, senderName: m.senderName, agentKey: m.agentKey, content: m.content, status: m.status, aiExecutionId: m.aiExecutionId, createdAt: m.createdAt.toISOString() })),
           summary: selected.summaries[0]?.content ?? null,
           lead: {

@@ -7,7 +7,7 @@ import { recommendNextActions } from '@/modules/lead-intelligence/intelligence.s
 import { listConsultants } from '@/modules/consultants/consultant.service';
 import { productLabel, sourceLabel, statusLabel, temperatureLabel, intentLabel } from '@/modules/leads/catalog';
 import { isAppError } from '@/lib/errors';
-import { Badge, Card, KV, Section, Notice } from '@/components/ui';
+import { Badge, Card, KV, Section, Notice, buttonClass } from '@/components/ui';
 import { IntentBadge, LandingHeatBadge, ModeBadge, ScoreBadge, SourceBadge, StatusBadge, TempBadge } from '@/components/badges';
 import { brl, date, dateTime, timeAgo } from '@/lib/format';
 import { formatCnpj, formatPhone, firstName } from '@/lib/normalize';
@@ -78,6 +78,11 @@ export default async function LeadPage({ params }: { params: Promise<{ id: strin
           </div>
         </div>
         <div className="flex items-center gap-4">
+          {lead.phone && !lead.optOut && can(ctx, 'conversation.read') && (
+            <Link href={`/conversas/abrir?lead=${lead.id}`} className={buttonClass('primary', 'sm')}>
+              Chamar no Inbox
+            </Link>
+          )}
           <SendToPhoneButton targetType="LEAD" targetId={lead.id} />
           <div className="rounded-2xl bg-ink text-white px-4 py-3 flex items-center gap-3">
             <span className="text-[11px] leading-tight text-white/70 w-9">Lead Score</span>

@@ -85,6 +85,11 @@ export default async function LeadsPage({ searchParams }: { searchParams: Promis
                           </span>
                         </span>
                       </Link>
+                      {l.phone && !l.optOut && (
+                        <Link href={`/conversas/abrir?lead=${l.id}`} className="ml-11 text-xs text-brand-600 hover:underline">
+                          Chamar no Inbox →
+                        </Link>
+                      )}
                     </Td>
                     <Td>
                       <div className="text-ink">{productLabel(l.product)}</div>

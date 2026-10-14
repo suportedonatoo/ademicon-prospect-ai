@@ -167,12 +167,13 @@ export async function returnToBot(ctx: Ctx, id: string) {
   return getConversation(ctx, id);
 }
 
-export async function humanReply(ctx: Ctx, id: string, content: string) {
+/** `keepAI`: o consultor manda a mensagem e a IA continua respondendo o cliente depois dela. */
+export async function humanReply(ctx: Ctx, id: string, content: string, opts: { keepAI?: boolean } = {}) {
   assertCan(ctx, 'conversation.reply');
   const text = content.trim();
   if (!text || text.length > 4000) throw BadRequest('Mensagem vazia ou muito longa.');
   const conv = await getConversation(ctx, id);
-  if (conv.mode !== 'HUMAN') await takeOver(ctx, id);
+  if (conv.mode !== 'HUMAN' && !opts.keepAI) await takeOver(ctx, id);
   const msg = await deliverMessage(ctx.orgId, id, { content: text, senderType: 'HUMAN', senderName: ctx.userName });
   await db.lead.update({ where: { id: conv.leadId }, data: { lastInteractionAt: new Date() } });
   await db.leadActivity.create({

@@ -23,10 +23,23 @@ type Selected = {
   channel: string;
   number: string | null;
   currentAgent: string | null;
+  windowOpen: boolean;
+  botPhone: string | null;
+  me: string;
   messages: Msg[];
   summary: string | null;
   lead: { id: string; name: string; phone: string | null; score: number; temperature: string; product: string | null; value: number | null; city: string | null; source: string; status: string; optOut: boolean; objections: string[]; consultant: string | null; opportunity: { id: string; stage: string; value: number } | null };
 };
+
+/** Mensagem do consultor (pelo WhatsApp dele) com o link para o cliente falar no número da Ademicon. */
+const digits = (p: string) => {
+  const d = p.replace(/\D/g, '');
+  return d.length <= 11 ? `55${d}` : d;
+};
+const inviteLink = (phone: string, lead: string, me: string, bot: string) =>
+  `https://wa.me/${digits(phone)}?text=${encodeURIComponent(
+    `Olá, ${lead.split(' ')[0]}! Aqui é ${me.split(' ')[0]}, da Ademicon. Para agilizar o seu atendimento sobre consórcio, me chame por este link: https://wa.me/${digits(bot)}?text=${encodeURIComponent('Olá! Quero saber mais sobre consórcio.')}`
+  )}`;
 
 const AGENT = { PROSPECT: 'Prospect Agent', QUALIFICATION: 'Qualification Agent', CAMPAIGN: 'Campanha' } as Record<string, string>;
 const STATE: Record<Selected['state'], [string, string]> = { BOT_ACTIVE: ['IA ativa', 'text-violet-600'], HUMAN_ACTIVE: ['Consultor ativo', 'text-ok'], PAUSED: ['IA pausada', 'text-warn'], CLOSED: ['Encerrada', 'text-muted'] };
@@ -62,6 +75,7 @@ export function Inbox({
   const pathname = usePathname();
   const [text, setText] = useState('');
   const [asClient, setAsClient] = useState(false);
+  const [keepAI, setKeepAI] = useState(true);
   const [busy, setBusy] = useState(false);
   const [rated, setRated] = useState<Record<string, string>>({});
   const [card, setCard] = useState<Battlecard | null>(null);
@@ -105,7 +119,7 @@ export function Inbox({
     if (!selected || !text.trim()) return;
     setBusy(true);
     try {
-      await api(`/conversations/${selected.id}/messages`, { body: { text, simulateInbound: asClient } });
+      await api(`/conversations/${selected.id}/messages`, { body: { text, simulateInbound: asClient, keepAI: !asClient && keepAI } });
       setText('');
       router.refresh();
     } catch (e) {
@@ -301,6 +315,22 @@ export function Inbox({
               )}
               <div ref={endRef} />
             </div>
+            {perms.reply && !selected.windowOpen && selected.lead.phone && selected.botPhone && !selected.lead.optOut && (
+              <div className="mx-5 mt-3 rounded-2xl border border-line bg-surface p-4 text-sm space-y-2">
+                <p>
+                  <b>{selected.lead.name.split(' ')[0]} ainda não escreveu para o número da Ademicon.</b> Pela regra do WhatsApp, a primeira mensagem não pode sair daqui sem custo. Faça o primeiro
+                  contato pelo seu WhatsApp com o convite abaixo: quando o cliente responder pelo link, a conversa aparece aqui e a IA continua o atendimento.
+                </p>
+                <a
+                  className={buttonClass('primary', 'sm')}
+                  target="_blank"
+                  rel="noreferrer"
+                  href={inviteLink(selected.lead.phone, selected.lead.name, selected.me, selected.botPhone)}
+                >
+                  Enviar convite pelo meu WhatsApp
+                </a>
+              </div>
+            )}
             {perms.reply && (
               <form
                 className="px-5 py-4 space-y-2 shrink-0"
@@ -314,13 +344,19 @@ export function Inbox({
                     value={text}
                     onChange={(e) => setText(e.target.value)}
                     maxLength={4000}
-                    placeholder={asClient ? 'Mensagem do CLIENTE (simulação do WhatsApp mock)…' : selected.mode === 'AI' ? 'Responder assume a conversa (IA será pausada)…' : 'Escreva sua resposta…'}
+                    placeholder={asClient ? 'Mensagem do CLIENTE (simulação do WhatsApp mock)…' : selected.mode === 'AI' ? (keepAI ? 'Sua mensagem (a IA continua respondendo depois)…' : 'Responder assume a conversa (IA será pausada)…') : 'Escreva sua resposta…'}
                     className={cx('flex-1 h-11 rounded-xl border px-3.5 text-sm focus:outline-none', asClient ? 'border-warn bg-warn-50' : 'border-line bg-white focus:border-brand-500')}
                   />
                   <button className={buttonClass(asClient ? 'secondary' : 'primary')} disabled={busy || !text.trim()}>
                     {busy ? '…' : asClient ? 'Simular' : 'Enviar'}
                   </button>
                 </div>
+                {selected.mode === 'AI' && !asClient && (
+                  <label className="flex items-center gap-2 text-xs text-muted">
+                    <input type="checkbox" checked={keepAI} onChange={(e) => setKeepAI(e.target.checked)} />
+                    A IA continua respondendo o cliente depois da minha mensagem
+                  </label>
+                )}
                 <label className="flex items-center gap-2 text-xs text-muted">
                   <input type="checkbox" checked={asClient} onChange={(e) => setAsClient(e.target.checked)} />
                   Simular mensagem do cliente (WhatsApp mock) — aciona o Maestro como se o lead tivesse escrito
