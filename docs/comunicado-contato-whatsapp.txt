@@ -1,0 +1,57 @@
+Prezados consultores e gestores,
+
+A partir de hoje, o primeiro contato com os leads da Prospect.AI passa a seguir as orientações abaixo. Elas têm o objetivo de proteger o número oficial da Ademicon, que atende toda a equipe e recebe os clientes da landing page, e de manter o nosso trabalho de acordo com as regras do WhatsApp e da LGPD.
+
+
+1. ORIGEM DOS LEADS
+
+Cadastros da landing page: pessoas que realizaram uma simulação e autorizaram o contato pelo WhatsApp.
+
+Lista do dia: todas as manhãs, às 7h, cada consultor recebe até 20 contatos na área "Prospectar no Google". São empresas obtidas em fontes públicas, que ainda não autorizaram o contato pelo WhatsApp.
+
+
+2. COMO REALIZAR O PRIMEIRO CONTATO
+
+Ligação: é o caminho preferencial para as empresas da lista do dia. Utilize o botão "Ligar".
+
+Convite pelo seu WhatsApp: na ficha do lead, clique em "Chamar no Inbox" e, em seguida, em "Enviar convite pelo meu WhatsApp". A mensagem é enviada pelo seu WhatsApp, com um link para o número oficial da Ademicon. Quando o cliente responde por esse link, a conversa passa a aparecer no Inbox e o assistente virtual dá continuidade ao atendimento.
+
+Registro da autorização: caso o cliente informe, durante a ligação, que aceita receber informações pelo WhatsApp, clique em "Cliente aceitou contato por WhatsApp" na ficha do lead. O sistema registra a autorização com a data e o seu nome e, a partir desse momento, o cliente pode ser atendido pelo número oficial.
+
+
+3. LIMITE DIÁRIO
+
+Cada consultor pode realizar até 40 contatos por WhatsApp por dia. Ao atingir esse limite, o botão é bloqueado até o dia seguinte.
+
+As ligações não entram nesse limite.
+
+
+4. BOAS PRÁTICAS OBRIGATÓRIAS
+
+Personalize cada mensagem. Não envie o mesmo texto em sequência para várias pessoas, pois isso gera denúncias e pode levar ao bloqueio do seu WhatsApp.
+
+Registre a autorização somente quando o cliente realmente a conceder. Esse registro tem valor de comprovação.
+
+Caso o cliente solicite não receber mais mensagens, por exemplo respondendo "PARAR", respeite o pedido. O sistema registra a solicitação e bloqueia novos envios.
+
+O assistente virtual sempre se apresenta como assistente. Não o apresente como se fosse você.
+
+Não prometa contemplação, prazo ou valor que não constem no material oficial da Ademicon.
+
+
+5. ORIENTAÇÕES AOS GESTORES
+
+Acompanhem se a equipe está utilizando a ligação como primeiro contato com as empresas da lista do dia.
+
+Não autorizem disparos em massa, nem pelo número oficial nem pelos números pessoais dos consultores.
+
+O envio pelo número oficial para quem ainda não autorizou o contato é bloqueado pelo sistema. Esse bloqueio protege o número que atende toda a equipe e não deve ser contornado.
+
+Dúvidas sobre casos específicos devem ser encaminhadas à equipe da Stack Solution antes de qualquer envio.
+
+
+Permanecemos à disposição para qualquer dúvida.
+
+Atenciosamente,
+Stack Solution
+Menos processos manuais, mais resultados.
