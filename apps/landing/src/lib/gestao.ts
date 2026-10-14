@@ -1,7 +1,7 @@
 import 'server-only';
 
 // Cliente do SISTEMA DE GESTÃO. Roda só no servidor: a API key nunca chega ao navegador.
-import { scrubDeep } from './brand-mode';
+import { isPrevia, scrubDeep } from './brand-mode';
 
 export interface SiteProduct {
   key: string;
@@ -34,6 +34,8 @@ export interface Site {
   title: string;
   subtitle: string;
   simulator: { products: SiteProduct[]; parametersVerified: boolean; disclaimer: string };
+  /** false = página própria de consultor sem autorização da marca (sem nome e sem logo da administradora). */
+  brandAuthorized?: boolean;
   contact: { phone: string | null; whatsapp: string | null; address: string | null };
 }
 
@@ -78,8 +80,11 @@ async function call<T>(subdomain: string | null, path: string, init: { method?: 
   }
   const json = (await res.json().catch(() => ({}))) as { data?: T; error?: { message?: string } };
   if (!res.ok) throw new GestaoError(json.error?.message ?? 'Não foi possível concluir. Tente novamente.', res.status);
-  // Prévia: nenhum texto vindo do sistema (títulos, FAQ, respostas do assistente) mostra o nome da administradora.
-  return scrubDeep(json.data as T);
+  // Prévia (ou página de consultor sem autorização da marca): nenhum texto vindo do sistema — títulos,
+  // FAQ, aviso do simulador, respostas do assistente — mostra o nome da administradora.
+  const data = json.data as T;
+  const own = path === '' && subdomain ? (data as { brandAuthorized?: boolean }) : subdomain ? await gestao.site(subdomain) : null;
+  return scrubDeep(data, isPrevia(own));
 }
 
 export const gestao = {

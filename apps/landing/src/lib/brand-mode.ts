@@ -27,18 +27,24 @@ const RULES: [RegExp, string | (() => string)][] = [
   [/\bademicon\b/gi, () => previewName()],
 ];
 
+/**
+ * Página sem a marca: a landing inteira em prévia OU a página própria de um consultor que ainda não
+ * é autorizado a vender com o nome da administradora (brandAuthorized = false, vindo do sistema).
+ */
+export const isPrevia = (site?: { brandAuthorized?: boolean } | null) => brandMode() === 'previa' || site?.brandAuthorized === false;
+
 /** Na prévia, tira o nome da administradora de qualquer texto; na versão autorizada, devolve igual. */
-export function scrubText(text: string): string {
-  if (brandMode() !== 'previa') return text;
+export function scrubText(text: string, previa = brandMode() === 'previa'): string {
+  if (!previa) return text;
   return RULES.reduce((t, [re, to]) => t.replace(re, typeof to === 'function' ? to() : to), text);
 }
 
 /** Aplica a regra em todos os textos de um objeto (resposta do sistema de gestão). */
-export function scrubDeep<T>(value: T): T {
-  if (brandMode() !== 'previa') return value;
-  if (typeof value === 'string') return scrubText(value) as T;
-  if (Array.isArray(value)) return value.map((v) => scrubDeep(v)) as T;
-  if (value && typeof value === 'object') return Object.fromEntries(Object.entries(value).map(([k, v]) => [k, scrubDeep(v)])) as T;
+export function scrubDeep<T>(value: T, previa = brandMode() === 'previa'): T {
+  if (!previa) return value;
+  if (typeof value === 'string') return scrubText(value, true) as T;
+  if (Array.isArray(value)) return value.map((v) => scrubDeep(v, true)) as T;
+  if (value && typeof value === 'object') return Object.fromEntries(Object.entries(value).map(([k, v]) => [k, scrubDeep(v, true)])) as T;
   return value;
 }
 

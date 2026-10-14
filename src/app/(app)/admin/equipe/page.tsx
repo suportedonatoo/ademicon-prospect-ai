@@ -94,6 +94,17 @@ export default async function TeamPage() {
                 </Td>
                 <Td>
                   <LinkCell consultantId={m.id} slug={m.landingSlug} url={m.landingSlug ? landingUrlFor(m.landingSlug) : null} />
+                  <ActionButton
+                    size="sm"
+                    variant="ghost"
+                    method="PATCH"
+                    path={`/team/${m.id}`}
+                    body={{ brandAuthorized: !m.brandAuthorized }}
+                    confirm={m.brandAuthorized ? `Tirar a marca Ademicon da página de ${m.name}?` : `Confirmar que ${m.name} está autorizado(a) a vender com a marca Ademicon?`}
+                    success={m.brandAuthorized ? 'Página sem a marca Ademicon.' : 'Página com a marca Ademicon.'}
+                  >
+                    {m.brandAuthorized ? 'Marca Ademicon: autorizado' : 'Marca Ademicon: não autorizado'}
+                  </ActionButton>
                 </Td>
                 <Td className="text-xs">{m.user ? m.user.lastLoginAt ? `acessou ${timeAgo(m.user.lastLoginAt)}` : 'nunca acessou' : <span className="text-muted">sem login</span>}</Td>
                 <Td>

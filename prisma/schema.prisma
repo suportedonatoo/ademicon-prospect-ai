@@ -211,6 +211,8 @@ model Consultant {
   /// Link próprio do consultor (para a bio): <landingSlug>.<domínio>. Página idêntica à da Ademicon;
   /// quem chega por ele e deixa contato vira lead DESTE consultor.
   landingSlug          String?  @unique
+  /// Autorizado a vender com a marca Ademicon. Se não, a página própria dele sai sem nome e sem logo da Ademicon.
+  brandAuthorized      Boolean  @default(false)
   /// Foto do colaborador (chave no storage). Aparece só no sistema interno — nunca na página pública.
   photoKey             String?
   splitBaseline        Int      @default(0)

@@ -32,8 +32,17 @@ describe('Link próprio do consultor (página idêntica à mestre)', () => {
     const central = await getSite(svc, 'central');
     const own = await getSite(svc, slug);
     expect(own).toMatchObject({ kind: 'CENTRAL', pj: null, subdomain: slug });
-    expect(JSON.stringify({ ...own, subdomain: 'x' })).toBe(JSON.stringify({ ...central, subdomain: 'x' }));
+    // Só muda a autorização da marca (consultor novo começa sem autorização; a central sempre tem).
+    expect(JSON.stringify({ ...own, subdomain: 'x', brandAuthorized: true })).toBe(JSON.stringify({ ...central, subdomain: 'x' }));
     expect(JSON.stringify(own)).not.toContain('Consultor Dois');
+    expect(central.brandAuthorized).toBe(true);
+    expect(own.brandAuthorized).toBe(false);
+  });
+
+  it('consultor autorizado pela equipe da plataforma passa a ter a marca na página dele', async () => {
+    const c = await db.consultant.findFirstOrThrow({ where: { landingSlug: slug } });
+    await db.consultant.update({ where: { id: c.id }, data: { brandAuthorized: true } });
+    expect((await getSite(svc, slug)).brandAuthorized).toBe(true);
   });
 
   it('quem deixa contato pelo link vira lead do dono do link (fora da divisão)', async () => {

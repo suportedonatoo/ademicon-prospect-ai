@@ -207,3 +207,13 @@ export async function changeMemberLink(ctx: Ctx, consultantId: string, slug: str
   await audit(ctx, 'user.changed', { type: 'Consultant', id: c.id }, { action: 'link_changed', landingSlug });
   return { landingSlug, landingUrl: landingUrlFor(landingSlug) };
 }
+
+/** Autorização para usar a marca Ademicon na página própria do consultor (só a equipe da plataforma muda). */
+export async function setMemberBrandAuthorized(ctx: Ctx, consultantId: string, brandAuthorized: boolean) {
+  assertTeamAdmin(ctx);
+  const c = await db.consultant.findFirst({ where: { id: consultantId, organizationId: ctx.orgId }, select: { id: true } });
+  if (!c) throw NotFound('Consultor');
+  await db.consultant.update({ where: { id: c.id }, data: { brandAuthorized } });
+  await audit(ctx, 'user.changed', { type: 'Consultant', id: c.id }, { action: 'brand_authorized', brandAuthorized });
+  return { ok: true, brandAuthorized };
+}

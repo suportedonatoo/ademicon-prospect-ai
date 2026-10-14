@@ -3,7 +3,7 @@ import { partnerLoginUrl } from '@/lib/links';
 import { ADVANTAGES, CENTRAL_ADVANTAGE, FAQ, PRODUCT_COPY, RATE_VS_INTEREST, STEPS, WHAT_IS, sortProducts } from '@/content/master';
 import { Icon } from './icon';
 import { BrandLogo } from './brand-logo';
-import { brandMode } from '@/lib/brand-mode';
+import { isPrevia } from '@/lib/brand-mode';
 import { ContactButtons, WhatsAppFloat } from './contact-buttons';
 import { SimulatorFlow } from './simulator-flow';
 import { Tracker } from './tracker';
@@ -20,7 +20,8 @@ export function MasterPage({ site, initialProduct, keepQuery = '' }: { site: Sit
   // Landing central não tem unidade: o nome exibido é a marca e o lead é dividido entre as unidades.
   const unitName = pj?.name ?? brand.name;
   // Banner OFICIAL da campanha (só na versão autorizada — ele traz logo e nome da marca).
-  const heroImage = brandMode() === 'autorizada' ? process.env.LANDING_HERO_IMAGE?.trim() || null : null;
+  const previa = isPrevia(site);
+  const heroImage = previa ? null : process.env.LANDING_HERO_IMAGE?.trim() || null;
   const advantages = pj ? ADVANTAGES : ADVANTAGES.map((a) => (a.title === 'Consultor da sua região' ? CENTRAL_ADVANTAGE : a));
   const products = sortProducts(site.simulator.products);
   const nav = [
@@ -39,7 +40,7 @@ export function MasterPage({ site, initialProduct, keepQuery = '' }: { site: Sit
       <header className="sticky top-0 z-30 bg-white border-b border-line">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
           <a href="#topo" className="flex items-center gap-3 min-w-0" aria-label={pj ? `${brand.name} · ${pj.name}` : brand.name}>
-            <BrandLogo name={brand.name} />
+            <BrandLogo name={brand.name} previa={previa} />
             {pj && <span className="hidden xl:block border-l border-line pl-3 text-xs leading-tight text-muted max-w-40 truncate">{pj.name}</span>}
           </a>
           <nav className="hidden lg:flex items-center gap-6 text-[15px] font-medium text-ink-2 whitespace-nowrap" aria-label="Seções">
@@ -263,7 +264,7 @@ export function MasterPage({ site, initialProduct, keepQuery = '' }: { site: Sit
       <footer className="bg-night text-white/75">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 py-10 grid gap-6 md:grid-cols-[1fr_auto] text-sm">
           <div className="space-y-3">
-            <BrandLogo name={brand.name} inverted />
+            <BrandLogo name={brand.name} inverted previa={previa} />
             <p>{pj ? `${pj.name} · ${pj.city}/${pj.uf}` : brand.tagline}</p>
             <p className="text-xs text-white/55 max-w-2xl">{site.simulator.disclaimer}</p>
             <p className="text-xs text-white/55 max-w-2xl">

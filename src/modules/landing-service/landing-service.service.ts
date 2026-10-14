@@ -67,7 +67,7 @@ export async function loadSite(ctx: Ctx, subdomain: string) {
     include: { region: { select: { name: true } } },
   });
   if (pj) return { pj, simulator: await pickSimulator(ctx, pj.landingSimulatorId), consultant: null };
-  const consultant = await db.consultant.findFirst({ where: { organizationId: ctx.orgId, landingSlug: key, active: true }, select: { id: true, name: true, landingSlug: true } });
+  const consultant = await db.consultant.findFirst({ where: { organizationId: ctx.orgId, landingSlug: key, active: true }, select: { id: true, name: true, landingSlug: true, brandAuthorized: true } });
   if (consultant) return { pj: null, simulator: await pickSimulator(ctx), consultant };
   throw NotFound('Landing');
 }
@@ -100,6 +100,8 @@ export async function getSite(ctx: Ctx, subdomain: string) {
     return {
       subdomain: consultant?.landingSlug ?? CENTRAL_SITE, // link do consultor: mesma página, endereço dele
       kind: 'CENTRAL' as const,
+      // Página própria de consultor não autorizado: a landing tira o nome e o logo da Ademicon.
+      brandAuthorized: consultant ? consultant.brandAuthorized : true,
       pj: null,
       brand: settings.publicBrand,
       title: c.title || 'Simule seu consórcio',
@@ -111,6 +113,7 @@ export async function getSite(ctx: Ctx, subdomain: string) {
   return {
     subdomain: pj.subdomain,
     kind: 'PJ' as const,
+    brandAuthorized: true,
     pj: { code: pj.code, name: pj.name, city: pj.city, uf: pj.uf, citiesServed: pj.citiesServed, region: pj.region?.name ?? null },
     brand: settings.publicBrand,
     title: pj.landingTitle ?? `Consórcio em ${pj.city} com atendimento local`,
