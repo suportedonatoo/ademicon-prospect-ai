@@ -304,7 +304,7 @@ export async function registerInterest(ctx: Ctx, subdomain: string, raw: unknown
       organizationId: ctx.orgId,
       leadId: ingest.leadId,
       type: 'SIMULATION',
-      description: `Landing ${pj?.code ?? 'central'}: simulação de ${productLabel(simulation.product)} · ${planLabel(simulation.result, simulation.value)} · ${heat === 'QUENTE' ? 'QUENTE — pediu para ser chamado agora' : 'MORNO — deixou contato'}${input.bestTime ? ` · melhor horário: ${input.bestTime}` : ''}`,
+      description: `${pj ? `Landing ${pj.code}` : consultant ? `Página de ${consultant.name}` : 'Landing central'}: simulação de ${productLabel(simulation.product)} · ${planLabel(simulation.result, simulation.value)} · ${heat === 'QUENTE' ? 'QUENTE — pediu para ser chamado agora' : 'MORNO — deixou contato'}${input.bestTime ? ` · melhor horário: ${input.bestTime}` : ''}`,
       actorType: 'SYSTEM',
     },
   });

@@ -16,7 +16,9 @@ async function resolve(token: string) {
 }
 
 async function webConversation(orgId: string, leadId: string, agent: 'PROSPECT' | 'QUALIFICATION') {
-  return (await findOrCreateOpenConversation(orgId, leadId, 'WEB', { currentAgent: agent })).conversation;
+  // Já nasce com o consultor dono do lead: a IA se apresenta como assistente dele.
+  const owner = await db.lead.findUnique({ where: { id: leadId }, select: { consultantId: true } });
+  return (await findOrCreateOpenConversation(orgId, leadId, 'WEB', { currentAgent: agent, assignedConsultantId: owner?.consultantId ?? null })).conversation;
 }
 
 function view(messages: { id: string; senderType: string; content: string; createdAt: Date; senderName: string | null }[]) {

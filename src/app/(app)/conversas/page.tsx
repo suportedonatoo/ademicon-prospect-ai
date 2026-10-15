@@ -6,6 +6,7 @@ import { Inbox } from './inbox';
 import { listConsultants } from '@/modules/consultants/consultant.service';
 import { conversationState } from '@/modules/conversations/conversation.service';
 import { insideServiceWindow } from '@/modules/messaging/messaging.service';
+import { providers } from '@/modules/integrations/registry';
 import { db } from '@/lib/db';
 
 export const metadata = { title: 'Inbox' };
@@ -24,7 +25,7 @@ export default async function ConversationsPage({ searchParams }: { searchParams
     }
   }
   // Sem mensagem do cliente nas últimas 24 h, a Meta não aceita texto livre: o primeiro contato vai pelo convite.
-  const windowOpen = selected ? selected.channel !== 'WHATSAPP' || (await insideServiceWindow(selected.id)) : true;
+  const windowOpen = selected ? selected.channel !== 'WHATSAPP' || providers.whatsapp.mode !== 'real' || (await insideServiceWindow(selected.id)) : true;
   const botPhone = selected?.whatsappNumberId ? ((await db.whatsAppNumber.findUnique({ where: { id: selected.whatsappNumberId }, select: { phone: true } }))?.phone ?? null) : null;
   const consultants = can(ctx, 'lead.assign') ? await listConsultants(ctx) : [];
   return (

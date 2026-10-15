@@ -63,15 +63,12 @@ describe('Piloto: WhatsApp oficial + bot', () => {
     expect(r.whatsappUrl).toBe(`https://wa.me/${bot.phone}?text=${encodeURIComponent(`Olá! Acabei de fazer uma simulação no site (protocolo ${r.protocol}).`)}`);
   });
 
-  it('sem template de abertura: o bot NÃO manda texto livre (a Meta recusaria) e avisa o motivo na conversa', async () => {
+  it('sem template de abertura: o bot nem tenta iniciar no WhatsApp (a Meta recusaria) — nada de mensagem com erro', async () => {
     mockMeta();
     await leadFromLanding('Bruno Sem Template', '+55 11 98888-0002');
     const lead = await db.lead.findFirstOrThrow({ where: { organizationId: A.org.id, phone: '5511988880002' } });
-    const conv = await db.conversation.findFirstOrThrow({ where: { leadId: lead.id, channel: 'WHATSAPP' } });
-    const msgs = await db.message.findMany({ where: { conversationId: conv.id }, orderBy: { createdAt: 'asc' } });
     expect(calls.filter((c) => c.url.endsWith('/909090/messages'))).toHaveLength(0);
-    expect(msgs.find((m) => m.senderType === 'AI')?.status).toBe('FAILED');
-    expect(msgs.find((m) => m.senderType === 'SYSTEM')?.content).toMatch(/template aprovado.*iniciar conversas/);
+    expect(await db.message.count({ where: { conversation: { leadId: lead.id, channel: 'WHATSAPP' }, status: 'FAILED' } })).toBe(0);
   });
 
   it('cliente escreve pelo botão → o bot responde com texto livre pela API oficial (janela de 24 h aberta)', async () => {

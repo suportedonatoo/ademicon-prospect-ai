@@ -7,7 +7,8 @@ import { searchKnowledge } from '../../knowledge-base/knowledge.service';
 import { rescoreLead } from '../../lead-scoring/scoring.service';
 import { routeLead } from '../../lead-routing/routing.service';
 import { notifyConsultant, notifyRoles } from '../../notifications/notification.service';
-import { canContactProactively, deliverMessage } from '../../messaging/messaging.service';
+import { canContactProactively, deliverMessage, openerTemplateFor } from '../../messaging/messaging.service';
+import { providers } from '../../integrations/registry';
 import { getOrCreateConversation } from '../../conversations/conversation.service';
 import { recordPrivacyEvent } from '../../privacy/privacy.service';
 import { getAIProvider } from '../providers';
@@ -94,6 +95,9 @@ export async function startConversation(orgId: string, leadId: string): Promise<
   const check = await canContactProactively(orgId, leadId);
   if (!check.allowed) return { skipped: check.reason! };
   const lead = await db.lead.findUniqueOrThrow({ where: { id: leadId } });
+  // API oficial: a primeira mensagem só sai com template aprovado. Sem ele, não tenta (cada tentativa virava
+  // uma mensagem com erro no Inbox); o consultor chama pelo convite ou espera o cliente escrever.
+  if (providers.whatsapp.mode === 'real' && !(await openerTemplateFor(orgId, lead))) return { skipped: 'Sem template aprovado para iniciar conversa no WhatsApp' };
   const agent = chooseAgent(lead);
   const { conversation, created } = await getOrCreateConversation(orgId, leadId, { agent });
   if (!created) return { skipped: 'Conversa já existente' };
@@ -244,7 +248,8 @@ async function runTurn(orgId: string, conversationId: string, text: string | nul
     const updatedFacts = buildLeadFacts(updatedLead, await getMemory(orgId, lead.id));
     const turns = conversation.messages.filter((m) => m.senderType === 'AI').length + 1;
     const h = settings.ai.handoff;
-    const handoffReason = output.optOut
+    // Mensagem de abertura (sem fala do cliente): primeiro conversa; a transferência só vem depois que ele responder.
+    const handoffReason = output.optOut || !text
       ? null
       : output.wantsHuman && h.onExplicitRequest
         ? 'Pedido explícito do cliente'
@@ -270,7 +275,9 @@ async function runTurn(orgId: string, conversationId: string, text: string | nul
     // responde tudo de uma vez (ela já vê o histórico), em vez de chegarem duas respostas juntas.
     const newest = await db.message.findFirst({ where: { conversationId, direction: 'INBOUND' }, orderBy: { createdAt: 'desc' }, select: { id: true } });
     const superseded = !!text && !!triggerId && newest?.id !== triggerId;
-    const skipReply = superseded || (!!handoffReason && output.wantsHuman && !output.isQuestion) || replyText.length < 3;
+    // Com transferência, a mensagem de transferência responde ao cliente — a não ser que ele tenha feito uma
+    // pergunta. Mandar a próxima pergunta da IA e, logo depois, "obrigado, o consultor continua" se contradiz.
+    const skipReply = superseded || (!!handoffReason && !output.isQuestion) || replyText.length < 3;
     const message = skipReply
       ? null
       : await deliverMessage(orgId, conversationId, { content: replyText, senderType: 'AI', agentKey, aiExecutionId: execution.id });
@@ -348,7 +355,9 @@ export async function performHandoff(orgId: string, conversationId: string, reas
   ]);
   await mergeMemory(orgId, lead.id, { summary });
   await deliverMessage(orgId, conversationId, {
-    content: `Obrigado pelas informações! Um consultor${consultant && !/^consultor/i.test(firstName(consultant.name)) ? ` (${firstName(consultant.name)})` : ''} vai continuar o atendimento por aqui.`,
+    // O consultor é o dono do lead (link próprio, divisão ou transferência): ele é apresentado pelo nome,
+    // nunca como "um consultor", que soa como outra pessoa.
+    content: consultant && !/^consultor/i.test(firstName(consultant.name)) ? `Obrigado pelas informações! Agora ${firstName(consultant.name)} continua o seu atendimento por aqui.` : 'Obrigado pelas informações! Um consultor vai continuar o atendimento por aqui.',
     senderType: 'AI',
     agentKey: 'QUALIFICATION',
   });

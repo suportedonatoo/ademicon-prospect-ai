@@ -61,8 +61,11 @@ const first = (name: string) => name.trim().split(/\s+/)[0] ?? name;
 /** Personalidade, apresentação e instrução extra para a conversa do lead deste consultor. */
 export function consultantPersona(raw: unknown, consultantName: string, base: { personality: Personality; disclosure: string }) {
   const p = parseAiProfile(raw);
-  if (!p.enabled) return { ...base, instructions: '' };
   const who = first(consultantName);
+  // Sem perfil próprio de IA: estilo padrão, mas a IA se apresenta como assistente DO consultor do lead
+  // ("equipe comercial" fazia o cliente achar que outra pessoa iria atendê-lo).
+  if (!p.enabled)
+    return { ...base, disclosure: `Sou o assistente virtual de ${who}. ${who} assume a conversa quando você quiser.`, instructions: `Você é o assistente virtual do consultor ${consultantName}. Fale em nome dele, mas nunca finja ser ele.` };
   const name = p.assistantName?.trim();
   const disclosure =
     p.presentation && DISCLOSURE_RE.test(p.presentation)

@@ -86,8 +86,10 @@ describe('Pool de números (backup)', () => {
 describe('IA do consultor', () => {
   const base = { personality: { formality: 'neutro', objectivity: 'equilibrado', emojis: false, style: 'Consultivo.' }, disclosure: 'Sou o assistente virtual da equipe.' };
 
-  it('desligada → padrão da empresa', () => {
-    expect(consultantPersona({}, 'João Silva', base).disclosure).toBe(base.disclosure);
+  it('desligada → estilo padrão, mas apresenta-se como assistente do consultor do lead', () => {
+    const p = consultantPersona({}, 'João Silva', base);
+    expect(p.disclosure).toBe('Sou o assistente virtual de João. João assume a conversa quando você quiser.');
+    expect(p.personality).toEqual(base.personality);
   });
 
   it('ligada → apresenta-se como assistente do consultor, nunca como ele', () => {

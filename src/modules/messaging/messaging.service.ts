@@ -142,7 +142,7 @@ export async function deliverMessage(
 }
 
 /** Template de abertura configurado e APROVADO, com as variáveis preenchidas ({{nome}}, {{produto}}). */
-async function openerTemplateFor(orgId: string, lead: { name: string; product: string | null }) {
+export async function openerTemplateFor(orgId: string, lead: { name: string; product: string | null }) {
   const { getOrgSettings } = await import('../organizations/settings');
   const name = (await getOrgSettings(orgId)).messaging.openerTemplate;
   if (!name) return null;

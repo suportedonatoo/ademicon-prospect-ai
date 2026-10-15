@@ -340,10 +340,10 @@ export function Inbox({
                     value={text}
                     onChange={(e) => setText(e.target.value)}
                     maxLength={4000}
-                    placeholder={asClient ? 'Mensagem do CLIENTE (simulação do WhatsApp mock)…' : selected.mode === 'AI' ? (keepAI ? 'Sua mensagem (a IA continua respondendo depois)…' : 'Responder assume a conversa (IA será pausada)…') : 'Escreva sua resposta…'}
+                    placeholder={asClient ? 'Mensagem do CLIENTE (simulação do WhatsApp mock)…' : !selected.windowOpen ? 'Aguardando o cliente escrever — use o convite acima' : selected.mode === 'AI' ? (keepAI ? 'Sua mensagem (a IA continua respondendo depois)…' : 'Responder assume a conversa (IA será pausada)…') : 'Escreva sua resposta…'}
                     className={cx('flex-1 h-11 rounded-xl border px-3.5 text-sm focus:outline-none', asClient ? 'border-warn bg-warn-50' : 'border-line bg-white focus:border-brand-500')}
                   />
-                  <button className={buttonClass(asClient ? 'secondary' : 'primary')} disabled={busy || !text.trim()}>
+                  <button className={buttonClass(asClient ? 'secondary' : 'primary')} disabled={busy || !text.trim() || (!asClient && !selected.windowOpen)}>
                     {busy ? '…' : asClient ? 'Simular' : 'Enviar'}
                   </button>
                 </div>
