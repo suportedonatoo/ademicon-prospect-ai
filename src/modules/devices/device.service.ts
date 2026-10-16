@@ -1,3 +1,4 @@
+import { registerWhatsAppContact } from '../messaging/whatsapp-contact.service';
 import crypto from 'node:crypto';
 import QRCode from 'qrcode';
 import { z } from 'zod';
@@ -125,6 +126,25 @@ async function assertTargetAccess(ctx: Ctx, type: TargetType, id: string) {
   if (!found) throw NotFound('Recurso');
 }
 
+/** Cliente do item (lead, conversa, oportunidade ou tarefa) → link do WhatsApp com uma saudação pronta. */
+async function leadWhatsAppUrl(ctx: Ctx, type: TargetType, id: string) {
+  const leadId =
+    type === 'LEAD'
+      ? id
+      : type === 'CONVERSATION'
+        ? (await db.conversation.findUnique({ where: { id }, select: { leadId: true } }))?.leadId
+        : type === 'OPPORTUNITY'
+          ? (await db.opportunity.findUnique({ where: { id }, select: { leadId: true } }))?.leadId
+          : (await db.task.findUnique({ where: { id }, select: { leadId: true } }))?.leadId;
+  if (!leadId) return null;
+  const lead = await db.lead.findFirst({ where: { ...leadScope(ctx), id: leadId }, select: { id: true, name: true, phone: true, optOut: true } });
+  if (!lead?.phone || lead.optOut) return null; // pediu para não receber mensagens: não abre o WhatsApp
+  const d = lead.phone.replace(/\D/g, '');
+  const first = (s: string) => s.trim().split(/\s+/)[0];
+  const text = `Olá, ${first(lead.name)}! Aqui é ${first(ctx.userName)}, tudo bem?`;
+  return { leadId: lead.id, name: first(lead.name), url: `https://wa.me/${d.length <= 11 ? `55${d}` : d}?text=${encodeURIComponent(text)}` };
+}
+
 export function targetPath(type: string, id: string) {
   switch (type) {
     case 'CONVERSATION':
@@ -145,6 +165,21 @@ export async function sendToPhone(ctx: Ctx, raw: unknown) {
   assertCan(ctx, perm[input.targetType]);
   await assertTargetAccess(ctx, input.targetType, input.targetId);
   if (input.method === 'PUSH' && !input.deviceId) throw BadRequest('Escolha o dispositivo.');
+
+  // Item ligado a um cliente com telefone: o celular abre a conversa com ele direto no WhatsApp do
+  // consultor (em vez de abrir a plataforma de novo). Conta no limite diário de contatos pelo WhatsApp.
+  const wa = await leadWhatsAppUrl(ctx, input.targetType, input.targetId);
+  if (wa) {
+    await registerWhatsAppContact(ctx, { leadId: wa.leadId });
+    await audit(ctx, 'deep_link.created', { type: input.targetType, id: input.targetId }, { method: input.method, whatsapp: true });
+    if (input.method === 'PUSH') {
+      const r = await pushToDevice(ctx.orgId, ctx.userId, input.deviceId!, { title: `📲 WhatsApp de ${wa.name}`, body: 'Toque para abrir a conversa no seu WhatsApp.', url: wa.url, tag: `send-wa-${wa.leadId}`, priority: 'HIGH' });
+      if (!r.ok) throw BadRequest(`Não foi possível enviar o push: ${r.error ?? 'falha no envio'}.`);
+      return { method: 'PUSH', whatsapp: true, delivered: true };
+    }
+    const qr = input.method === 'QR' ? await QRCode.toDataURL(wa.url, { margin: 1, width: 260, errorCorrectionLevel: 'M' }) : null;
+    return { method: input.method, whatsapp: true, url: wa.url, qr, expiresAt: null };
+  }
 
   const code = crypto.randomBytes(12).toString('base64url'); // 16 caracteres
   const expiresAt = new Date(Date.now() + env.DEEP_LINK_TTL_MINUTES * 60_000);

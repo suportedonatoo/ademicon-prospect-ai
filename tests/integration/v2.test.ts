@@ -175,6 +175,9 @@ describe('Enviar para meu celular + extensão (segurança)', () => {
     // conversa de lead que não é do consultor → recurso não encontrado
     await expect(sendToPhone(consultant, { targetType: 'CONVERSATION', targetId: conversationId, method: 'QR' })).rejects.toThrow(/não encontrad/i);
     const mgr = await A.ctx(A.users.manager);
+    // Cliente com telefone vira link do WhatsApp (contato-whatsapp.test.ts); aqui, o link seguro da plataforma.
+    const conv = await db.conversation.findUniqueOrThrow({ where: { id: conversationId } });
+    await db.lead.update({ where: { id: conv.leadId }, data: { phone: null } });
     const r = (await sendToPhone(mgr, { targetType: 'CONVERSATION', targetId: conversationId, method: 'QR' })) as { url: string; qr: string };
     expect(r.qr).toMatch(/^data:image\/png;base64,/);
     const code = r.url.split('/m/')[1];

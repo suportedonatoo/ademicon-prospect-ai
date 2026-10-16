@@ -35,7 +35,7 @@ export function SendToPhoneButton({ targetType, targetId, size = 'sm' }: { targe
   const [devices, setDevices] = useState<Device[]>([]);
   const [pushReady, setPushReady] = useState(false);
   const [deviceId, setDeviceId] = useState('');
-  const [result, setResult] = useState<{ method: string; url?: string; qr?: string | null; expiresAt: string; delivered?: boolean } | null>(null);
+  const [result, setResult] = useState<{ method: string; url?: string; qr?: string | null; expiresAt: string | null; delivered?: boolean; whatsapp?: boolean } | null>(null);
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
@@ -54,7 +54,7 @@ export function SendToPhoneButton({ targetType, targetId, size = 'sm' }: { targe
   const send = async (method: 'QR' | 'LINK' | 'PUSH') => {
     setBusy(true);
     try {
-      const r = await api<{ method: string; url?: string; qr?: string | null; expiresAt: string; delivered?: boolean }>('/send-to-phone', { body: { targetType, targetId, method, deviceId: method === 'PUSH' ? deviceId : undefined } });
+      const r = await api<{ method: string; url?: string; qr?: string | null; expiresAt: string | null; delivered?: boolean; whatsapp?: boolean }>('/send-to-phone', { body: { targetType, targetId, method, deviceId: method === 'PUSH' ? deviceId : undefined } });
       setResult(r);
       if (method === 'PUSH') toast('Enviado para o celular.');
     } catch (e) {
@@ -71,7 +71,7 @@ export function SendToPhoneButton({ targetType, targetId, size = 'sm' }: { targe
       </button>
       <Modal open={open} onClose={() => setOpen(false)} title="Enviar para meu celular">
         <div className="space-y-4 text-sm">
-          <p className="text-muted">O celular abre exatamente este item. O link é temporário, não contém dados pessoais e só funciona com o <b>seu</b> login — a sessão deste computador não é transferida.</p>
+          <p className="text-muted">Se o item tiver um cliente com telefone, o celular abre a conversa com ele direto no <b>seu WhatsApp</b>. Sem telefone, abre este item na plataforma, com um link temporário que só funciona com o seu login.</p>
           <section className="rounded-xl border border-line p-3">
             <b className="block mb-2">1 · Dispositivo conectado (push)</b>
             {!pushReady ? (
@@ -116,7 +116,7 @@ export function SendToPhoneButton({ targetType, targetId, size = 'sm' }: { targe
                   </button>
                 </div>
               )}
-              <p className="text-xs text-muted mt-2">Expira às {new Date(result.expiresAt).toLocaleTimeString('pt-BR')}.</p>
+              <p className="text-xs text-muted mt-2">{result.whatsapp ? 'Abre a conversa com o cliente no seu WhatsApp.' : result.expiresAt ? `Expira às ${new Date(result.expiresAt).toLocaleTimeString('pt-BR')}.` : ''}</p>
             </div>
           )}
         </div>

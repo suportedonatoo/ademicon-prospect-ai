@@ -27,6 +27,8 @@ self.addEventListener('push', (event) => {
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
   const url = new URL((event.notification.data && event.notification.data.url) || '/notificacoes', self.location.origin).href;
+  // Link externo (ex.: WhatsApp do cliente): abre direto, sem passar por uma janela da plataforma.
+  if (!url.startsWith(self.location.origin)) return event.waitUntil(self.clients.openWindow(url));
   event.waitUntil(
     self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((wins) => {
       for (const w of wins) {

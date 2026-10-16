@@ -41,3 +41,18 @@ describe('Contato pelo WhatsApp do consultor', () => {
     expect((await db.lead.findUniqueOrThrow({ where: { id: parou.id } })).optOut).toBe(true);
   });
 });
+
+describe('Enviar para meu celular', () => {
+  it('lead com telefone: manda o link do WhatsApp do cliente (não a plataforma) e conta no limite diário', async () => {
+    const { sendToPhone } = await import('@/modules/devices/device.service');
+    const outro = await A.ctx(A.users.manager); // gestão: sem limite, mesmo fluxo
+    const lead = await mkLead(A.consultants[0].id, { name: 'Carla Souza', phone: '11987654321' });
+    const r = (await sendToPhone(outro, { targetType: 'LEAD', targetId: lead.id, method: 'LINK' })) as { url: string; whatsapp?: boolean };
+    expect(r.whatsapp).toBe(true);
+    expect(r.url).toMatch(/^https:\/\/wa\.me\/5511987654321\?text=Ol%C3%A1%2C%20Carla!/);
+    const semTelefone = await db.lead.create({ data: { organizationId: A.org.id, name: 'Sem Fone', consultantId: A.consultants[0].id, pjId: A.pjA.id, status: 'ASSIGNED', source: 'MAPS' } });
+    const r2 = (await sendToPhone(outro, { targetType: 'LEAD', targetId: semTelefone.id, method: 'LINK' })) as { url: string; whatsapp?: boolean };
+    expect(r2.whatsapp).toBeUndefined();
+    expect(r2.url).toContain('/m/');
+  });
+});
