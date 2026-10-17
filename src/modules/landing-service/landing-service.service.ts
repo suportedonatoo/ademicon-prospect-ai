@@ -1,3 +1,4 @@
+import { mergeMemory } from '../ai/memory/memory.service';
 import { INSURANCE_RATE, PLAN_DISCLAIMER, PLAN_TABLE } from '../simulators/plan-table';
 import { z } from 'zod';
 import { db } from '@/lib/db';
@@ -298,6 +299,9 @@ export async function registerInterest(ctx: Ctx, subdomain: string, raw: unknown
   });
 
   await db.simulation.update({ where: { id: simulation.id }, data: { leadId: ingest.leadId, heat } });
+  // A simulação mais recente vale para a IA: sem isso ela citava o valor de uma simulação antiga.
+  await mergeMemory(ctx.orgId, ingest.leadId, { product: simulation.product, ...(simulation.value ? { value: simulation.value } : {}) });
+  if (simulation.value) await db.lead.update({ where: { id: ingest.leadId }, data: { desiredValue: simulation.value, product: simulation.product } });
   if (session && !session.leadId) await db.attributionSession.update({ where: { id: session.id }, data: { leadId: ingest.leadId } });
   await db.leadActivity.create({
     data: {

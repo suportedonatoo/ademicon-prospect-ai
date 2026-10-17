@@ -18,10 +18,12 @@ export async function googleRequestsLeft() {
 
 /** Conta UMA requisição (cada página é cobrada) e recusa quando o teto do dia já foi usado. */
 async function takeGoogleRequest() {
+  // Só soma quando ainda há saldo: tentativa recusada não entra no contador (antes ele passava de 30).
   const rows = await db.$queryRawUnsafe<{ count: number }[]>(
-    `INSERT INTO "ApiUsage" (key, day, count) VALUES ('google_places', ${GOOGLE_DAY}, 1) ON CONFLICT (key, day) DO UPDATE SET count = "ApiUsage".count + 1 RETURNING count`
+    `INSERT INTO "ApiUsage" (key, day, count) SELECT 'google_places', ${GOOGLE_DAY}, 1 WHERE ${env.GOOGLE_MAPS_DAILY_REQUESTS} > 0
+     ON CONFLICT (key, day) DO UPDATE SET count = "ApiUsage".count + 1 WHERE "ApiUsage".count < ${env.GOOGLE_MAPS_DAILY_REQUESTS} RETURNING count`
   );
-  if (rows[0].count > env.GOOGLE_MAPS_DAILY_REQUESTS) throw new Error(`Limite de ${env.GOOGLE_MAPS_DAILY_REQUESTS} buscas por dia no Google atingido. Volta a funcionar amanhã.`);
+  if (!rows.length) throw new Error(`Limite de ${env.GOOGLE_MAPS_DAILY_REQUESTS} buscas por dia no Google atingido. Volta a funcionar amanhã.`);
 }
 
 /**
@@ -42,7 +44,7 @@ export class GooglePlacesProvider implements MapsProvider {
         'content-type': 'application/json',
         'X-Goog-Api-Key': env.GOOGLE_MAPS_API_KEY!,
         'X-Goog-FieldMask':
-          'places.id,places.displayName,places.formattedAddress,places.nationalPhoneNumber,places.internationalPhoneNumber,places.websiteUri,places.primaryTypeDisplayName,places.addressComponents,nextPageToken',
+          'places.id,places.displayName,places.formattedAddress,places.nationalPhoneNumber,places.internationalPhoneNumber,places.websiteUri,places.primaryTypeDisplayName,places.addressComponents,places.businessStatus,nextPageToken',
       },
       body: JSON.stringify({ textQuery, languageCode: 'pt-BR', regionCode: 'BR', pageSize, ...(pageToken ? { pageToken } : {}) }),
       signal: AbortSignal.timeout(20_000),
@@ -69,6 +71,7 @@ export class GooglePlacesProvider implements MapsProvider {
     do {
       const r = await this.page(query, Math.min(20, limit - out.length), token);
       for (const p of r.places ?? []) {
+        if (p.businessStatus && p.businessStatus !== 'OPERATIONAL') continue; // fechada (temporária ou definitivamente)
         const comp = (t: string) => p.addressComponents?.find((c) => c.types?.includes(t))?.longText;
         out.push({
           name: p.displayName?.text ?? 'Sem nome',
@@ -97,6 +100,7 @@ type GPlace = {
   websiteUri?: string;
   primaryTypeDisplayName?: { text?: string };
   addressComponents?: { longText?: string; shortText?: string; types?: string[] }[];
+  businessStatus?: string;
 };
 
 /**

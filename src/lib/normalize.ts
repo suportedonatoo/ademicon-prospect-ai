@@ -26,6 +26,12 @@ export function formatPhone(normalized?: string | null): string {
   return normalized;
 }
 
+/** Telefone fixo brasileiro (DDD + 8 dígitos começando com 2–5): não tem WhatsApp. */
+export function isLandlineBR(phone?: string | null): boolean {
+  const d = (phone ?? '').replace(/\D/g, '').replace(/^55(?=\d{10}$)/, '');
+  return /^\d{2}[2-5]\d{7}$/.test(d);
+}
+
 export function normalizeEmail(input?: string | null): string | null {
   if (!input) return null;
   const e = String(input).trim().toLowerCase();

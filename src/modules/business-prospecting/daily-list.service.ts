@@ -1,3 +1,4 @@
+import { isLandlineBR } from '@/lib/normalize';
 import { db } from '@/lib/db';
 import { isProduction } from '@/lib/env';
 import { logger } from '@/lib/logger';
@@ -101,7 +102,9 @@ export async function buildDailyLists(orgId: string, now = new Date()) {
   const totalNeed = plan.reduce((n, p) => n + p.need, 0);
 
   const refill = totalNeed ? await refillPool(orgId, totalNeed) : { requests: 0, skipped: null };
-  const pool = await db.businessProspect.findMany({ where: poolWhere(orgId), select: { id: true }, orderBy: { collectedAt: 'asc' }, take: totalNeed });
+  // Celulares primeiro (dá para ligar e chamar no WhatsApp); fixos completam a lista quando faltar.
+  const candidates = await db.businessProspect.findMany({ where: poolWhere(orgId), select: { id: true, phone: true }, orderBy: { collectedAt: 'asc' }, take: totalNeed * 4 });
+  const pool = [...candidates.filter((c) => !isLandlineBR(c.phone)), ...candidates.filter((c) => isLandlineBR(c.phone))].slice(0, totalNeed);
 
   // Rodízio: uma empresa por consultor a cada volta, para faltar igual para todos se o estoque não cobrir.
   const given = new Map<string, string[]>(plan.map((p) => [p.id, []]));

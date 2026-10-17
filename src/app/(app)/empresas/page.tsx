@@ -3,7 +3,7 @@ import { can } from '@/modules/auth/context';
 import { listProspects, trialSearchesLeft } from '@/modules/business-prospecting/prospecting.service';
 import { Badge, Card, Empty, Notice, PageHeader, Table, Td, Th } from '@/components/ui';
 import { ActionButton, FilterBar, Pagination } from '@/components/client';
-import { formatCnpj, formatPhone } from '@/lib/normalize';
+import { formatCnpj, formatPhone, isLandlineBR } from '@/lib/normalize';
 import { date } from '@/lib/format';
 import { SearchCompanies } from './search';
 import { CnpjLookup } from './cnpj-lookup';
@@ -59,15 +59,31 @@ export default async function EmpresasPage({ searchParams }: { searchParams: Pro
                       {p.category} · {p.neighborhood ? `${p.neighborhood} · ` : ''}
                       {p.city}/{p.uf} · <span className="tabular">{formatPhone(p.phone)}</span>
                     </span>
+                    <span className="text-xs flex gap-3 mt-0.5">
+                      {p.sourceRef?.startsWith('google_places:') && (
+                        <a className="text-brand-600 hover:underline" target="_blank" rel="noreferrer" href={`https://www.google.com/maps/place/?q=place_id:${encodeURIComponent(p.sourceRef.slice('google_places:'.length))}`}>
+                          Ver no Google Maps
+                        </a>
+                      )}
+                      {p.website && (
+                        <a className="text-brand-600 hover:underline" target="_blank" rel="noreferrer" href={p.website}>
+                          Site da empresa
+                        </a>
+                      )}
+                    </span>
                   </span>
                   {p.status === 'NEW' && p.phone ? (
                     <span className="inline-flex flex-wrap gap-1.5">
                       <a href={`tel:${p.phone.replace(/\D/g, '')}`} className={buttonClass('secondary', 'sm')}>
                         Ligar
                       </a>
-                      <WhatsAppContactButton url={waLink(p.phone)} prospectId={p.id} className={buttonClass('secondary', 'sm')}>
-                        WhatsApp
-                      </WhatsAppContactButton>
+                      {isLandlineBR(p.phone) ? (
+                        <span className="text-xs text-muted px-1" title="Telefone fixo não tem WhatsApp">fixo · só ligação</span>
+                      ) : (
+                        <WhatsAppContactButton url={waLink(p.phone)} prospectId={p.id} className={buttonClass('secondary', 'sm')}>
+                          WhatsApp
+                        </WhatsAppContactButton>
+                      )}
                       <a href={cnpjSearch(p)} target="_blank" rel="noreferrer" className={buttonClass('ghost', 'sm')}>
                         Achar CNPJ
                       </a>

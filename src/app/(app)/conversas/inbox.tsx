@@ -1,6 +1,7 @@
 'use client';
 
 import { WhatsAppContactButton } from '@/components/whatsapp-contact';
+import { isLandlineBR } from '@/lib/normalize';
 import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
@@ -316,7 +317,12 @@ export function Inbox({
               )}
               <div ref={endRef} />
             </div>
-            {perms.reply && !selected.windowOpen && selected.lead.phone && selected.botPhone && !selected.lead.optOut && (
+            {perms.reply && !selected.windowOpen && selected.lead.phone && isLandlineBR(selected.lead.phone) && (
+              <p className="mx-5 mt-3 rounded-2xl border border-line bg-surface p-4 text-sm">
+                <b>Telefone fixo:</b> este número não tem WhatsApp. Faça o primeiro contato por ligação.
+              </p>
+            )}
+            {perms.reply && !selected.windowOpen && selected.lead.phone && !isLandlineBR(selected.lead.phone) && selected.botPhone && !selected.lead.optOut && (
               <div className="mx-5 mt-3 rounded-2xl border border-line bg-surface p-4 text-sm space-y-2">
                 <p>
                   <b>{selected.lead.name.split(' ')[0]} ainda não escreveu para o número da Ademicon.</b> Pela regra do WhatsApp, a primeira mensagem não pode sair daqui sem custo. Faça o primeiro

@@ -73,7 +73,22 @@ export async function receiveInboundMessage(orgId: string, conversationId: strin
   ]);
   await publish(orgId, 'conversation.message_received', { conversationId, leadId: lead.id, messageId: message.id });
 
+  // A IA transferiu para o consultor há mais de 10 min e ele ainda não escreveu nada: a IA atende para o
+  // cliente não ficar sem resposta (o consultor segue avisado e assume quando escrever). Se o próprio
+  // consultor assumiu ou pausou a IA, ela continua em silêncio.
+  let waitingForHuman = false;
   if (conversation.mode === 'HUMAN' || conversation.botState === 'PAUSED') {
+    const lastControl = await db.message.findFirst({
+      where: { conversationId, OR: [{ senderType: 'HUMAN' }, { senderType: 'SYSTEM', content: { startsWith: 'Handoff:' } }, { senderType: 'SYSTEM', content: { contains: 'assumiu a conversa' } }, { senderType: 'SYSTEM', content: { startsWith: 'IA pausada por' } }, { senderType: 'SYSTEM', content: { startsWith: 'Conversa transferida' } }] },
+      orderBy: { createdAt: 'desc' },
+      select: { senderType: true, content: true, createdAt: true },
+    });
+    waitingForHuman = !!lastControl && lastControl.senderType === 'SYSTEM' && lastControl.content.startsWith('Handoff:') && lastControl.createdAt < new Date(Date.now() - 10 * 60_000);
+  }
+  if (waitingForHuman && conversation.assignedConsultantId) {
+    await notifyConsultant(orgId, conversation.assignedConsultantId, { type: 'conversation.message', priority: 'HIGH', title: `${lead.name} escreveu e aguarda você`, body: text.slice(0, 120), link: `/conversas?c=${conversationId}`, entityType: 'Lead', entityId: lead.id });
+  }
+  if ((conversation.mode === 'HUMAN' || conversation.botState === 'PAUSED') && !waitingForHuman) {
     if (conversation.assignedConsultantId) {
       await notifyConsultant(orgId, conversation.assignedConsultantId, { type: 'conversation.message', priority: 'HIGH', title: `Nova mensagem de ${lead.name}`, body: text.slice(0, 120), link: `/conversas?c=${conversationId}`, entityType: 'Lead', entityId: lead.id, dedupeKey: `msg:${message.id}` });
     }
@@ -249,11 +264,14 @@ async function runTurn(orgId: string, conversationId: string, text: string | nul
     const turns = conversation.messages.filter((m) => m.senderType === 'AI').length + 1;
     const h = settings.ai.handoff;
     // Mensagem de abertura (sem fala do cliente): primeiro conversa; a transferência só vem depois que ele responder.
-    const handoffReason = output.optOut || !text
+    const clientMessages = conversation.messages.filter((m) => m.direction === 'INBOUND').length;
+    const alreadyWithConsultant = conversation.mode === 'HUMAN';
+    const handoffReason = output.optOut || !text || alreadyWithConsultant
       ? null
       : output.wantsHuman && h.onExplicitRequest
         ? 'Pedido explícito do cliente'
-        : output.intent === 'HIGH' && h.onHighIntent
+        : // alta intenção: só depois de uma conversa mínima (3 mensagens do cliente), não na primeira resposta
+          output.intent === 'HIGH' && h.onHighIntent && clientMessages >= 3
           ? 'Alta intenção detectada'
           : agentKey === 'QUALIFICATION' && h.afterQualificationComplete && missingSlots(updatedFacts, 'QUALIFICATION').length === 0
             ? 'Qualificação concluída'
@@ -264,10 +282,11 @@ async function runTurn(orgId: string, conversationId: string, text: string | nul
     // Resposta (no pedido explícito de humano, a própria mensagem de handoff responde ao cliente)
     // Com handoff, a mensagem de transferência já avisa o cliente: frases de encerramento do agente
     // ("vou passar seu atendimento…") sairiam duplicadas e são retiradas.
+    // Com transferência, também saem as perguntas da IA: quem continua é o consultor.
     const replyText = handoffReason
       ? verdict.finalReply
           .split(/(?<=[.!?])\s+/)
-          .filter((x) => !/vou passar seu atendimento|vou chamar um consultor|j[aá] tenho o que preciso/i.test(x))
+          .filter((x) => !/vou passar seu atendimento|vou chamar um consultor|j[aá] tenho o que preciso/i.test(x) && !/\?\s*$/.test(x))
           .join(' ')
           .trim()
       : verdict.finalReply;

@@ -27,3 +27,14 @@ describe('Tabela de planos do simulador', () => {
     expect(byParcela.value % PLAN_TABLE.IMOVEL.passo).toBe(0);
   });
 });
+
+import { isLandlineBR } from '@/lib/normalize';
+describe('Telefone fixo × celular', () => {
+  it.each([
+    ['5511987654321', false],
+    ['11987654321', false],
+    ['551130905563', true],
+    ['(11) 3090-5563', true],
+    ['5519932479611', false],
+  ])('%s → fixo=%s', (n, fixo) => expect(isLandlineBR(n)).toBe(fixo));
+});

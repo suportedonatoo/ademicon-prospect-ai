@@ -394,12 +394,6 @@ export function SimulatorFlow({
             </div>
           </fieldset>
           <div>
-            <label htmlFor="nome" className="block text-sm font-semibold mb-1.5">
-              Nome
-            </label>
-            <input id="nome" autoComplete="name" className={field} value={contact.name} onChange={(e) => setContact({ ...contact, name: e.target.value })} required />
-          </div>
-          <div>
             <label htmlFor="whats" className="block text-sm font-semibold mb-1.5">
               WhatsApp
             </label>
@@ -414,6 +408,12 @@ export function SimulatorFlow({
               required
             />
             <p className="mt-1 text-[12px] text-muted">Mora fora do Brasil? Use + e o código do país.</p>
+          </div>
+          <div>
+            <label htmlFor="nome" className="block text-sm font-semibold mb-1.5">
+              Nome
+            </label>
+            <input id="nome" autoComplete="name" className={field} value={contact.name} onChange={(e) => setContact({ ...contact, name: e.target.value })} required />
           </div>
           <div>
             <label htmlFor="email" className="block text-sm font-semibold mb-1.5">

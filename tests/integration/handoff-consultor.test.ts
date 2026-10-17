@@ -36,4 +36,18 @@ describe('Transferência para o consultor dono do lead', () => {
     expect(ai.map((m) => m.content)).toEqual(['Obrigado pelas informações! Agora Anderson continua o seu atendimento por aqui.']);
     expect(ai.some((m) => /um consultor/i.test(m.content))).toBe(false);
   });
+
+  it('transferido e o consultor não respondeu em 10 min: a IA responde o cliente (sem transferir de novo)', async () => {
+    const lead = await db.lead.create({ data: { organizationId: A.org.id, name: 'Paulo Cliente', phone: uniquePhone(), consultantId: anderson.id, pjId: A.pjA.id, status: 'ASSIGNED', source: 'LANDING', product: 'IMOVEL' } });
+    const { conversation } = await findOrCreateOpenConversation(A.org.id, lead.id, 'WEB', { currentAgent: 'QUALIFICATION', assignedConsultantId: anderson.id });
+    await db.conversation.update({ where: { id: conversation.id }, data: { mode: 'HUMAN', botState: 'PAUSED' } });
+    await db.message.create({ data: { organizationId: A.org.id, conversationId: conversation.id, direction: 'OUTBOUND', senderType: 'SYSTEM', content: 'Handoff: IA pausada · consultor ativo · motivo: teste', status: 'SENT', createdAt: new Date(Date.now() - 11 * 60_000) } });
+    const r = await receiveInboundMessage(A.org.id, conversation.id, 'Oi, ainda estou aguardando');
+    expect(r.handoff).toBe(false);
+    expect(await db.message.count({ where: { conversationId: conversation.id, senderType: 'AI' } })).toBe(1);
+    // o consultor assumiu (mensagem dele) → a IA volta a ficar em silêncio
+    await db.message.create({ data: { organizationId: A.org.id, conversationId: conversation.id, direction: 'OUTBOUND', senderType: 'HUMAN', content: 'Oi Paulo, aqui é o Anderson', status: 'SENT' } });
+    const r2 = await receiveInboundMessage(A.org.id, conversation.id, 'Oi Anderson!');
+    expect(r2.skipped).toMatch(/IA pausada/);
+  });
 });
