@@ -7,7 +7,8 @@ import { IDEAS_SYSTEM, ideasUserPrompt, parseIdeas, templateIdeas } from './idea
 // Provider Google Gemini (API REST do AI Studio, sem SDK). Mesmo prompt e mesmo schema do provider Claude.
 // Em qualquer falha (rede, cota do plano gratuito, parse), cai para o MockAIProvider — a conversa nunca quebra.
 const BASE = 'https://generativelanguage.googleapis.com/v1beta';
-export const GEMINI_DEFAULT_MODEL = 'gemini-3.5-flash-lite';
+// Principal: o que respondeu de forma mais estável em produção (out/2026). O flash-lite virou reserva.
+export const GEMINI_DEFAULT_MODEL = 'gemini-3-flash-preview';
 
 const nullable = (type: string, extra: object = {}) => ({ type, nullable: true, ...extra });
 /** Mesmo formato do TurnSchema, no dialeto de schema aceito pelo Gemini. */
@@ -50,7 +51,7 @@ type GeminiResponse = {
 /** Um lead não espera mais que isto por tentativa; depois o próximo modelo assume. */
 const ATTEMPT_TIMEOUT_MS = 12_000;
 /** Reservas para quando o modelo configurado está lento ou com "high demand". */
-const BACKUP_MODELS = ['gemini-3-flash-preview', 'gemini-3.1-flash-lite'];
+const BACKUP_MODELS = ['gemini-3.5-flash-lite', 'gemini-3.1-flash-lite', 'gemini-3-flash-preview'];
 let sticky = { model: '', until: 0 };
 
 export class GeminiAIProvider implements AIProvider {

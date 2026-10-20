@@ -70,6 +70,7 @@ async function execute(name: JobName, data: Record<string, unknown>) {
       const { purgeIdempotency } = await import('@/lib/idempotency');
       const { purgeExpiredMemory } = await import('@/modules/ai/memory/memory.service');
       const { scanNumbers } = await import('@/modules/whatsapp/number-pool');
+      const { closeStaleConversations } = await import('@/modules/conversations/conversation.service');
       await purgeIdempotency(); // chaves de idempotência com mais de 24 h
       return forEachOrg(async (orgId) => ({
         health: await scanOpportunityHealth(orgId),
@@ -78,6 +79,7 @@ async function execute(name: JobName, data: Record<string, unknown>) {
         knowledge: await expireKnowledge(orgId),
         memoryPurged: await purgeExpiredMemory(orgId),
         whatsappFailover: await scanNumbers(orgId), // números fora do ar com conversas abertas → backup
+        staleClosed: await closeStaleConversations(orgId), // 7 dias sem mensagem
       }));
     }
     case 'prospecting.daily': {

@@ -22,6 +22,7 @@ beforeAll(async () => {
 
 describe('Lista diária de empresas', () => {
   it('só roda na hora da manhã (fuso da organização)', async () => {
+    expect(await runDailyListIfDue(A.org.id, new Date('2026-10-18T10:05:00Z'))).toBeNull(); // domingo, 7h05: não roda
     expect(localDay(now, 'America/Sao_Paulo')).toEqual({ day: new Date('2026-10-13T00:00:00Z'), hour: 7 });
     expect(await runDailyListIfDue(A.org.id, new Date('2026-10-13T15:00:00Z'))).toBeNull();
   });

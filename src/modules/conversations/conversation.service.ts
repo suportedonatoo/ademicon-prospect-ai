@@ -181,3 +181,12 @@ export async function humanReply(ctx: Ctx, id: string, content: string, opts: { 
   });
   return msg;
 }
+
+/** Conversas abertas sem nenhuma mensagem há 7 dias são encerradas (se o cliente voltar, abre uma nova). */
+export async function closeStaleConversations(orgId: string, now = new Date()) {
+  const r = await db.conversation.updateMany({
+    where: { organizationId: orgId, status: 'OPEN', lastMessageAt: { lt: new Date(now.getTime() - 7 * 86400_000) } },
+    data: { status: 'CLOSED', botState: 'PAUSED' },
+  });
+  return r.count;
+}

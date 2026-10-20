@@ -50,4 +50,14 @@ describe('Transferência para o consultor dono do lead', () => {
     const r2 = await receiveInboundMessage(A.org.id, conversation.id, 'Oi Anderson!');
     expect(r2.skipped).toMatch(/IA pausada/);
   });
+
+  it('conversa sem mensagem há 7 dias é encerrada; a recente continua aberta', async () => {
+    const { closeStaleConversations } = await import('@/modules/conversations/conversation.service');
+    const lead = await db.lead.create({ data: { organizationId: A.org.id, name: 'Antiga', phone: uniquePhone(), consultantId: anderson.id, pjId: A.pjA.id, status: 'ASSIGNED', source: 'LANDING' } });
+    const velha = await db.conversation.create({ data: { organizationId: A.org.id, leadId: lead.id, channel: 'WHATSAPP', lastMessageAt: new Date(Date.now() - 8 * 86400_000) } });
+    const nova = await db.conversation.create({ data: { organizationId: A.org.id, leadId: lead.id, channel: 'WEB', lastMessageAt: new Date() } });
+    expect(await closeStaleConversations(A.org.id)).toBeGreaterThanOrEqual(1);
+    expect((await db.conversation.findUniqueOrThrow({ where: { id: velha.id } })).status).toBe('CLOSED');
+    expect((await db.conversation.findUniqueOrThrow({ where: { id: nova.id } })).status).toBe('OPEN');
+  });
 });

@@ -136,6 +136,10 @@ export async function buildDailyLists(orgId: string, now = new Date()) {
 /** Chamado pelo agendador a cada 15 min: só trabalha na hora da manhã (fuso da organização). */
 export async function runDailyListIfDue(orgId: string, now = new Date()) {
   const org = await db.organization.findUnique({ where: { id: orgId }, select: { timezone: true } });
-  if (localDay(now, org?.timezone ?? 'America/Sao_Paulo').hour !== DAILY_HOUR) return null;
+  const tz = org?.timezone ?? 'America/Sao_Paulo';
+  if (localDay(now, tz).hour !== DAILY_HOUR) return null;
+  // Só em dias úteis: lista entregue no sábado/domingo ficava parada e gastava buscas do Google.
+  const weekday = new Intl.DateTimeFormat('en-US', { timeZone: tz, weekday: 'short' }).format(now);
+  if (weekday === 'Sat' || weekday === 'Sun') return null;
   return buildDailyLists(orgId, now);
 }
