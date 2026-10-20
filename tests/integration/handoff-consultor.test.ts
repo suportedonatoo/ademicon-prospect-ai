@@ -60,4 +60,24 @@ describe('Transferência para o consultor dono do lead', () => {
     expect((await db.conversation.findUniqueOrThrow({ where: { id: velha.id } })).status).toBe('CLOSED');
     expect((await db.conversation.findUniqueOrThrow({ where: { id: nova.id } })).status).toBe('OPEN');
   });
+
+  it('cliente que já existe volta pelo link de outro consultor: passa para ele se ainda não foi atendido', async () => {
+    const { ingestLead } = await import('@/modules/leads/lead-engine');
+    const { systemCtx } = await import('@/modules/auth/context');
+    const ctx = systemCtx(A.org.id, 'Landing');
+    const luiz = await db.consultant.create({ data: { organizationId: A.org.id, pjId: A.pjA.id, name: 'Luiz Teste', email: `luiz-${Date.now()}@t.test`, products: [] } });
+    const phone = uniquePhone();
+    const first = await ingestLead(ctx, { name: 'Victor Cliente', phone, source: 'LANDING', product: 'IMOVEL', routingHint: `LINK:${luiz.id}`, landingHeat: 'MORNO' });
+    await db.lead.update({ where: { id: first.leadId }, data: { consultantId: luiz.id } });
+    await db.conversation.create({ data: { organizationId: A.org.id, leadId: first.leadId, channel: 'WEB', assignedConsultantId: luiz.id } });
+    // volta pela página do Anderson, sem o Luiz ter atendido → passa para o Anderson (conversa junto)
+    await ingestLead(ctx, { name: 'Victor Cliente', phone, source: 'LANDING', product: 'IMOVEL', routingHint: `LINK:${anderson.id}`, landingHeat: 'MORNO' });
+    expect((await db.lead.findUniqueOrThrow({ where: { id: first.leadId } })).consultantId).toBe(anderson.id);
+    expect((await db.conversation.findFirstOrThrow({ where: { leadId: first.leadId } })).assignedConsultantId).toBe(anderson.id);
+    // o Anderson atendeu; se o cliente voltar pela página do Luiz, continua com o Anderson
+    const conv = await db.conversation.findFirstOrThrow({ where: { leadId: first.leadId } });
+    await db.message.create({ data: { organizationId: A.org.id, conversationId: conv.id, direction: 'OUTBOUND', senderType: 'HUMAN', content: 'Oi Victor', status: 'SENT' } });
+    await ingestLead(ctx, { name: 'Victor Cliente', phone, source: 'LANDING', product: 'IMOVEL', routingHint: `LINK:${luiz.id}`, landingHeat: 'MORNO' });
+    expect((await db.lead.findUniqueOrThrow({ where: { id: first.leadId } })).consultantId).toBe(anderson.id);
+  });
 });

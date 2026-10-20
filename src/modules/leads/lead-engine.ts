@@ -158,6 +158,7 @@ export async function ingestLead(ctx: Ctx, raw: unknown, opts: { lightweight?: b
     });
     if (input.consent?.whatsapp || input.consent?.email) await registerConsents(ctx.orgId, existing.id, input);
     await linkAttribution(ctx.orgId, existing.id, input.attributionSessionKey, campaignId, false);
+    await claimByConsultantLink(ctx.orgId, existing, input.routingHint);
     await audit(ctx, 'lead.merged', { type: 'Lead', id: existing.id }, { matchedBy: dup.matchedBy, source: input.source });
     await publish(ctx.orgId, 'lead.merged', { leadId: existing.id, matchedBy: dup.matchedBy, source: input.source });
     if (opts.lightweight) await rescoreLead(ctx, existing.id, { reason: 'Importação' });
@@ -322,4 +323,33 @@ export async function processLead(orgId: string, leadId: string) {
     fresh.source === 'WHATSAPP' ? { skipped: 'Lead iniciou a conversa' } : await startConversation(orgId, leadId).catch((e) => ({ skipped: String(e) }));
 
   return { score: score.score, temperature: score.temperature, qualified, routed, conversation };
+}
+
+/**
+ * Cliente que já existe volta pelo LINK PRÓPRIO de outro consultor: passa para esse consultor (a página
+ * e o assistente são dele) — desde que o dono atual ainda não tenha atendido o cliente (nenhuma mensagem
+ * dele e nenhuma oportunidade aberta). Se já atendeu, o cliente fica com quem atendeu e o histórico registra a visita.
+ */
+async function claimByConsultantLink(orgId: string, existing: { id: string; consultantId: string | null }, hint?: string | null) {
+  const target = hint?.startsWith('LINK:') ? hint.slice(5) : null;
+  if (!target || target === existing.consultantId) return;
+  const consultant = await db.consultant.findFirst({ where: { id: target, organizationId: orgId, active: true }, select: { id: true, name: true, pjId: true } });
+  if (!consultant) return;
+  const worked =
+    !!existing.consultantId &&
+    ((await db.message.count({ where: { senderType: 'HUMAN', conversation: { leadId: existing.id } } })) > 0 ||
+      (await db.opportunity.count({ where: { leadId: existing.id, status: 'OPEN' } })) > 0);
+  if (worked) {
+    await db.leadActivity.create({ data: { organizationId: orgId, leadId: existing.id, type: 'NOTE', description: `Simulou de novo pela página de ${consultant.name}; continua com o consultor que já o atende.`, actorType: 'SYSTEM' } });
+    return;
+  }
+  const previous = existing.consultantId;
+  await db.$transaction([
+    db.lead.update({ where: { id: existing.id }, data: { consultantId: consultant.id, pjId: consultant.pjId, routingHint: `LINK:${consultant.id}`, assignedAt: new Date() } }),
+    db.conversation.updateMany({ where: { leadId: existing.id, status: 'OPEN' }, data: { assignedConsultantId: consultant.id } }),
+    db.leadActivity.create({ data: { organizationId: orgId, leadId: existing.id, type: 'ASSIGNED', description: `Passou para ${consultant.name}: voltou pela página própria dele (o consultor anterior ainda não tinha atendido)`, actorType: 'SYSTEM' } }),
+  ]);
+  const { notifyConsultant } = await import('../notifications/notification.service');
+  await notifyConsultant(orgId, consultant.id, { type: 'lead.assigned', title: 'Novo lead pela sua página', body: 'Um cliente simulou pelo seu link próprio.', link: `/leads/${existing.id}`, priority: 'HIGH', entityType: 'Lead', entityId: existing.id });
+  if (previous) await notifyConsultant(orgId, previous, { type: 'lead.transferred', title: 'Lead passou para outro consultor', body: 'O cliente voltou pela página própria de outro consultor antes do seu primeiro atendimento.', link: `/leads/${existing.id}` });
 }
