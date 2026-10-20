@@ -32,7 +32,7 @@ interface SimResult {
   };
 }
 
-type Step = 'simular' | 'resultado' | 'contato' | 'enviado';
+type Step = 'acesso' | 'simular' | 'resultado' | 'contato' | 'enviado';
 type Heat = 'MORNO' | 'QUENTE';
 
 const brl0 = (n: number) => n.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 });
@@ -51,12 +51,6 @@ function maskPhone(v: string) {
   if (d.length <= 7) return `(${d.slice(0, 2)}) ${d.slice(2)}`;
   return `(${d.slice(0, 2)}) ${d.slice(2, d.length - 4)}-${d.slice(-4)}`;
 }
-
-/** Mesma fórmula do sistema (plan-table.ts): recalcula a cada movimento da barra. */
-const planInstallment = (p: PlanParams, credit: number, seguro = false) =>
-  Math.round(((credit * (p.plano + p.ta + p.fr)) / p.prazo + (seguro ? credit * (1 + p.ta + p.fr) * p.seguro : 0)) * 100) / 100;
-const planCredit = (p: PlanParams, installment: number) =>
-  Math.min(p.max, Math.max(p.min, Math.floor((installment * p.prazo) / (p.plano + p.ta + p.fr) / p.passo) * p.passo));
 
 /** Valor inicial sugerido: ~45% da faixa, arredondado. */
 function suggested(p: Product, mode: Mode) {
@@ -90,7 +84,8 @@ export function SimulatorFlow({
 }) {
   const products = useMemo(() => sortProducts(rawProducts), [rawProducts]);
   const start = products.find((p) => p.key === initialProduct) ?? products[0];
-  const [step, setStep] = useState<Step>('simular');
+  // Primeiro o WhatsApp ("pré-login"), depois a simulação: nenhum resultado aparece sem o contato.
+  const [step, setStep] = useState<Step>('acesso');
   const [productKey, setProductKey] = useState(start?.key ?? '');
   const product = products.find((p) => p.key === productKey) ?? products[0];
   // Com tabela de planos, a barra define o crédito e a parcela aparece na hora.
@@ -221,6 +216,50 @@ export function SimulatorFlow({
 
   return (
     <div className="rounded-3xl bg-white text-ink border border-line p-5 sm:p-6 w-full">
+      {step === 'acesso' && (
+        <form
+          className="space-y-4"
+          noValidate
+          onSubmit={(e) => {
+            e.preventDefault();
+            if (onlyDigits(quick.whatsapp).length < 10) return setError('Informe seu WhatsApp com DDD.');
+            if (!quick.consent) return setError('Para continuar, marque a autorização de contato pelo WhatsApp.');
+            setError('');
+            setStep('simular');
+          }}
+        >
+          <h2 className="text-[19px] font-bold leading-snug text-brand-500">Você está perto de realizar o seu projeto de vida</h2>
+          <p className="text-[15px] text-ink-2">Para simular, informe seu WhatsApp. Assim você recebe a simulação e, se quiser, fala com um consultor.</p>
+          <div>
+            <label htmlFor="quick-whats" className={label}>
+              Seu WhatsApp
+            </label>
+            <input
+              id="quick-whats"
+              inputMode="tel"
+              autoComplete="tel"
+              placeholder="(11) 99999-9999"
+              className={field}
+              value={quick.whatsapp}
+              onChange={(e) => setQuick({ ...quick, whatsapp: maskPhone(e.target.value) })}
+              required
+              aria-required
+            />
+          </div>
+          <label className="flex gap-2.5 items-start text-[12.5px] text-ink-2 cursor-pointer">
+            <input type="checkbox" className="mt-0.5 size-4 accent-[#e8332a]" checked={quick.consent} onChange={(e) => setQuick({ ...quick, consent: e.target.checked })} required />
+            <span>{CONSENT_TEXT(pjName)}</span>
+          </label>
+          {error && (
+            <p className="text-sm text-bad" role="alert">
+              {error}
+            </p>
+          )}
+          <button className="w-full rounded-full bg-brand-500 hover:bg-brand-600 text-white font-bold py-3.5 text-[15px]">Continuar para a simulação</button>
+          <p className="text-[11.5px] text-muted text-center">Seus dados são usados só para o atendimento desta simulação.</p>
+        </form>
+      )}
+
       {step === 'simular' && (
         <form onSubmit={simulate} className="space-y-5" noValidate>
           <h2 className="text-[19px] font-bold leading-snug text-brand-500">Você está perto de realizar o seu projeto de vida</h2>
@@ -286,47 +325,8 @@ export function SimulatorFlow({
               <span>{brl2(range.min)}</span>
               <span>{brl2(range.max)}</span>
             </div>
-            {product.plan && !outOfRange && (
-              <div className="mt-4 rounded-xl bg-brand-50/60 px-4 py-3" aria-live="polite">
-                {mode === 'CREDITO' ? (
-                  <>
-                    <p className="text-sm text-ink-2">Parcela estimada em {product.plan.prazo} meses</p>
-                    <p className="text-2xl font-bold text-brand-600 tabular-nums">
-                      {brl2(planInstallment(product.plan, amount))}
-                      <span className="text-sm font-medium text-muted">/mês</span>
-                    </p>
-                    <p className="text-xs text-muted tabular-nums">Com seguro prestamista: {brl2(planInstallment(product.plan, amount, true))}/mês</p>
-                  </>
-                ) : (
-                  <>
-                    <p className="text-sm text-ink-2">Crédito estimado em {product.plan.prazo} meses</p>
-                    <p className="text-2xl font-bold text-brand-600 tabular-nums">{brl0(planCredit(product.plan, amount))}</p>
-                  </>
-                )}
-              </div>
-            )}
           </div>
 
-          <div className="rounded-xl border border-line p-3 space-y-2">
-            <label htmlFor="quick-whats" className="block text-sm font-semibold">
-              Seu WhatsApp
-            </label>
-            <input
-              id="quick-whats"
-              inputMode="tel"
-              autoComplete="tel"
-              placeholder="(11) 99999-9999"
-              className={field}
-              value={quick.whatsapp}
-              onChange={(e) => setQuick({ ...quick, whatsapp: maskPhone(e.target.value) })}
-              required
-              aria-required
-            />
-            <label className="flex gap-2.5 items-start text-[12.5px] text-ink-2 cursor-pointer">
-              <input type="checkbox" className="mt-0.5 size-4 accent-[#e8332a]" checked={quick.consent} onChange={(e) => setQuick({ ...quick, consent: e.target.checked })} required />
-              <span>{CONSENT_TEXT(pjName)}</span>
-            </label>
-          </div>
           {error && (
             <p className="text-sm text-bad" role="alert">
               {error}
@@ -340,7 +340,12 @@ export function SimulatorFlow({
               {busy && path === 'INTERESSE' ? 'Calculando…' : 'Simulação com interesse'}
             </button>
           </div>
-          <p className="text-[11.5px] text-muted text-center -mt-2">Informe seu WhatsApp para ver a simulação. Com interesse, um consultor te atende.</p>
+          <p className="text-[11.5px] text-muted text-center -mt-2">
+            WhatsApp {quick.whatsapp} ·{' '}
+            <button type="button" className="underline" onClick={() => setStep('acesso')}>
+              trocar
+            </button>
+          </p>
           {product.plan && disclaimer && <p className="text-[11px] leading-snug text-muted">{disclaimer}</p>}
         </form>
       )}
@@ -358,18 +363,26 @@ export function SimulatorFlow({
             </div>
           )}
           <div>
-            <p className="text-sm text-muted">{productName(product)} · simulação por {sim.result.mode === 'PARCELA' ? 'parcela' : 'crédito'}</p>
-            <h2 className="text-2xl font-bold">
-              {sim.result.mode === 'PARCELA' ? (
+            <p className="text-sm text-muted">{productName(product)}</p>
+            {sim.result.options.length === 1 && !sim.result.officialRange ? (
+              sim.result.mode === 'CREDITO' ? (
                 <>
-                  Parcela de <span className="text-brand-500">{brl2(sim.result.installmentTarget ?? 0)}</span>
+                  <p className="text-sm text-ink-2 mt-1">Sua parcela em {sim.result.options[0].termMonths} meses</p>
+                  <h2 className="text-3xl font-bold text-brand-500 tabular-nums">
+                    {brl2(sim.result.options[0].installment)}
+                    <span className="text-base font-medium text-muted">/mês</span>
+                  </h2>
+                  {sim.result.options[0].installmentWithInsurance != null && <p className="text-xs text-muted tabular-nums">Com seguro prestamista: {brl2(sim.result.options[0].installmentWithInsurance)}/mês</p>}
                 </>
               ) : (
                 <>
-                  Crédito de <span className="text-brand-500">{brl0(sim.result.value)}</span>
+                  <p className="text-sm text-ink-2 mt-1">Crédito em {sim.result.options[0].termMonths} meses</p>
+                  <h2 className="text-3xl font-bold text-brand-500 tabular-nums">{brl0(sim.result.options[0].credit)}</h2>
                 </>
-              )}
-            </h2>
+              )
+            ) : (
+              <h2 className="text-2xl font-bold">Sua simulação</h2>
+            )}
           </div>
           {sim.result.officialRange ? (
             <div className="rounded-xl border border-line divide-y divide-line">
@@ -390,6 +403,7 @@ export function SimulatorFlow({
               </p>
             </div>
           ) : (
+          sim.result.options.length > 1 && (
           <ul className="divide-y divide-line rounded-xl border border-line">
             {sim.result.options.map((o) => (
               <li key={o.termMonths} className="flex items-center justify-between gap-3 px-4 py-2.5">
@@ -411,7 +425,7 @@ export function SimulatorFlow({
               </li>
             ))}
           </ul>
-          )}
+          ))}
           <p className="text-[11px] leading-snug text-muted">
             {sim.result.options[0]?.basis === 'DIVISAO_SIMPLES' ? 'Base: crédito ÷ prazo, sem taxas. ' : ''}
             {sim.result.disclaimer}
