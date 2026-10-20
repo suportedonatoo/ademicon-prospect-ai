@@ -1,0 +1,45 @@
+Prezados consultores,
+
+Informamos uma atualização na Prospect.AI sobre como o sistema define o consultor responsável por cada cliente que chega pelas páginas de simulação.
+
+
+1. O SEU LINK PRÓPRIO
+
+Cada consultor tem uma página própria de simulação, disponível em "Meu painel" e em "Meu perfil". O cliente que simula pela sua página passa a ser seu cliente: ele não entra na divisão com os colegas, e o assistente virtual se apresenta como o seu assistente.
+
+
+2. QUANDO O MESMO CLIENTE SIMULA EM MAIS DE UMA PÁGINA
+
+O sistema reconhece o cliente pelo número de WhatsApp. Assim, um mesmo cliente nunca aparece duplicado: todas as simulações dele ficam reunidas em um único cadastro.
+
+Quando um cliente que já está cadastrado simula pela página própria de outro consultor, vale a seguinte regra:
+
+Se o consultor responsável ainda não atendeu o cliente, ou seja, ainda não enviou nenhuma mensagem a ele e não possui oportunidade de venda aberta, o cliente passa para o consultor da página utilizada. As conversas são transferidas junto, e o assistente virtual passa a se apresentar como assistente do novo consultor.
+
+Se o consultor responsável já atendeu o cliente, o cliente permanece com ele. O histórico do cliente registra que ele também simulou pela página do outro consultor.
+
+
+3. AVISOS
+
+Nos casos de transferência, os dois consultores recebem um aviso na plataforma: o novo responsável é informado de que recebeu um cliente pela sua página, e o consultor anterior é informado de que o cliente passou para outro colega antes do primeiro atendimento.
+
+
+4. O QUE ISSO SIGNIFICA NA PRÁTICA
+
+Atenda os seus clientes o quanto antes. O primeiro atendimento garante que o cliente permaneça com você, mesmo que ele visite a página de outro consultor depois.
+
+Divulgue sempre o seu próprio link, para que os clientes que você conquistou sejam registrados no seu nome.
+
+Não envie o seu link para clientes que já estão sendo atendidos por um colega.
+
+
+5. TESTES
+
+Ao testar a sua página, utilize um número de WhatsApp que ainda não esteja cadastrado no sistema. Se o mesmo número for usado em testes de consultores diferentes, o cadastro será um só e seguirá a regra descrita no item 2.
+
+
+Em caso de dúvida, procure o gestor da sua unidade ou a equipe da Stack Solution.
+
+Atenciosamente,
+Stack Solution
+Menos processos manuais, mais resultados.
