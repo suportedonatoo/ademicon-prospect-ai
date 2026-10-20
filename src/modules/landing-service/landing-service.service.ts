@@ -220,7 +220,8 @@ export async function simulateCold(ctx: Ctx, subdomain: string, raw: unknown) {
 export const interestInput = z.object({
   simulationId: z.string().min(10).max(40),
   sessionKey: z.string().max(100).optional().nullable(),
-  name: z.string().trim().min(2, 'Informe seu nome').max(160),
+  // Opcional: no "Simular apenas" o visitante pode deixar só o WhatsApp (nome provisório, a IA não o usa).
+  name: z.string().trim().min(2, 'Informe seu nome').max(160).default('Visitante do simulador'),
   whatsapp: z.string().min(8, 'Informe seu WhatsApp').max(40),
   email: z.string().max(200).optional().nullable(),
   /** QUENTE: quer ser chamado agora. Sem isso, MORNO. */

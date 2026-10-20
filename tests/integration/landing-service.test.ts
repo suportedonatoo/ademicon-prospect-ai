@@ -101,4 +101,14 @@ describe('Serviço de landing das PJs', () => {
     expect(r.google.find((g) => g.channel === 'GOOGLE_ORGANIC')!.visits).toBe(1);
     expect(r.google.find((g) => g.channel === 'GOOGLE_ADS')!.leads).toBe(1);
   });
+
+  it('"Simular apenas" com só o WhatsApp: vira lead (nome provisório) e a simulação fica ligada a ele', async () => {
+    const sim = await simulateCold(svc, SUB, { product: 'IMOVEL', value: 300000 });
+    const phone = uniquePhone();
+    await registerInterest(svc, SUB, { simulationId: sim.simulationId, whatsapp: phone, consentWhatsapp: true, callNow: false });
+    const { leadId } = await db.simulation.findUniqueOrThrow({ where: { id: sim.simulationId } });
+    const lead = await db.lead.findUniqueOrThrow({ where: { id: leadId! } });
+    expect(lead.name.toLowerCase()).toBe('visitante do simulador'); // nome provisório (a IA não o usa)
+    expect(lead.consentStatus).toBe('GRANTED');
+  });
 });

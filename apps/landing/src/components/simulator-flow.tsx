@@ -106,6 +106,9 @@ export function SimulatorFlow({
   const [path, setPath] = useState<'APENAS' | 'INTERESSE'>('APENAS');
   const [chatToken, setChatToken] = useState('');
   const [whatsappUrl, setWhatsappUrl] = useState<string | null>(null);
+  // "Simular apenas" pede o WhatsApp (obrigatório, com autorização): toda simulação vira lead.
+  const [quick, setQuick] = useState({ whatsapp: '', consent: false });
+  const [quickSaved, setQuickSaved] = useState(false);
 
   if (!product) return <div className="rounded-3xl bg-white border border-line p-6">Simulador indisponível no momento.</div>;
 
@@ -136,6 +139,9 @@ export function SimulatorFlow({
     e.preventDefault();
     setPath(which);
     if (!amount || outOfRange) return setError(`Escolha um valor entre ${brl2(range.min)} e ${brl2(range.max)}.`);
+    const quickPhone = which === 'APENAS';
+    if (quickPhone && onlyDigits(quick.whatsapp).length < 10) return setError('Informe seu WhatsApp com DDD para ver a simulação.');
+    if (quickPhone && !quick.consent) return setError('Para ver a simulação, marque a autorização de contato pelo WhatsApp.');
     setBusy(true);
     setError('');
     try {
@@ -147,6 +153,27 @@ export function SimulatorFlow({
         ...(mode === 'PARCELA' ? { installment: amount } : { value: amount }),
       });
       setSim(data);
+      if (quickPhone) {
+        try {
+          const lead = await post<{ protocol: string; chatToken: string; whatsappUrl?: string | null }>('/api/interest', {
+            site,
+            simulationId: data.simulationId,
+            sessionKey: getSessionKey() ?? undefined,
+            whatsapp: quick.whatsapp,
+            callNow: false,
+            consentWhatsapp: true,
+            consentText: CONSENT_TEXT(pjName),
+            website: contact.website,
+          });
+          setProtocol(lead.protocol);
+          setChatToken(lead.chatToken);
+          setWhatsappUrl(lead.whatsappUrl ?? null);
+          setQuickSaved(true);
+        } catch {
+          /* o resultado aparece mesmo se o contato não for registrado */
+        }
+      }
+      if (which === 'INTERESSE' && quick.whatsapp) setContact((c) => ({ ...c, whatsapp: c.whatsapp || quick.whatsapp, consent: c.consent || quick.consent }));
       setStep(which === 'INTERESSE' ? 'contato' : 'resultado');
     } catch (err) {
       setError((err as Error).message);
@@ -280,6 +307,26 @@ export function SimulatorFlow({
             )}
           </div>
 
+          <div className="rounded-xl border border-line p-3 space-y-2">
+            <label htmlFor="quick-whats" className="block text-sm font-semibold">
+              Seu WhatsApp
+            </label>
+            <input
+              id="quick-whats"
+              inputMode="tel"
+              autoComplete="tel"
+              placeholder="(11) 99999-9999"
+              className={field}
+              value={quick.whatsapp}
+              onChange={(e) => setQuick({ ...quick, whatsapp: maskPhone(e.target.value) })}
+              required
+              aria-required
+            />
+            <label className="flex gap-2.5 items-start text-[12.5px] text-ink-2 cursor-pointer">
+              <input type="checkbox" className="mt-0.5 size-4 accent-[#e8332a]" checked={quick.consent} onChange={(e) => setQuick({ ...quick, consent: e.target.checked })} required />
+              <span>{CONSENT_TEXT(pjName)}</span>
+            </label>
+          </div>
           {error && (
             <p className="text-sm text-bad" role="alert">
               {error}
@@ -293,13 +340,23 @@ export function SimulatorFlow({
               {busy && path === 'INTERESSE' ? 'Calculando…' : 'Simulação com interesse'}
             </button>
           </div>
-          <p className="text-[11.5px] text-muted text-center -mt-2">“Simular apenas” não pede seus dados. Com interesse, um consultor te atende.</p>
+          <p className="text-[11.5px] text-muted text-center -mt-2">Informe seu WhatsApp para ver a simulação. Com interesse, um consultor te atende.</p>
           {product.plan && disclaimer && <p className="text-[11px] leading-snug text-muted">{disclaimer}</p>}
         </form>
       )}
 
       {step === 'resultado' && sim && (
         <div className="space-y-4">
+          {quickSaved && (
+            <div className="rounded-xl bg-brand-50/70 px-4 py-3 text-sm">
+              <b>Pronto!</b> Um consultor vai falar com você pelo WhatsApp.
+              {whatsappUrl && (
+                <a href={whatsappUrl} target="_blank" rel="noreferrer" className="ml-1 font-semibold text-brand-600 underline">
+                  Falar agora no WhatsApp
+                </a>
+              )}
+            </div>
+          )}
           <div>
             <p className="text-sm text-muted">{productName(product)} · simulação por {sim.result.mode === 'PARCELA' ? 'parcela' : 'crédito'}</p>
             <h2 className="text-2xl font-bold">
