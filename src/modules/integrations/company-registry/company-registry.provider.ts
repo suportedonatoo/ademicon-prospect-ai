@@ -46,7 +46,20 @@ export class RealCompanyRegistryProvider implements CompanyRegistryProvider {
       uf?: string;
       ddd_telefone_1?: string;
       email?: string | null;
-      qsa?: { nome_socio?: string; qualificacao_socio?: string }[];
+      qsa?: { nome_socio?: string; qualificacao_socio?: string; data_entrada_sociedade?: string; faixa_etaria?: string; cnpj_cpf_do_socio?: string }[];
+      data_inicio_atividade?: string;
+      capital_social?: number | string;
+      natureza_juridica?: string;
+      descricao_tipo_de_logradouro?: string;
+      logradouro?: string;
+      numero?: string;
+      complemento?: string;
+      bairro?: string;
+      cep?: string;
+      ddd_telefone_2?: string;
+      opcao_pelo_simples?: boolean | null;
+      opcao_pelo_mei?: boolean | null;
+      cnaes_secundarios?: { codigo?: number | string; descricao?: string }[];
       message?: string;
     };
     if (!res.ok) throw new Error(`Consulta de CNPJ: ${b.message ?? res.status}`);
@@ -60,8 +73,21 @@ export class RealCompanyRegistryProvider implements CompanyRegistryProvider {
       uf: b.uf || undefined,
       phone: b.ddd_telefone_1 || undefined,
       email: b.email || undefined,
-      // Quadro societário (dado público da Receita): quem decide na empresa.
-      partners: (b.qsa ?? []).filter((q) => q.nome_socio).map((q) => ({ name: q.nome_socio!, role: q.qualificacao_socio || undefined })),
+      // Quadro societário (dado público da Receita): quem decide na empresa e desde quando.
+      partners: (b.qsa ?? [])
+        .filter((q) => q.nome_socio)
+        .map((q) => ({ name: q.nome_socio!, role: q.qualificacao_socio || undefined, since: q.data_entrada_sociedade || undefined, ageRange: q.faixa_etaria || undefined, document: q.cnpj_cpf_do_socio || undefined })),
+      // Campos extras: opcionais, a ficha mostra o que vier.
+      openedAt: b.data_inicio_atividade || undefined,
+      shareCapital: b.capital_social != null && !Number.isNaN(Number(b.capital_social)) ? Number(b.capital_social) : undefined,
+      legalNature: b.natureza_juridica || undefined,
+      address: [b.descricao_tipo_de_logradouro, b.logradouro, b.numero, b.complemento].filter(Boolean).join(' ').trim() || undefined,
+      neighborhood: b.bairro || undefined,
+      cep: b.cep || undefined,
+      phone2: b.ddd_telefone_2 || undefined,
+      simples: b.opcao_pelo_simples ?? null,
+      mei: b.opcao_pelo_mei ?? null,
+      secondaryCnaes: (b.cnaes_secundarios ?? []).filter((c) => c.codigo && String(c.codigo) !== '0').map((c) => ({ code: String(c.codigo), description: c.descricao || undefined })),
     };
   }
 

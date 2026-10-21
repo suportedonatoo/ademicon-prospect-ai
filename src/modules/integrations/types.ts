@@ -75,8 +75,34 @@ export interface MapsProvider extends IntegrationProvider {
   searchBusinesses(filters: BusinessSearchFilters): Promise<BusinessResult[]>;
 }
 
+/** Sócio (quadro societário público da Receita). document = CPF mascarado ou CNPJ do sócio pessoa jurídica. */
+export interface Partner {
+  name: string;
+  role?: string;
+  /** AAAA-MM-DD: entrada na sociedade */
+  since?: string;
+  ageRange?: string;
+  document?: string;
+}
+
+/** Dados cadastrais além do básico — mostrados na ficha da empresa. */
+export interface CompanyRegistryExtra {
+  legalName?: string;
+  legalNature?: string;
+  address?: string;
+  neighborhood?: string;
+  cep?: string;
+  secondaryCnaes?: { code: string; description?: string }[];
+  simples?: boolean | null;
+  mei?: boolean | null;
+  phone2?: string;
+}
+
 export interface CompanyRegistryProvider extends IntegrationProvider {
-  lookupCnpj(cnpj: string): Promise<{ legalName: string; tradeName?: string; cnae?: string; size?: string; situation?: string; city?: string; uf?: string; phone?: string; email?: string; partners?: { name: string; role?: string }[] } | null>;
+  lookupCnpj(cnpj: string): Promise<
+    | ({ legalName: string; tradeName?: string; cnae?: string; size?: string; situation?: string; city?: string; uf?: string; phone?: string; email?: string; openedAt?: string; shareCapital?: number; partners?: Partner[] } & CompanyRegistryExtra)
+    | null
+  >;
   search(filters: BusinessSearchFilters): Promise<BusinessResult[]>;
 }
 
@@ -92,7 +118,7 @@ export interface CompanySearchFilters {
   limit?: number;
 }
 
-export interface CompanyRecord {
+export interface CompanyRecord extends CompanyRegistryExtra {
   cnpj: string;
   legalName: string;
   tradeName?: string;
@@ -109,12 +135,14 @@ export interface CompanyRecord {
   address?: string;
   phone?: string;
   email?: string;
-  partners?: { name: string; role?: string }[];
+  partners?: Partner[];
   sourceRef: string;
 }
 
 export interface CompanySearchProvider extends IntegrationProvider {
   searchCompanies(filters: CompanySearchFilters): Promise<CompanyRecord[]>;
+  /** Outras empresas em que a pessoa é sócia (busca por nome + documento mascarado, quando houver). */
+  searchByPartner(partner: { name: string; document?: string }): Promise<CompanyRecord[]>;
 }
 
 // ── WhatsApp ──

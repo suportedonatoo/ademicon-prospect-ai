@@ -4,7 +4,8 @@ import { logger } from '@/lib/logger';
 import { normalizeCnpj, normalizePhone } from '@/lib/normalize';
 import { getAIProvider } from '../ai/providers';
 import { providers } from '../integrations/registry';
-import type { CompanyRecord } from '../integrations/types';
+import type { Prisma } from '@prisma/client';
+import type { CompanyRecord, CompanyRegistryExtra } from '../integrations/types';
 import { getOrgSettings } from '../organizations/settings';
 import { localDay } from './daily-list.service';
 import { analyzeCompany, segmentKey, TARGET_CNAE_PREFIXES, type Research, type SegmentStats } from './research';
@@ -48,7 +49,10 @@ async function withPartners(c: CompanyRecord): Promise<CompanyRecord> {
   if (c.partners?.length || c.sourceRef.startsWith('sample:') || providers.companyRegistry.mode !== 'real') return c;
   try {
     const r = await providers.companyRegistry.lookupCnpj(c.cnpj);
-    return r?.partners?.length ? { ...c, partners: r.partners } : c;
+    if (!r) return c;
+    // A fonte manda o básico; a Receita completa sócios e a ficha (o que a fonte já trouxe prevalece).
+    const fill = Object.fromEntries(Object.entries(r).filter(([k, v]) => v != null && v !== '' && (c as unknown as Record<string, unknown>)[k] == null));
+    return { ...c, ...fill, partners: r.partners?.length ? r.partners : c.partners } as CompanyRecord;
   } catch (e) {
     logger.warn('research.partners_failed', { cnpj: c.cnpj, error: String(e).slice(0, 200) });
     return c;
@@ -61,6 +65,39 @@ async function writePitch(c: CompanyRecord, r: Research): Promise<Research> {
   if (ai.name === 'mock') return r;
   const p = await ai.pitch({ company: c.tradeName || c.legalName, segment: r.segment, activity: c.cnaeDescription ?? c.cnae, product: r.product, city: `${c.city}/${c.uf}`, decisionMaker: r.decisionMaker, reasons: r.reasons });
   return p ? { ...r, ...p, writtenBy: `${ai.name} · ${ai.model}` } : r;
+}
+
+/** Campos da empresa pesquisada no banco: cadastro, ficha completa, análise e início da cadência do SDR. */
+export function prospectFields(c: CompanyRecord, r: Research, now: Date) {
+  const extra: CompanyRegistryExtra = { legalName: c.legalName, legalNature: c.legalNature, address: c.address, neighborhood: c.neighborhood, cep: c.cep, secondaryCnaes: c.secondaryCnaes, simples: c.simples, mei: c.mei, phone2: c.phone2 };
+  return {
+    name: c.tradeName || c.legalName,
+    category: r.segment,
+    cnae: `${c.cnae}${c.cnaeDescription ? ` · ${c.cnaeDescription}` : ''}`,
+    size: c.size,
+    situation: c.situation,
+    address: c.address,
+    neighborhood: c.neighborhood,
+    city: c.city,
+    uf: c.uf,
+    phone: normalizePhone(c.phone) ?? c.phone,
+    email: c.email,
+    cnpj: normalizeCnpj(c.cnpj),
+    openedAt: c.openedAt ? new Date(`${c.openedAt}T00:00:00Z`) : null,
+    shareCapital: c.shareCapital,
+    partners: (c.partners ?? []) as unknown as Prisma.InputJsonValue,
+    registry: JSON.parse(JSON.stringify(extra)) as Prisma.InputJsonValue,
+    sourceRef: c.sourceRef,
+    researchScore: r.score,
+    research: { ...r } as unknown as Prisma.InputJsonValue,
+    researchedAt: now,
+    // SDR: entra na cadência já com a 1ª etapa para hoje.
+    sdrStage: 'NOVO',
+    sdrStep: 0,
+    sdrStartedAt: now,
+    sdrNextAt: now,
+    sdrMessage: r.message,
+  };
 }
 
 export interface ResearchRun {
@@ -150,34 +187,7 @@ export async function runResearchAgent(orgId: string, now = new Date(), opts: { 
       if (given.get(p.id)! >= p.need) continue;
       const { c, r: base, searchId } = picked[i++];
       const r = await writePitch(c, base);
-      await db.businessProspect.create({
-        data: {
-          organizationId: orgId,
-          searchId,
-          name: c.tradeName || c.legalName,
-          category: r.segment,
-          cnae: `${c.cnae}${c.cnaeDescription ? ` · ${c.cnaeDescription}` : ''}`,
-          size: c.size,
-          situation: c.situation,
-          address: c.address,
-          neighborhood: c.neighborhood,
-          city: c.city,
-          uf: c.uf,
-          phone: normalizePhone(c.phone) ?? c.phone,
-          email: c.email,
-          cnpj: normalizeCnpj(c.cnpj),
-          openedAt: c.openedAt ? new Date(`${c.openedAt}T00:00:00Z`) : null,
-          shareCapital: c.shareCapital,
-          partners: c.partners ?? [],
-          source: source.name,
-          sourceRef: c.sourceRef,
-          researchScore: r.score,
-          research: { ...r },
-          researchedAt: now,
-          assignedConsultantId: p.id,
-          assignedDay: day,
-        },
-      });
+      await db.businessProspect.create({ data: { organizationId: orgId, searchId, source: source.name, ...prospectFields(c, r, now), assignedConsultantId: p.id, assignedDay: day } });
       given.set(p.id, given.get(p.id)! + 1);
     }
     forward = !forward;

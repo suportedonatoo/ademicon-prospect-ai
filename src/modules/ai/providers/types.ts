@@ -98,6 +98,8 @@ export interface PitchInput {
   city: string;
   decisionMaker: { name: string; role?: string } | null;
   reasons: string[];
+  /** Etapa da cadência do SDR (follow-up). Ausente = primeiro contato. */
+  step?: { label: string; goal: string };
 }
 
 export interface PitchOutput {

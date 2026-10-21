@@ -1,6 +1,6 @@
 import { env } from '@/lib/env';
-import type { CompanyRecord, CompanySearchFilters, CompanySearchProvider } from '../types';
-import { int, pick, rng } from '../mock-random';
+import type { CompanyRecord, CompanySearchFilters, CompanySearchProvider, Partner } from '../types';
+import { hashSeed, int, pick, rng } from '../mock-random';
 
 /**
  * BUSCA DE EMPRESAS POR FILTRO (CNAE + cidade + data de abertura) — fonte do Agente Pesquisador.
@@ -18,6 +18,9 @@ export class CasaDosDadosProvider implements CompanySearchProvider {
     return { ok: false, mode: this.mode, detail: 'Aguardando a chave do plano e a documentação oficial da API.' };
   }
   async searchCompanies(): Promise<CompanyRecord[]> {
+    throw new Error('Casa dos Dados ainda não configurada: falta a chave do plano e a documentação oficial da API.');
+  }
+  async searchByPartner(): Promise<CompanyRecord[]> {
     throw new Error('Casa dos Dados ainda não configurada: falta a chave do plano e a documentação oficial da API.');
   }
 }
@@ -47,7 +50,70 @@ const NAMES = ['Horizonte', 'Aliança', 'Pioneira', 'Vale Verde', 'Serra Azul', 
 const FIRST = ['Carlos', 'Mariana', 'José', 'Fernanda', 'Ricardo', 'Patrícia', 'Eduardo', 'Juliana', 'Marcos', 'Renata', 'Paulo', 'Camila', 'André', 'Luciana'];
 const LAST = ['Almeida', 'Ferreira', 'Rocha', 'Barbosa', 'Moreira', 'Carvalho', 'Teixeira', 'Gomes', 'Martins', 'Ribeiro', 'Lopes', 'Cardoso'];
 const BAIRROS = ['Centro', 'Vila Nova', 'Jardim América', 'Distrito Industrial', 'Boa Vista', 'Santa Cruz', 'Parque das Flores'];
+const RUAS = ['Rua das Palmeiras', 'Avenida Brasil', 'Rua XV de Novembro', 'Avenida dos Expedicionários', 'Rua Sete de Setembro', 'Rodovia Anhanguera, km'];
+const AGES = ['21 a 30 anos', '31 a 40 anos', '41 a 50 anos', '51 a 60 anos', '61 a 70 anos'];
+const NATURES = ['206-2 - Sociedade Empresária Limitada', '206-2 - Sociedade Empresária Limitada', '213-5 - Empresário (Individual)', '205-4 - Sociedade Anônima Fechada'];
+const SECONDARY: [string, string][] = [
+  ['4530-7/03', 'Comércio a varejo de peças e acessórios novos para veículos'],
+  ['5211-7/99', 'Depósitos de mercadorias para terceiros'],
+  ['7319-0/02', 'Promoção de vendas'],
+  ['8219-9/99', 'Preparação de documentos e serviços especializados de apoio administrativo'],
+  ['4789-0/99', 'Comércio varejista de outros produtos'],
+];
 const DDD: Record<string, string> = { SP: '11', RJ: '21', MG: '31', PR: '41', SC: '48', RS: '51', DF: '61', GO: '62', BA: '71', PE: '81', CE: '85' };
+const PARTNER_CITIES: [string, string][] = [['São Paulo', 'SP'], ['Campinas', 'SP'], ['Jundiaí', 'SP'], ['Sorocaba', 'SP'], ['Curitiba', 'PR'], ['Belo Horizonte', 'MG']];
+
+const pad = (n: number, len: number) => String(n).padStart(len, '0');
+const iso = (d: Date) => d.toISOString().slice(0, 10);
+/** CPF mascarado como a Receita publica (***123456**), estável para a mesma pessoa. */
+const maskedCpf = (name: string) => `***${pad(int(rng(`cpf:${name}`), 0, 999999), 6)}**`;
+
+function fakePartner(r: () => number, role: string, opened: Date): Partner {
+  const name = `${pick(r, FIRST)} ${pick(r, LAST)}`.toUpperCase();
+  const since = new Date(opened.getTime() + int(r, 0, 3) * 365 * 24 * 3600_000);
+  return { name, role, since: iso(since > new Date() ? opened : since), ageRange: pick(r, AGES), document: maskedCpf(name) };
+}
+
+/** Uma empresa fictícia completa. `owner` entra como sócio-administrador (busca por sócio). */
+function fakeCompany(r: () => number, id: string, city: string, uf: string, owner?: Partner): CompanyRecord {
+  const [cnae, description, prefix] = pick(r, ACTIVITIES);
+  const capital = pick(r, [5_000, 20_000, 50_000, 100_000, 250_000, 500_000, 1_200_000, 3_000_000]);
+  const years = int(r, 0, 25);
+  const opened = new Date(Date.UTC(2026 - years, int(r, 0, 11), int(r, 1, 28)));
+  // MEI/ME com capital baixo e algumas inativas, para o filtro do agente ter o que descartar.
+  const size = capital >= 1_000_000 ? 'DEMAIS' : capital >= 250_000 ? 'EMPRESA DE PEQUENO PORTE' : capital <= 5_000 ? 'MEI' : 'MICRO EMPRESA';
+  const others = Array.from({ length: int(r, owner ? 0 : 0, 2) }, () => fakePartner(r, 'Sócio', opened));
+  const partners = owner ? [{ ...owner, since: iso(opened) }, ...others] : int(r, 0, 9) === 0 ? [] : [fakePartner(r, 'Sócio-Administrador', opened), ...others];
+  const ddd = DDD[uf] ?? '11';
+  const name = `${prefix} ${pick(r, NAMES)}`;
+  return {
+    // Prefixo 99: CNPJ claramente fictício (não passa no dígito verificador).
+    cnpj: `99${pad(int(r, 0, 999999), 6)}${id.replace(/\D/g, '').slice(-4).padStart(4, '0')}00`,
+    legalName: `${name} ${size === 'MEI' ? 'ME' : pick(r, ['Ltda', 'Eireli', 'S.A.'])}`.toUpperCase(),
+    tradeName: r() < 0.6 ? name : undefined,
+    cnae,
+    cnaeDescription: description,
+    secondaryCnaes: Array.from({ length: int(r, 0, 2) }, () => pick(r, SECONDARY)).map(([code, d]) => ({ code, description: d })),
+    legalNature: size === 'MEI' ? '213-5 - Empresário (Individual)' : pick(r, NATURES),
+    openedAt: iso(opened),
+    shareCapital: capital,
+    size,
+    simples: size !== 'DEMAIS',
+    mei: size === 'MEI',
+    situation: r() < 0.93 ? 'ATIVA' : 'BAIXADA',
+    city,
+    uf,
+    neighborhood: pick(r, BAIRROS),
+    address: `${pick(r, RUAS)} ${int(r, 10, 2500)}`,
+    cep: `${pad(int(r, 1000, 99999), 5)}${pad(int(r, 0, 999), 3)}`,
+    // Celular: DDD + 9 + 8 dígitos; fixo: DDD + 3 + 7 dígitos.
+    phone: r() < 0.85 ? (r() < 0.6 ? `${ddd}9${String(int(r, 10000000, 99999999))}` : `${ddd}3${String(int(r, 1000000, 9999999))}`) : undefined,
+    phone2: r() < 0.3 ? `${ddd}3${String(int(r, 1000000, 9999999))}` : undefined,
+    email: r() < 0.5 ? `contato@exemplo-${id.replace(/[^a-z0-9]/gi, '').toLowerCase()}.invalid` : undefined,
+    partners,
+    sourceRef: `sample:${id}`,
+  };
+}
 
 export class SampleCompanySearchProvider implements CompanySearchProvider {
   key = 'company_search';
@@ -60,35 +126,15 @@ export class SampleCompanySearchProvider implements CompanySearchProvider {
   async searchCompanies(f: CompanySearchFilters): Promise<CompanyRecord[]> {
     const page = f.page ?? 1;
     const r = rng(`company-search:${f.city}:${f.uf}:${page}`);
-    const ddd = DDD[f.uf] ?? '11';
-    return Array.from({ length: f.limit ?? 50 }, (_, i) => {
-      const [cnae, description, prefix] = pick(r, ACTIVITIES);
-      const nPartners = int(r, 0, 3);
-      const capital = pick(r, [5_000, 20_000, 50_000, 100_000, 250_000, 500_000, 1_200_000, 3_000_000]);
-      const years = int(r, 0, 25);
-      // MEI/ME com capital baixo e algumas inativas, para o filtro do agente ter o que descartar.
-      const size = capital >= 1_000_000 ? 'DEMAIS' : capital >= 250_000 ? 'EMPRESA DE PEQUENO PORTE' : capital <= 5_000 ? 'MEI' : 'MICRO EMPRESA';
-      const seq = (page - 1) * (f.limit ?? 50) + i;
-      return {
-        // Prefixo 99 + sequência: CNPJ claramente fictício (não passa no dígito verificador).
-        cnpj: `99${String(int(r, 100000, 999999))}${String(seq).padStart(4, '0')}00`,
-        legalName: `${prefix} ${pick(r, NAMES)} ${pick(r, ['Ltda', 'Eireli', 'S.A.', 'ME'])}`,
-        tradeName: r() < 0.6 ? `${prefix} ${pick(r, NAMES)}` : undefined,
-        cnae,
-        cnaeDescription: description,
-        openedAt: new Date(Date.UTC(2026 - years, int(r, 0, 11), int(r, 1, 28))).toISOString().slice(0, 10),
-        shareCapital: capital,
-        size,
-        situation: r() < 0.93 ? 'ATIVA' : 'BAIXADA',
-        city: f.city,
-        uf: f.uf,
-        neighborhood: pick(r, BAIRROS),
-        // Celular: DDD + 9 + 8 dígitos; fixo: DDD + 3 + 7 dígitos.
-        phone: r() < 0.85 ? (r() < 0.6 ? `${ddd}9${String(int(r, 10000000, 99999999))}` : `${ddd}3${String(int(r, 1000000, 9999999))}`) : undefined,
-        email: r() < 0.5 ? `contato@exemplo-${seq}.invalid` : undefined,
-        partners: Array.from({ length: nPartners }, (_, k) => ({ name: `${pick(r, FIRST)} ${pick(r, LAST)}`, role: k === 0 ? 'Sócio-Administrador' : 'Sócio' })),
-        sourceRef: `sample:${f.uf}:${f.city}:${seq}`,
-      };
+    return Array.from({ length: f.limit ?? 50 }, (_, i) => fakeCompany(r, `${f.uf}:${f.city}:${(page - 1) * (f.limit ?? 50) + i}`, f.city, f.uf));
+  }
+  /** A mesma pessoa sempre "tem" as mesmas 1 a 4 empresas. */
+  async searchByPartner(p: { name: string; document?: string }): Promise<CompanyRecord[]> {
+    const r = rng(`partner:${p.name.toUpperCase()}`);
+    const owner: Partner = { name: p.name.toUpperCase(), role: 'Sócio-Administrador', ageRange: pick(r, AGES), document: p.document ?? maskedCpf(p.name.toUpperCase()) };
+    return Array.from({ length: int(r, 1, 4) }, (_, i) => {
+      const [city, uf] = pick(r, PARTNER_CITIES);
+      return fakeCompany(r, `socio:${hashSeed(p.name.toUpperCase())}:${i}`, city, uf, owner);
     });
   }
 }

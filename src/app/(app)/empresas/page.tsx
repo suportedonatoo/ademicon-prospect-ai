@@ -16,7 +16,6 @@ import { DAILY_TARGET, localDay } from '@/modules/business-prospecting/daily-lis
 import { googleRequestsLeft } from '@/modules/integrations/maps/maps.provider';
 import { getOrgSettings } from '@/modules/organizations/settings';
 import { providers } from '@/modules/integrations/registry';
-import { OUTCOMES } from '@/modules/business-prospecting/prospecting.service';
 import type { Research } from '@/modules/business-prospecting/research';
 import { ResearchAgentConfig } from './research-agent';
 import { ResearchDetails, scoreTone } from './research-card';
@@ -97,7 +96,9 @@ export default async function EmpresasPage({ searchParams }: { searchParams: Pro
                         <Badge tone={scoreTone(p.researchScore!)}>{p.researchScore}</Badge>
                       </Td>
                       <Td>
-                        <b className="font-medium">{p.name}</b>
+                        <Link href={`/empresas/${p.id}`} className="font-medium hover:underline">
+                          {p.name}
+                        </Link>
                         <div className="text-xs text-muted">
                           {p.category} · {p.city}/{p.uf}
                         </div>
@@ -120,7 +121,9 @@ export default async function EmpresasPage({ searchParams }: { searchParams: Pro
               {today.map((p) => (
                 <li key={p.id} className="px-5 py-3 flex flex-wrap items-center gap-x-4 gap-y-2">
                   <span className="min-w-0 flex-1">
-                    <b className="font-medium block truncate">{p.name}</b>
+                    <Link href={`/empresas/${p.id}`} className="font-medium block truncate hover:underline">
+                      {p.name}
+                    </Link>
                     <span className="text-xs text-muted block truncate">
                       {p.category} · {p.neighborhood ? `${p.neighborhood} · ` : ''}
                       {p.city}/{p.uf} · <span className="tabular">{formatPhone(p.phone)}</span>
@@ -142,11 +145,9 @@ export default async function EmpresasPage({ searchParams }: { searchParams: Pro
                   {p.status === 'NEW' && (p.research as Research | null)?.sample ? (
                     <span className="inline-flex flex-wrap gap-1.5">
                       <span className="text-xs text-muted px-1">exemplo · sem contato real</span>
-                      {Object.entries(OUTCOMES).map(([k, label]) => (
-                        <ActionButton key={k} size="sm" variant="ghost" path={`/prospecting/${p.id}`} body={{ action: 'outcome', outcome: k }} success="Resultado registrado: o agente aprende com ele.">
-                          {label}
-                        </ActionButton>
-                      ))}
+                      <Link href={`/empresas/${p.id}`} className={buttonClass('primary', 'sm')}>
+                        Ficha e SDR
+                      </Link>
                     </span>
                   ) : p.status === 'NEW' && p.phone ? (
                     <span className="inline-flex flex-wrap gap-1.5">
@@ -165,12 +166,9 @@ export default async function EmpresasPage({ searchParams }: { searchParams: Pro
                           Achar CNPJ
                         </a>
                       )}
-                      {p.research != null &&
-                        Object.entries(OUTCOMES).map(([k, label]) => (
-                          <ActionButton key={k} size="sm" variant="ghost" path={`/prospecting/${p.id}`} body={{ action: 'outcome', outcome: k }} success="Resultado registrado: o agente aprende com ele.">
-                            {label}
-                          </ActionButton>
-                        ))}
+                      <Link href={`/empresas/${p.id}`} className={buttonClass(p.research != null ? 'primary' : 'ghost', 'sm')}>
+                        Ficha e SDR
+                      </Link>
                       <ActionButton size="sm" variant="primary" path={`/prospecting/${p.id}`} body={{ action: 'convert' }} success="Virou lead seu (sem mensagens automáticas).">
                         Tem interesse
                       </ActionButton>
@@ -229,7 +227,9 @@ export default async function EmpresasPage({ searchParams }: { searchParams: Pro
                 {items.map((p) => (
                   <tr key={p.id}>
                     <Td>
-                      <b className="font-medium">{p.name}</b>
+                      <Link href={`/empresas/${p.id}`} className="font-medium hover:underline">
+                        {p.name}
+                      </Link>
                       {p.website && <div className="text-xs text-muted truncate max-w-56">{p.website}</div>}
                     </Td>
                     <Td>

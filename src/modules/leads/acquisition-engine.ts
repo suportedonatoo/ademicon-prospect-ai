@@ -68,6 +68,10 @@ export const LEAD_SOURCES: Record<string, LeadSourceProvider> = {
       city: s(p.city),
       uf: s(p.uf),
       product: s(p.product) as LeadInput['product'],
+      // Qualificação feita pelo SDR (quando houver).
+      objective: s(p.objective),
+      desiredValue: typeof p.desiredValue === 'number' ? Math.round(p.desiredValue) : undefined,
+      term: s(p.term),
       externalId: s(p.sourceRef),
       dataOrigin: `Dado empresarial público via ${s(p.provider) ?? 'API de mapas'} — sem consentimento para mensagens automáticas`,
       routingHint: s(p.ownerConsultantId) ? `OWNER:${s(p.ownerConsultantId)}` : null,

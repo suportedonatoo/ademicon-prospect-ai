@@ -82,7 +82,8 @@ npm --prefix apps/landing install && npm --prefix apps/landing run dev   # landi
 - fotos;
 - WhatsApp oficial com janela de 24 h, template de abertura e opt-out;
 - kit de deploy;
-- **Agente Pesquisador** (`docs/agente-pesquisador.md`): empresas da região com nota, decisor, roteiro e mensagem pronta na lista das 7h. Roda com empresas fictícias até a chave da Casa dos Dados.
+- **Agente Pesquisador** (`docs/agente-pesquisador.md`): empresas da região com nota, decisor, roteiro e mensagem pronta na lista das 7h. Roda com empresas fictícias até a chave da Casa dos Dados;
+- **Ficha da empresa** (sócios → outras empresas do sócio) e **SDR** (cadência, fila do dia `/sdr`, qualificação, passagem para lead).
 
 **Depende da Ademicon** (lista em `docs/pendencias-ademicon.md`):
 - marca;

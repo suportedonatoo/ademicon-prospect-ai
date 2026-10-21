@@ -38,8 +38,40 @@ Empresa inativa ou sem nenhum contato fica com nota 0. A IA **não** dá a nota:
 
 ## O agente aprende
 
-Na lista, cada empresa pesquisada tem os botões **Falei com o decisor**, **Não atendeu** e **Não tem perfil**. "Tem interesse" (vira lead) e "Sem interesse" também contam.
+Os resultados registrados no **SDR** (falou com o decisor, respondeu, sem interesse) e na lista ("Tem interesse", que vira lead, e "Sem interesse") alimentam o aprendizado. A API também aceita o resultado direto (`POST /api/v1/prospecting/:id` com `{ action: "outcome" }`).
 Por segmento (CNAE de 4 dígitos), a taxa de retorno ajusta a nota: 30% de retorno é neutro; acima disso o segmento sobe, abaixo desce. "Não atendeu" não diz nada sobre o perfil e fica de fora.
+
+## Ficha da empresa e rede do sócio
+
+Clicando no nome da empresa (lista do dia, fila do SDR ou tabela) abre a **ficha** (`/empresas/:id`):
+- **Dados da empresa**: CNPJ, razão social, situação, abertura, capital social, porte, natureza jurídica, regime (Simples/MEI), atividade principal e secundárias, endereço, telefones e e-mail.
+- **Sócios**: todos do quadro societário, com cargo, desde quando é sócio, faixa de idade e documento mascarado (dado público da Receita).
+- **Ver outras empresas** (por sócio): junta as empresas **já na base** com este sócio (grátis) e a **busca por sócio da fonte** (Casa dos Dados / exemplo). Cada uma vem com nota do agente e mostra se já está com alguém da equipe.
+  **Adicionar à minha lista** traz a empresa já pesquisada, com o motivo "Mesmo sócio de …", e já na cadência do SDR. Um decisor com várias empresas é oportunidade maior: a mesma conversa pode render mais de uma carta.
+
+A BrasilAPI preenche os campos extras quando a fonte não traz (sócio desde, faixa etária, natureza jurídica, endereço, CNAEs secundários, Simples/MEI). Esses campos são opcionais: a ficha mostra o que vier.
+
+## SDR (cadência de primeiro contato)
+
+Toda empresa do agente entra na cadência com a 1ª etapa para hoje. O sistema diz **o que fazer e quando**, com a mensagem pronta; o consultor executa e registra o resultado. Nada é disparado automaticamente.
+
+| Etapa | Dia útil | Canal | Objetivo |
+|---|---|---|---|
+| 1 | 0 | Ligação | Pedir o decisor pelo nome e marcar 15 minutos |
+| 2 | 0 | WhatsApp | Apresentação e oferta de simulação |
+| 3 | 2 | WhatsApp | Exemplo prático do segmento |
+| 4 | 4 | Ligação | Retomar e qualificar |
+| 5 | 7 | WhatsApp | Pergunta direta: faz sentido agora? |
+| 6 | 10 | WhatsApp | Encerramento, porta aberta |
+
+- **Resultados**: ligação (não atendeu, recepção, decisor, sem interesse, número errado) e WhatsApp (enviada, respondeu, sem interesse, número errado). Cada toque fica no **histórico de contatos**.
+- **Falou com o decisor / respondeu** → sai da cadência e vira **conversa**: o consultor preenche a **qualificação** (o que quer comprar, valor, prazo, lance, se falou com quem decide).
+- **Qualificada** (o quê + quanto + quando + decisor) → **Passar para lead**: vira lead do consultor com objetivo, valor e prazo preenchidos.
+- **Sem interesse / número errado** → descartada. **Sem resposta no fim** → encerrada; volta em 90 dias.
+- As mensagens das etapas 3, 5 e 6 são escritas pela IA quando configurada (com o objetivo da etapa); sem IA, modelo padrão. As mesmas regras valem: sem taxa, %, promessa.
+- O resultado alimenta o aprendizado do agente (decisor/respondeu = retorno; sem interesse = sem retorno).
+
+**Telas**: consultor → **SDR (fila do dia)** (`/sdr`): o que fazer hoje, conversas primeiro. Gestão → **SDR da equipe**: em cadência, conversando, qualificadas, descartadas/encerradas, contatos e decisores nos últimos 7 dias, por consultor.
 
 ## Configurar (gestão)
 
@@ -71,5 +103,9 @@ Para ligar a fonte real basta implementar `searchCompanies` em `src/modules/inte
 | `src/modules/business-prospecting/research-agent.service.ts` | Rodada do agente: busca, enriquece, escolhe, distribui, grava |
 | `src/modules/integrations/company-search/company-search.provider.ts` | Fonte de exemplo e placeholder da Casa dos Dados |
 | `src/modules/ai/providers/pitch.ts` | Instrução e validação do texto da IA (recusa taxa, %, promessa) |
+| `src/modules/business-prospecting/sdr.ts`, `sdr.service.ts` | Cadência, resultados, qualificação, passagem para lead, fila e visão da equipe |
+| `src/modules/business-prospecting/partner-network.service.ts` | Outras empresas do sócio (base + fonte) e "adicionar à minha lista" |
+| `src/app/(app)/empresas/[id]/` | Ficha da empresa (dados, sócios, análise, SDR, histórico) |
+| `src/app/(app)/sdr/page.tsx` | Fila do SDR (consultor) e SDR da equipe (gestão) |
 | `src/app/(app)/empresas/research-agent.tsx`, `research-card.tsx` | Configuração da gestão e card da empresa |
-| `tests/unit/agente-pesquisador.test.ts`, `tests/integration/agente-pesquisador.test.ts` | Testes |
+| `tests/unit/agente-pesquisador.test.ts`, `tests/unit/sdr.test.ts`, `tests/integration/agente-pesquisador.test.ts`, `tests/integration/sdr.test.ts` | Testes |

@@ -1090,12 +1090,42 @@ model BusinessProspect {
   /// Resultado do contato (empresa pesquisada): DECISOR | INTERESSADO | SEM_INTERESSE | SEM_FIT | NAO_ATENDEU.
   outcome        String?
   outcomeAt      DateTime?
+  /// Cadastro completo (razão social, natureza jurídica, endereço, CNAEs secundários, Simples/MEI, 2º telefone).
+  registry       Json?
+  /// SDR: NOVO | EM_CADENCIA | CONVERSANDO | QUALIFICADA | DESCARTADA | ENCERRADA. Null = fora da cadência.
+  sdrStage       String?
+  sdrStep        Int             @default(0)
+  sdrStartedAt   DateTime?
+  sdrNextAt      DateTime?
+  /// Mensagem da etapa atual da cadência (IA ou modelo padrão).
+  sdrMessage     String?
+  /// Respostas de qualificação: o que quer comprar, valor, prazo, lance, se é o decisor.
+  qualification  Json?
   search         ProspectSearch? @relation(fields: [searchId], references: [id])
+  activities     ProspectActivity[]
 
   @@index([organizationId, assignedConsultantId, assignedDay])
+  @@index([organizationId, assignedConsultantId, sdrNextAt])
   @@index([organizationId, city])
   @@index([organizationId, status])
   @@index([cnpj])
+}
+
+/// SDR: cada toque na empresa (ligação, WhatsApp, anotação) e o resultado.
+model ProspectActivity {
+  id             String           @id @default(cuid())
+  organizationId String
+  prospectId     String
+  consultantId   String?
+  step           Int?
+  channel        String // CALL | WHATSAPP | NOTE
+  result         String
+  note           String?
+  createdAt      DateTime         @default(now())
+  prospect       BusinessProspect @relation(fields: [prospectId], references: [id], onDelete: Cascade)
+
+  @@index([prospectId, createdAt])
+  @@index([organizationId, consultantId, createdAt])
 }
 
 /// Contador diário de chamadas a APIs pagas (teto de custo). Ex.: key = "google_places".

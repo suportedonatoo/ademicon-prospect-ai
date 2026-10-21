@@ -18,7 +18,10 @@ export const pitchUserPrompt = (i: PitchInput) =>
     `Cidade: ${i.city}`,
     `Decisor: ${i.decisionMaker ? `${i.decisionMaker.name}${i.decisionMaker.role ? ` (${i.decisionMaker.role})` : ''}` : 'não identificado'}`,
     `Motivos da análise:\n- ${i.reasons.join('\n- ')}`,
-  ].join('\n');
+    i.step ? `\nEtapa da cadência: ${i.step.label}. Objetivo: ${i.step.goal} A empresa ainda não respondeu às mensagens anteriores: não repita a apresentação; escreva a mensagem DESTA etapa.` : '',
+  ]
+    .filter(Boolean)
+    .join('\n');
 
 const FORBIDDEN = /garant|aprova[cç][aã]o certa|contempla[cç][aã]o (r[aá]pida|certa|imediata)|sem risco|taxa de \d|\d+[,.]?\d*\s?%/i;
 

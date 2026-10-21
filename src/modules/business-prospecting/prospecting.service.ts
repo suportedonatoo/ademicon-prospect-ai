@@ -9,7 +9,7 @@ import { normalizeCnpj, normalizePhone } from '@/lib/normalize';
 import type { BusinessResult } from '../integrations/types';
 
 /** Consultor vê as empresas das buscas que ele fez e as que recebeu na lista diária. */
-const ownProspects = (ctx: Ctx) => (ctx.scope === 'OWN' ? { OR: [{ search: { createdById: ctx.userId ?? '__none__' } }, { assignedConsultantId: ctx.consultantId ?? '__none__' }] } : {});
+export const ownProspects = (ctx: Ctx) => (ctx.scope === 'OWN' ? { OR: [{ search: { createdById: ctx.userId ?? '__none__' } }, { assignedConsultantId: ctx.consultantId ?? '__none__' }] } : {});
 
 // Business Prospecting — somente fontes autorizadas (APIs oficiais/licenciadas). Sem scraping.
 // Empresas convertidas em lead NÃO recebem mensagens automáticas sem consentimento.
@@ -96,7 +96,7 @@ export async function listProspects(ctx: Ctx, opts: { status?: string; city?: st
   return { items, total, page };
 }
 
-export async function convertProspect(ctx: Ctx, id: string, product?: string) {
+export async function convertProspect(ctx: Ctx, id: string, product?: string, extra: { objective?: string | null; desiredValue?: number | null; term?: string | null } = {}) {
   assertCan(ctx, 'prospecting.convert');
   const p = await db.businessProspect.findFirst({ where: { id, organizationId: ctx.orgId, ...ownProspects(ctx) } });
   if (!p) throw NotFound('Empresa');
@@ -104,7 +104,7 @@ export async function convertProspect(ctx: Ctx, id: string, product?: string) {
   if (!p.phone && !p.cnpj) throw BadRequest('Empresa sem telefone ou CNPJ para contato.');
   // Empresa prospectada pelo próprio consultor vira lead DELE (não entra na divisão).
   // A permissão aqui é prospecting.convert (o consultor não cria leads avulsos); o lead nasce pelo sistema.
-  const res = await acquire(systemCtx(ctx.orgId, ctx.userName), 'MAPS', { ...p, product: product ?? 'BENS_MOVEIS', provider: p.source, ownerConsultantId: ctx.scope === 'OWN' ? ctx.consultantId : null });
+  const res = await acquire(systemCtx(ctx.orgId, ctx.userName), 'MAPS', { ...p, ...extra, product: product ?? 'BENS_MOVEIS', provider: p.source, ownerConsultantId: ctx.scope === 'OWN' ? ctx.consultantId : null });
   // Empresa do Agente Pesquisador: "tem interesse" também ensina o agente sobre o segmento.
   const learn = p.researchScore != null ? { outcome: 'INTERESSADO', outcomeAt: new Date() } : {};
   await db.businessProspect.update({ where: { id }, data: { status: 'CONVERTED', leadId: res.leadId, ...learn } });

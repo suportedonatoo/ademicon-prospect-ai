@@ -120,7 +120,7 @@ Páginas públicas para testar como cliente:
 | Menu | Funcionalidades |
 |---|---|
 | **Dashboard** | KPIs com filtros globais (período, PJ, consultor, fonte, produto, campanha), funil, cenários |
-| **Prospecção** | Leads (lista, ficha com Lead DNA, timeline, score explicado e decisões de roteamento); Empresas (fontes autorizadas); **Agente Pesquisador** (todo dia, empresas da região com nota, decisor, roteiro e mensagem pronta — [docs/agente-pesquisador.md](docs/agente-pesquisador.md)); Importar (CSV/XLSX com validação e relatório); Fontes |
+| **Prospecção** | Leads (lista, ficha com Lead DNA, timeline, score explicado e decisões de roteamento); Empresas (fontes autorizadas); **Agente Pesquisador** (todo dia, empresas da região com nota, decisor, roteiro e mensagem pronta — [docs/agente-pesquisador.md](docs/agente-pesquisador.md)); **Ficha da empresa** (sócios e outras empresas de cada sócio); **SDR** (cadência de ligação e WhatsApp, fila do dia, qualificação e passagem para lead); Importar (CSV/XLSX com validação e relatório); Fontes |
 | **Aquisição** | Campanhas; Landing Pages (builder com preview desktop/mobile e UTM); Simuladores configuráveis (Imóvel, Veículo, Moto, Serviços, Bens Móveis); Attribution |
 | **CRM** | Pipeline Kanban de 10 etapas; Oportunidades com histórico; Atividades; Tarefas |
 | **WhatsApp** | Inbox (IA ou humano, takeover e devolução); Números; Templates; Campanhas com opt-in, frequência e pausa |
