@@ -105,11 +105,27 @@ export async function convertProspect(ctx: Ctx, id: string, product?: string) {
   // Empresa prospectada pelo próprio consultor vira lead DELE (não entra na divisão).
   // A permissão aqui é prospecting.convert (o consultor não cria leads avulsos); o lead nasce pelo sistema.
   const res = await acquire(systemCtx(ctx.orgId, ctx.userName), 'MAPS', { ...p, product: product ?? 'BENS_MOVEIS', provider: p.source, ownerConsultantId: ctx.scope === 'OWN' ? ctx.consultantId : null });
-  await db.businessProspect.update({ where: { id }, data: { status: 'CONVERTED', leadId: res.leadId } });
+  // Empresa do Agente Pesquisador: "tem interesse" também ensina o agente sobre o segmento.
+  const learn = p.researchScore != null ? { outcome: 'INTERESSADO', outcomeAt: new Date() } : {};
+  await db.businessProspect.update({ where: { id }, data: { status: 'CONVERTED', leadId: res.leadId, ...learn } });
   return res;
 }
 
 export async function discardProspect(ctx: Ctx, id: string) {
   assertCan(ctx, 'prospecting.convert');
-  await db.businessProspect.updateMany({ where: { id, organizationId: ctx.orgId, ...ownProspects(ctx) }, data: { status: 'DISCARDED' } });
+  const p = await db.businessProspect.findFirst({ where: { id, organizationId: ctx.orgId, ...ownProspects(ctx) }, select: { researchScore: true, outcome: true } });
+  if (!p) return;
+  const learn = p.researchScore != null && !p.outcome ? { outcome: 'SEM_INTERESSE', outcomeAt: new Date() } : {};
+  await db.businessProspect.update({ where: { id }, data: { status: 'DISCARDED', ...learn } });
+}
+
+/** Resultado do contato com uma empresa pesquisada. Alimenta o aprendizado do agente por segmento. */
+export const OUTCOMES = { DECISOR: 'Falei com o decisor', NAO_ATENDEU: 'Não atendeu', SEM_FIT: 'Não tem perfil' } as const;
+
+export async function recordOutcome(ctx: Ctx, id: string, outcome: string) {
+  assertCan(ctx, 'prospecting.convert');
+  if (!(outcome in OUTCOMES)) throw BadRequest('Resultado inválido.');
+  const p = await db.businessProspect.findFirst({ where: { id, organizationId: ctx.orgId, ...ownProspects(ctx) }, select: { id: true } });
+  if (!p) throw NotFound('Empresa');
+  await db.businessProspect.update({ where: { id }, data: { outcome, outcomeAt: new Date(), ...(outcome === 'SEM_FIT' ? { status: 'DISCARDED' } : {}) } });
 }

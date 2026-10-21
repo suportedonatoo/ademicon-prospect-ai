@@ -6,6 +6,7 @@ import { createGoogleAdsProvider } from './google/google-ads.provider';
 import { createInstagramProvider, createMetaProvider } from './meta/meta.provider';
 import { createBingMapsProvider, createGoogleMapsProvider } from './maps/maps.provider';
 import { createCompanyRegistryProvider } from './company-registry/company-registry.provider';
+import { createCompanySearchProvider } from './company-search/company-search.provider';
 import { createWhatsAppProvider } from './whatsapp/whatsapp.provider';
 import { AdemiconProvider, ComercialNetAdapter, NewconAdapter } from './ademicon/ademicon.adapters';
 import { getAIProvider } from '../ai/providers';
@@ -23,6 +24,7 @@ const build = () => ({
   googleMaps: createGoogleMapsProvider(),
   bingMaps: createBingMapsProvider(),
   companyRegistry: createCompanyRegistryProvider(),
+  companySearch: createCompanySearchProvider(),
   whatsapp: createWhatsAppProvider(),
   ademicon: new AdemiconProvider(),
   newcon: new NewconAdapter(),
@@ -43,6 +45,7 @@ export function rebuildProviders() {
   providers.googleMaps = createGoogleMapsProvider();
   providers.bingMaps = createBingMapsProvider();
   providers.companyRegistry = createCompanyRegistryProvider();
+  providers.companySearch = createCompanySearchProvider();
   providers.whatsapp = createWhatsAppProvider();
 }
 

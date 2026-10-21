@@ -32,6 +32,7 @@ export type AuditAction =
   | 'export.executed'
   | 'privacy.changed'
   | 'settings.changed'
+  | 'prospecting.research_run'
   | 'apikey.changed'
   | 'webhook.changed'
   | 'nba.resolved'

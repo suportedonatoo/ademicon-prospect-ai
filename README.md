@@ -120,7 +120,7 @@ Páginas públicas para testar como cliente:
 | Menu | Funcionalidades |
 |---|---|
 | **Dashboard** | KPIs com filtros globais (período, PJ, consultor, fonte, produto, campanha), funil, cenários |
-| **Prospecção** | Leads (lista, ficha com Lead DNA, timeline, score explicado e decisões de roteamento); Empresas (fontes autorizadas); Importar (CSV/XLSX com validação e relatório); Fontes |
+| **Prospecção** | Leads (lista, ficha com Lead DNA, timeline, score explicado e decisões de roteamento); Empresas (fontes autorizadas); **Agente Pesquisador** (todo dia, empresas da região com nota, decisor, roteiro e mensagem pronta — [docs/agente-pesquisador.md](docs/agente-pesquisador.md)); Importar (CSV/XLSX com validação e relatório); Fontes |
 | **Aquisição** | Campanhas; Landing Pages (builder com preview desktop/mobile e UTM); Simuladores configuráveis (Imóvel, Veículo, Moto, Serviços, Bens Móveis); Attribution |
 | **CRM** | Pipeline Kanban de 10 etapas; Oportunidades com histórico; Atividades; Tarefas |
 | **WhatsApp** | Inbox (IA ou humano, takeover e devolução); Números; Templates; Campanhas com opt-in, frequência e pausa |
@@ -171,6 +171,7 @@ Detalhes: [docs/ai.md](docs/ai.md) · [docs/maestro.md](docs/maestro.md) · [doc
 | WhatsApp | Mock: grava sem enviar | Cloud API (`WHATSAPP_*`) |
 | Google Ads, Meta e Instagram | Mock | `GOOGLE_ADS_*`, `META_*` |
 | Maps e dados cadastrais | Mock | `*_MAPS_API_KEY`, `COMPANY_REGISTRY_*` |
+| Busca de empresas por filtro (Agente Pesquisador) | Exemplo (empresas fictícias) | **Placeholder** Casa dos Dados: `COMPANY_SEARCH_PROVIDER=casadosdados` + `COMPANY_SEARCH_API_KEY` |
 | IA | Mock | `AI_PROVIDER=anthropic` + `AI_API_KEY` |
 | Newcon e ComercialNet | **Placeholder** | Aguardando documentação oficial e autorização |
 | Web Push (celular/navegador) | Real com chaves VAPID | `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY` |

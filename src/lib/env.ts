@@ -69,6 +69,9 @@ const schema = z.object({
   COMPANY_REGISTRY_API_KEY: z.string().optional(),
   /** brasilapi (padrão, consulta pública de CNPJ) | mock */
   COMPANY_REGISTRY_PROVIDER: z.enum(['brasilapi', 'mock']).default('brasilapi'),
+  /** Agente Pesquisador — busca de empresas por filtro: sample (empresas fictícias, teste) | casadosdados (com chave) */
+  COMPANY_SEARCH_PROVIDER: z.enum(['sample', 'casadosdados']).default('sample'),
+  COMPANY_SEARCH_API_KEY: z.string().optional(),
   /** Endereço público das landings das PJs; {subdomain} é trocado pelo subdomínio da PJ. */
   LANDING_URL_TEMPLATE: z.string().default('http://{subdomain}.localhost:3600'),
   /** Endereço do site mestre (divisão igual). Vazio = o domínio principal do LANDING_URL_TEMPLATE, sem subdomínio. */

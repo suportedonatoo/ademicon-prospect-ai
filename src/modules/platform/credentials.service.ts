@@ -116,6 +116,8 @@ export const CREDENTIAL_GROUPS: CredentialGroup[] = [
       { key: 'GOOGLE_MAPS_API_KEY', label: 'Google Maps API key (Places API New)', secret: true },
       { key: 'BING_MAPS_API_KEY', label: 'Bing Maps key', secret: true, hint: 'Bing Maps for Enterprise (a Microsoft está descontinuando o serviço)' },
       { key: 'COMPANY_REGISTRY_PROVIDER', label: 'Consulta de CNPJ', secret: false, options: ['brasilapi', 'mock'] },
+      { key: 'COMPANY_SEARCH_PROVIDER', label: 'Agente Pesquisador: busca de empresas por filtro', secret: false, options: ['sample', 'casadosdados'], hint: 'sample = empresas fictícias para teste' },
+      { key: 'COMPANY_SEARCH_API_KEY', label: 'Casa dos Dados: chave da API', secret: true },
     ],
   },
 ];

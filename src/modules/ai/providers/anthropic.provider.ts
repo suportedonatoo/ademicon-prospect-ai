@@ -6,8 +6,9 @@ import * as z from 'zod/v4';
 import { productLabel } from '@/modules/leads/catalog';
 import { brl } from '@/lib/format';
 import { MockAIProvider } from './mock.provider';
-import type { AgentTurnInput, AgentTurnOutput, AIProvider, IdeasInput, SummaryInput } from './types';
+import type { AgentTurnInput, AgentTurnOutput, AIProvider, IdeasInput, SummaryInput, PitchInput, PitchOutput } from './types';
 import { IDEAS_SYSTEM, ideasUserPrompt, parseIdeas, templateIdeas } from './ideas';
+import { PITCH_SYSTEM, parsePitch, pitchUserPrompt } from './pitch';
 
 // Provider real (Claude). Saída estruturada validada por schema.
 // Em qualquer falha (rede, recusa, parse), cai para o MockAIProvider — a conversa nunca quebra —
@@ -175,6 +176,23 @@ export class AnthropicAIProvider implements AIProvider {
     } catch (e) {
       logger.warn('ai.ideas_fallback', { error: String((e as Error)?.message ?? e).slice(0, 300) });
       return templateIdeas(input.count, input.exclude);
+    }
+  }
+
+  async pitch(input: PitchInput): Promise<PitchOutput | null> {
+    try {
+      const response = await this.client.messages.create({
+        model: this.model,
+        max_tokens: isHaiku(this.model) ? 1200 : 4000,
+        ...(isHaiku(this.model) ? {} : { output_config: { effort: 'low' as const } }),
+        system: PITCH_SYSTEM,
+        messages: [{ role: 'user', content: pitchUserPrompt(input) }],
+      });
+      const text = response.content.find((b) => b.type === 'text');
+      return text && text.type === 'text' ? parsePitch(text.text) : null;
+    } catch (e) {
+      logger.warn('ai.pitch_fallback', { error: String((e as Error)?.message ?? e).slice(0, 300) });
+      return null;
     }
   }
 

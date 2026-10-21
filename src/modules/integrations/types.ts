@@ -80,6 +80,43 @@ export interface CompanyRegistryProvider extends IntegrationProvider {
   search(filters: BusinessSearchFilters): Promise<BusinessResult[]>;
 }
 
+// ── Busca de empresas por filtro (fonte do Agente Pesquisador) ──
+export interface CompanySearchFilters {
+  city: string;
+  uf: string;
+  /** Prefixos de CNAE (ex.: "4930", "86"). Vazio = todas as atividades. */
+  cnaePrefixes?: string[];
+  /** Só empresas abertas a partir desta data. */
+  openedAfter?: Date;
+  page?: number;
+  limit?: number;
+}
+
+export interface CompanyRecord {
+  cnpj: string;
+  legalName: string;
+  tradeName?: string;
+  cnae: string;
+  cnaeDescription?: string;
+  /** AAAA-MM-DD */
+  openedAt?: string;
+  shareCapital?: number;
+  size?: string;
+  situation?: string;
+  city: string;
+  uf: string;
+  neighborhood?: string;
+  address?: string;
+  phone?: string;
+  email?: string;
+  partners?: { name: string; role?: string }[];
+  sourceRef: string;
+}
+
+export interface CompanySearchProvider extends IntegrationProvider {
+  searchCompanies(filters: CompanySearchFilters): Promise<CompanyRecord[]>;
+}
+
 // ── WhatsApp ──
 export interface OutboundMessage {
   fromNumberId: string;

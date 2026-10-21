@@ -1,8 +1,9 @@
 import { logger } from '@/lib/logger';
 import { TurnSchema, systemPrompt } from './anthropic.provider';
 import { MockAIProvider } from './mock.provider';
-import type { AgentTurnInput, AgentTurnOutput, AIProvider, IdeasInput, SummaryInput } from './types';
+import type { AgentTurnInput, AgentTurnOutput, AIProvider, IdeasInput, PitchInput, PitchOutput, SummaryInput } from './types';
 import { IDEAS_SYSTEM, ideasUserPrompt, parseIdeas, templateIdeas } from './ideas';
+import { PITCH_SYSTEM, parsePitch, pitchUserPrompt } from './pitch';
 
 // Provider Google Gemini (API REST do AI Studio, sem SDK). Mesmo prompt e mesmo schema do provider Claude.
 // Em qualquer falha (rede, cota do plano gratuito, parse), cai para o MockAIProvider — a conversa nunca quebra.
@@ -157,6 +158,16 @@ export class GeminiAIProvider implements AIProvider {
     } catch (e) {
       logger.warn('ai.ideas_fallback', { error: String((e as Error)?.message ?? e).slice(0, 300) });
       return templateIdeas(input.count, input.exclude);
+    }
+  }
+
+  async pitch(input: PitchInput): Promise<PitchOutput | null> {
+    try {
+      const r = await this.generate(this.model, PITCH_SYSTEM, [{ role: 'user', parts: [{ text: pitchUserPrompt(input) }] }], false);
+      return parsePitch(r.text);
+    } catch (e) {
+      logger.warn('ai.pitch_fallback', { error: String((e as Error)?.message ?? e).slice(0, 300) });
+      return null;
     }
   }
 

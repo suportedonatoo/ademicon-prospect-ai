@@ -8,8 +8,9 @@ import { notifyConsultant } from '../notifications/notification.service';
 import { saveSearchResults } from './prospecting.service';
 
 // LISTA DIÁRIA — toda manhã cada consultor recebe até DAILY_TARGET contatos para trabalhar:
-// primeiro os leads que chegaram para ele e ainda estão sem contato; o que faltar é completado com
-// empresas do Google Maps (dados públicos empresariais; o contato é humano, sem mensagem automática).
+// primeiro os leads que chegaram para ele e ainda estão sem contato; depois as empresas do Agente
+// Pesquisador (quando ligado, ver research-agent.service.ts); o que faltar é completado com empresas
+// do Google Maps (dados públicos empresariais; o contato é humano, sem mensagem automática).
 
 export const DAILY_TARGET = 20;
 /** A rotina roda nesta hora (fuso da organização). */
@@ -88,8 +89,9 @@ export async function buildDailyLists(orgId: string, now = new Date()) {
   if (!consultants.length) return { day, consultants: 0, delivered: 0, requests: 0, skipped: null };
   const ids = consultants.map((c) => c.id);
 
-  const [have, inbound] = await Promise.all([
+  const [have, researched, inbound] = await Promise.all([
     db.businessProspect.groupBy({ by: ['assignedConsultantId'], where: { organizationId: orgId, assignedConsultantId: { in: ids }, assignedDay: day }, _count: { _all: true } }),
+    db.businessProspect.groupBy({ by: ['assignedConsultantId'], where: { organizationId: orgId, assignedConsultantId: { in: ids }, assignedDay: day, researchScore: { not: null } }, _count: { _all: true } }),
     // leads que chegaram nas últimas 24 h e ainda não tiveram contato entram na conta dos 20
     db.lead.groupBy({ by: ['consultantId'], where: { organizationId: orgId, consultantId: { in: ids }, assignedAt: { gte: new Date(now.getTime() - 24 * 3600_000) }, lastInteractionAt: null, deletedAt: null }, _count: { _all: true } }),
   ]);
@@ -97,7 +99,8 @@ export async function buildDailyLists(orgId: string, now = new Date()) {
   const plan = consultants.map((c) => {
     const leads = count(inbound, (r: { consultantId: string | null }) => r.consultantId, c.id);
     const already = count(have, (r: { assignedConsultantId: string | null }) => r.assignedConsultantId, c.id);
-    return { id: c.id, leads, already, need: Math.max(0, DAILY_TARGET - leads - already) };
+    const qualified = count(researched, (r: { assignedConsultantId: string | null }) => r.assignedConsultantId, c.id);
+    return { id: c.id, leads, already, qualified, need: Math.max(0, DAILY_TARGET - leads - already) };
   });
   const totalNeed = plan.reduce((n, p) => n + p.need, 0);
 
@@ -123,7 +126,13 @@ export async function buildDailyLists(orgId: string, now = new Date()) {
     await notifyConsultant(orgId, p.id, {
       type: 'prospecting.daily',
       title: `Sua lista de hoje: ${companies + p.leads} contatos`,
-      body: [p.leads ? `${p.leads} lead(s) aguardando o seu contato` : '', companies ? `${companies} empresa(s) para prospectar` : ''].filter(Boolean).join(' · '),
+      body: [
+        p.leads ? `${p.leads} lead(s) aguardando o seu contato` : '',
+        p.qualified ? `${p.qualified} empresa(s) pesquisada(s) pelo agente, com decisor e mensagem pronta` : '',
+        companies - p.qualified ? `${companies - p.qualified} empresa(s) para prospectar` : '',
+      ]
+        .filter(Boolean)
+        .join(' · '),
       link: '/empresas?lista=hoje',
       dedupeKey: `daily-list:${day.toISOString().slice(0, 10)}`,
     });
@@ -141,5 +150,11 @@ export async function runDailyListIfDue(orgId: string, now = new Date()) {
   // Só em dias úteis: lista entregue no sábado/domingo ficava parada e gastava buscas do Google.
   const weekday = new Intl.DateTimeFormat('en-US', { timeZone: tz, weekday: 'short' }).format(now);
   if (weekday === 'Sat' || weekday === 'Sun') return null;
-  return buildDailyLists(orgId, now);
+  // O agente vem antes: as empresas dele entram na conta da lista e o Google Maps só completa o resto.
+  const { runResearchAgent } = await import('./research-agent.service');
+  const research = await runResearchAgent(orgId, now).catch((e) => {
+    logger.error('daily_list.research_failed', { orgId, error: String(e) });
+    return null;
+  });
+  return { ...(await buildDailyLists(orgId, now)), research };
 }

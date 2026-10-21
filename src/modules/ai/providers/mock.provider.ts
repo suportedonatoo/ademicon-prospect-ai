@@ -1,7 +1,7 @@
 import { brl } from '@/lib/format';
 import { productLabel, sourceLabel } from '@/modules/leads/catalog';
 import { asksIfBot, detectIntent, extractSlots, isOptOut, isQuestion, wantsHuman } from '../nlu';
-import type { AgentTurnInput, AgentTurnOutput, AIProvider, KnowledgeSnippet, IdeasInput, SummaryInput } from './types';
+import type { AgentTurnInput, AgentTurnOutput, AIProvider, KnowledgeSnippet, IdeasInput, PitchOutput, SummaryInput } from './types';
 import { templateIdeas } from './ideas';
 import { firstName } from '@/lib/normalize';
 
@@ -190,6 +190,11 @@ export class MockAIProvider implements AIProvider {
 
   async ideas(input: IdeasInput): Promise<string[]> {
     return templateIdeas(input.count, input.exclude);
+  }
+
+  /** Sem IA: o Agente Pesquisador usa o próprio template. */
+  async pitch(): Promise<PitchOutput | null> {
+    return null;
   }
 
   async summarize({ lead, history }: SummaryInput): Promise<string> {

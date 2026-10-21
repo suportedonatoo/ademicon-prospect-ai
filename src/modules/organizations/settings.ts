@@ -50,6 +50,11 @@ export interface OrgSettings {
   roi: { revenuePctOfWonValue: number | null };
   /** openerTemplate: template APROVADO usado quando o bot inicia a conversa (fora da janela de 24 h). null = não inicia; espera o cliente escrever. */
   messaging: { frequencyCapPerWeek: number; quietHoursStart: number; quietHoursEnd: number; openerTemplate: string | null };
+  /**
+   * AGENTE PESQUISADOR (lista das 7h): empresas pesquisadas e com nota, entregues antes das do Google Maps.
+   * cities = "Cidade/UF"; vazio = cidades das PJs da organização.
+   */
+  researchAgent: { enabled: boolean; cities: string[]; perConsultant: number; minScore: number };
 }
 
 export const DEFAULT_SETTINGS: OrgSettings = {
@@ -77,6 +82,7 @@ export const DEFAULT_SETTINGS: OrgSettings = {
   capacity: { high: 80, critical: 100 },
   roi: { revenuePctOfWonValue: null },
   messaging: { frequencyCapPerWeek: 3, quietHoursStart: 21, quietHoursEnd: 8, openerTemplate: null },
+  researchAgent: { enabled: false, cities: [], perConsultant: 10, minScore: 60 },
 };
 
 function deepMerge<T>(base: T, patch: unknown): T {

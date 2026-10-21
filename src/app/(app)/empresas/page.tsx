@@ -14,11 +14,17 @@ import { env } from '@/lib/env';
 import { buttonClass } from '@/components/ui';
 import { DAILY_TARGET, localDay } from '@/modules/business-prospecting/daily-list.service';
 import { googleRequestsLeft } from '@/modules/integrations/maps/maps.provider';
+import { getOrgSettings } from '@/modules/organizations/settings';
+import { providers } from '@/modules/integrations/registry';
+import { OUTCOMES } from '@/modules/business-prospecting/prospecting.service';
+import type { Research } from '@/modules/business-prospecting/research';
+import { ResearchAgentConfig } from './research-agent';
+import { ResearchDetails, scoreTone } from './research-card';
 
 /** Número para abrir no WhatsApp do próprio consultor (o contato frio é humano, nunca pelo bot). */
-const waLink = (phone: string) => {
+const waLink = (phone: string, text?: string) => {
   const d = phone.replace(/\D/g, '');
-  return `https://wa.me/${d.length <= 11 ? `55${d}` : d}`;
+  return `https://wa.me/${d.length <= 11 ? `55${d}` : d}${text ? `?text=${encodeURIComponent(text)}` : ''}`;
 };
 
 /** O Google Maps não informa CNPJ: pesquisa pronta para o consultor achar o número. */
@@ -32,9 +38,19 @@ export default async function EmpresasPage({ searchParams }: { searchParams: Pro
   const { items, total, page } = await listProspects(ctx, { status: sp.status, city: sp.city, q: sp.q, page: Number(sp.page ?? 1) });
   // Lista diária do consultor (montada toda manhã) e, para a gestão, o uso do teto de buscas do Google.
   const org = await db.organization.findUnique({ where: { id: ctx.orgId }, select: { timezone: true } });
-  const today = ctx.consultantId ? (await listProspects(ctx, { day: localDay(new Date(), org?.timezone ?? 'America/Sao_Paulo').day })).items : [];
+  const day = localDay(new Date(), org?.timezone ?? 'America/Sao_Paulo').day;
+  // Pesquisadas pelo agente primeiro (maior nota no topo); depois as do Google Maps.
+  const today = ctx.consultantId ? (await listProspects(ctx, { day })).items.sort((a, b) => (b.researchScore ?? -1) - (a.researchScore ?? -1)) : [];
   const pending = today.filter((p) => p.status === 'NEW');
   const googleLeft = ctx.scope === 'ORG' ? await googleRequestsLeft() : null;
+  // Gestão: configuração do Agente Pesquisador e o que ele entregou hoje para a equipe.
+  const manage = ctx.scope === 'ORG' && can(ctx, 'settings.manage');
+  const agent = manage ? (await getOrgSettings(ctx.orgId)).researchAgent : null;
+  const pjCities = manage ? (await db.pJ.findMany({ where: { organizationId: ctx.orgId, active: true }, select: { city: true, uf: true }, distinct: ['city', 'uf'] })).map((p) => `${p.city}/${p.uf}`).join(', ') : '';
+  const researchedToday = manage
+    ? await db.businessProspect.findMany({ where: { organizationId: ctx.orgId, assignedDay: day, researchScore: { not: null } }, orderBy: { researchScore: 'desc' }, take: 60 })
+    : [];
+  const consultantNames = manage ? new Map((await db.consultant.findMany({ where: { id: { in: [...new Set(researchedToday.map((p) => p.assignedConsultantId!))] } }, select: { id: true, name: true } })).map((c) => [c.id, c.name])) : new Map<string, string>();
 
   return (
     <>
@@ -46,6 +62,56 @@ export default async function EmpresasPage({ searchParams }: { searchParams: Pro
         <p className="text-xs text-muted mt-3">
           Buscas no Google hoje: <b className="tabular">{env.GOOGLE_MAPS_DAILY_REQUESTS - googleLeft}</b> de {env.GOOGLE_MAPS_DAILY_REQUESTS} (teto diário para ficar na faixa gratuita).
         </p>
+      )}
+      {agent && (
+        <Card
+          className="mt-4"
+          title="Agente Pesquisador"
+          subtitle={`Busca empresas dos segmentos com perfil para consórcio, completa o quadro societário (decisor), dá nota de 0 a 100 com os motivos e escreve roteiro e mensagem. Fonte: ${providers.companySearch.name}.`}
+        >
+          {providers.companySearch.mode !== 'real' && (
+            <Notice tone="amber" title="Modo teste:">
+              as empresas são <b>fictícias</b>, no mesmo formato da fonte paga (Casa dos Dados). Servem para ver o agente funcionando; os botões de ligar e WhatsApp ficam desligados para elas.
+            </Notice>
+          )}
+          <div className="mt-3">
+            <ResearchAgentConfig initial={agent} defaultCities={pjCities} />
+          </div>
+          {researchedToday.length > 0 && (
+            <Table className="mt-4">
+              <thead>
+                <tr>
+                  <Th>Nota</Th>
+                  <Th>Empresa</Th>
+                  <Th>Decisor</Th>
+                  <Th>Por quê</Th>
+                  <Th>Consultor</Th>
+                </tr>
+              </thead>
+              <tbody>
+                {researchedToday.map((p) => {
+                  const r = p.research as Research | null;
+                  return (
+                    <tr key={p.id}>
+                      <Td>
+                        <Badge tone={scoreTone(p.researchScore!)}>{p.researchScore}</Badge>
+                      </Td>
+                      <Td>
+                        <b className="font-medium">{p.name}</b>
+                        <div className="text-xs text-muted">
+                          {p.category} · {p.city}/{p.uf}
+                        </div>
+                      </Td>
+                      <Td className="text-xs">{r?.decisionMaker?.name ?? '—'}</Td>
+                      <Td className="text-xs text-muted max-w-96">{r?.reasons.slice(0, 2).join(' · ')}</Td>
+                      <Td className="text-xs">{consultantNames.get(p.assignedConsultantId!) ?? '—'}</Td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </Table>
+          )}
+        </Card>
       )}
       {ctx.consultantId && (
         <Card pad={false} className="mt-4" title={`Sua lista de hoje (${pending.length} de ${today.length} por contatar)`} subtitle={`Toda manhã você recebe até ${DAILY_TARGET} contatos: seus leads novos e empresas para prospectar. Ligue ou chame pelo seu WhatsApp e registre o resultado.`}>
@@ -71,8 +137,18 @@ export default async function EmpresasPage({ searchParams }: { searchParams: Pro
                         </a>
                       )}
                     </span>
+                    <ResearchDetails p={p} />
                   </span>
-                  {p.status === 'NEW' && p.phone ? (
+                  {p.status === 'NEW' && (p.research as Research | null)?.sample ? (
+                    <span className="inline-flex flex-wrap gap-1.5">
+                      <span className="text-xs text-muted px-1">exemplo · sem contato real</span>
+                      {Object.entries(OUTCOMES).map(([k, label]) => (
+                        <ActionButton key={k} size="sm" variant="ghost" path={`/prospecting/${p.id}`} body={{ action: 'outcome', outcome: k }} success="Resultado registrado: o agente aprende com ele.">
+                          {label}
+                        </ActionButton>
+                      ))}
+                    </span>
+                  ) : p.status === 'NEW' && p.phone ? (
                     <span className="inline-flex flex-wrap gap-1.5">
                       <a href={`tel:${p.phone.replace(/\D/g, '')}`} className={buttonClass('secondary', 'sm')}>
                         Ligar
@@ -80,13 +156,21 @@ export default async function EmpresasPage({ searchParams }: { searchParams: Pro
                       {isLandlineBR(p.phone) ? (
                         <span className="text-xs text-muted px-1" title="Telefone fixo não tem WhatsApp">fixo · só ligação</span>
                       ) : (
-                        <WhatsAppContactButton url={waLink(p.phone)} prospectId={p.id} className={buttonClass('secondary', 'sm')}>
-                          WhatsApp
+                        <WhatsAppContactButton url={waLink(p.phone, (p.research as Research | null)?.message)} prospectId={p.id} className={buttonClass('secondary', 'sm')}>
+                          {p.research ? 'WhatsApp com mensagem' : 'WhatsApp'}
                         </WhatsAppContactButton>
                       )}
-                      <a href={cnpjSearch(p)} target="_blank" rel="noreferrer" className={buttonClass('ghost', 'sm')}>
-                        Achar CNPJ
-                      </a>
+                      {!p.cnpj && (
+                        <a href={cnpjSearch(p)} target="_blank" rel="noreferrer" className={buttonClass('ghost', 'sm')}>
+                          Achar CNPJ
+                        </a>
+                      )}
+                      {p.research != null &&
+                        Object.entries(OUTCOMES).map(([k, label]) => (
+                          <ActionButton key={k} size="sm" variant="ghost" path={`/prospecting/${p.id}`} body={{ action: 'outcome', outcome: k }} success="Resultado registrado: o agente aprende com ele.">
+                            {label}
+                          </ActionButton>
+                        ))}
                       <ActionButton size="sm" variant="primary" path={`/prospecting/${p.id}`} body={{ action: 'convert' }} success="Virou lead seu (sem mensagens automáticas).">
                         Tem interesse
                       </ActionButton>

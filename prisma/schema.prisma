@@ -1078,6 +1078,18 @@ model BusinessProspect {
   /// Lista diária: consultor que recebeu a empresa e o dia da lista.
   assignedConsultantId String?
   assignedDay          DateTime? @db.Date
+  /// Agente Pesquisador: dados cadastrais usados na análise (fonte de CNPJ por filtro + BrasilAPI).
+  email          String?
+  openedAt       DateTime?       @db.Date
+  shareCapital   Float?
+  partners       Json?
+  /// Nota 0–100 e análise (produto, motivos, decisor, roteiro, mensagem). Null = empresa não pesquisada.
+  researchScore  Int?
+  research       Json?
+  researchedAt   DateTime?
+  /// Resultado do contato (empresa pesquisada): DECISOR | INTERESSADO | SEM_INTERESSE | SEM_FIT | NAO_ATENDEU.
+  outcome        String?
+  outcomeAt      DateTime?
   search         ProspectSearch? @relation(fields: [searchId], references: [id])
 
   @@index([organizationId, assignedConsultantId, assignedDay])

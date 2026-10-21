@@ -33,6 +33,15 @@ const schema = z.object({
     .partial()
     .optional(),
   privacy: z.object({ policyVersion: z.string().min(1).max(30), dataRequestSlaDays: z.coerce.number().int().min(1).max(30) }).optional(),
+  researchAgent: z
+    .object({
+      enabled: z.boolean(),
+      cities: z.array(z.string().trim().regex(/^[^/]{2,80}\/[A-Za-z]{2}$/, 'Use "Cidade/UF", ex.: Jundiaí/SP')).max(20),
+      perConsultant: z.coerce.number().int().min(1).max(30),
+      minScore: z.coerce.number().int().min(0).max(100),
+    })
+    .partial()
+    .optional(),
 });
 
 /** GET/PUT /api/v1/settings — configurações da organização (auditadas). */

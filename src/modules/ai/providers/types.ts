@@ -89,6 +89,22 @@ export interface IdeasInput {
   exclude?: string[];
 }
 
+/** Agente Pesquisador: roteiro de ligação e 1ª mensagem para o decisor de uma empresa analisada. */
+export interface PitchInput {
+  company: string;
+  segment: string;
+  activity: string;
+  product: string;
+  city: string;
+  decisionMaker: { name: string; role?: string } | null;
+  reasons: string[];
+}
+
+export interface PitchOutput {
+  approach: string;
+  message: string;
+}
+
 export interface SummaryInput {
   lead: LeadFacts;
   history: ChatTurn[];
@@ -100,5 +116,7 @@ export interface AIProvider {
   generateTurn(input: AgentTurnInput): Promise<AgentTurnOutput>;
   summarize(input: SummaryInput): Promise<string>;
   ideas(input: IdeasInput): Promise<string[]>;
+  /** null = sem IA ou resposta inválida (o agente usa o texto padrão). */
+  pitch(input: PitchInput): Promise<PitchOutput | null>;
   healthCheck(): Promise<{ ok: boolean; mode: 'mock' | 'real'; detail: string }>;
 }
