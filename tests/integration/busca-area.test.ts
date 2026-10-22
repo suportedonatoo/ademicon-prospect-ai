@@ -88,4 +88,14 @@ describe('Empresas coletadas por busca', () => {
     expect(await names()).toEqual(['Alfa', 'Beta', 'Gama']);
     expect((await listProspects(consultor, { searchId: 'nao-existe' })).total).toBe(0);
   });
+
+  it('busca que devolve empresa coletada por outra pessoa: aparece marcada, sem ações; busca alheia não abre', async () => {
+    const prov = { key: 'google_maps', name: 'Google Maps (mock)', mode: 'mock' };
+    const other = (await saveSearchResults(A.org.id, prov, { category: 'Padarias', city: 'Jundiaí', uf: 'SP' }, [r('g:9', 'Delta')], A.users.admin.id)).search;
+    const mine = (await saveSearchResults(A.org.id, prov, { category: 'Padarias', city: 'Jundiaí', uf: 'SP' }, [r('g:9', 'Delta')], A.users.consultant.id)).search;
+    const res = await listProspects(consultor, { searchId: mine.id });
+    expect(res.items.map((p) => [p.name, p.mine])).toEqual([['Delta', false]]);
+    expect((await listProspects(consultor, { searchId: other.id })).total).toBe(0);
+    expect((await listProspects(consultor)).items.map((p) => p.name)).not.toContain('Delta'); // fora da busca, segue a regra de dono
+  });
 });

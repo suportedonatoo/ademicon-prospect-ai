@@ -91,12 +91,14 @@ export async function recentSearches(ctx: Ctx, take = 15) {
 export async function listProspects(ctx: Ctx, opts: { status?: string; city?: string; q?: string; page?: number; day?: Date; searchId?: string } = {}) {
   assertCan(ctx, 'prospecting.read');
   const page = opts.page ?? 1;
-  const search = opts.searchId ? await db.prospectSearch.findFirst({ where: { id: opts.searchId, organizationId: ctx.orgId }, select: { sourceRefs: true } }) : null;
+  // Uma busca do próprio usuário (ou qualquer uma, para a gestão): tudo o que ELA devolveu, inclusive empresas
+  // que outra pessoa já tinha coletado (vêm marcadas, sem ações). Busca de outra pessoa → lista vazia.
+  const search = opts.searchId
+    ? await db.prospectSearch.findFirst({ where: { id: opts.searchId, organizationId: ctx.orgId, ...(ctx.scope === 'OWN' ? { createdById: ctx.userId ?? '__none__' } : {}) }, select: { sourceRefs: true } })
+    : null;
   const where = {
-    // Uma busca: só as empresas que ELA devolveu (busca de outra pessoa ou de outra org → lista vazia).
-    ...(opts.searchId ? { sourceRef: { in: search?.sourceRefs ?? [] } } : {}),
+    ...(opts.searchId ? { sourceRef: { in: search?.sourceRefs ?? [] } } : ownProspects(ctx)),
     organizationId: ctx.orgId,
-    ...ownProspects(ctx),
     // Lista diária: só o que foi entregue a este consultor naquele dia.
     ...(opts.day ? { assignedConsultantId: ctx.consultantId ?? '__none__', assignedDay: opts.day } : {}),
     ...(opts.status ? { status: opts.status } : {}),
@@ -104,10 +106,12 @@ export async function listProspects(ctx: Ctx, opts: { status?: string; city?: st
     ...(opts.q ? { name: { contains: opts.q, mode: 'insensitive' as const } } : {}),
   };
   const [items, total] = await Promise.all([
-    db.businessProspect.findMany({ where, orderBy: { collectedAt: 'desc' }, skip: (page - 1) * 50, take: 50 }),
+    db.businessProspect.findMany({ where, orderBy: { collectedAt: 'desc' }, skip: (page - 1) * 50, take: 50, include: { search: { select: { createdById: true } } } }),
     db.businessProspect.count({ where }),
   ]);
-  return { items, total, page };
+  // "mine": o usuário pode agir sobre a empresa (mesma regra de ownProspects).
+  const mine = (p: (typeof items)[number]) => ctx.scope !== 'OWN' || p.search?.createdById === ctx.userId || (!!ctx.consultantId && p.assignedConsultantId === ctx.consultantId);
+  return { items: items.map((p) => ({ ...p, mine: mine(p) })), total, page };
 }
 
 export async function convertProspect(ctx: Ctx, id: string, product?: string, extra: { objective?: string | null; desiredValue?: number | null; term?: string | null } = {}) {

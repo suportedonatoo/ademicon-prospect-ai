@@ -276,7 +276,8 @@ export default async function EmpresasPage({ searchParams }: { searchParams: Pro
                       )}
                     </Td>
                     <Td className="text-right whitespace-nowrap">
-                      {p.status === 'NEW' && can(ctx, 'prospecting.convert') && (
+                      {!p.mine && <Badge title="Outra pessoa da equipe já tinha coletado esta empresa">Coletada por outra pessoa</Badge>}
+                      {p.mine && p.status === 'NEW' && can(ctx, 'prospecting.convert') && (
                         <span className="inline-flex gap-1.5">
                           <ActionButton size="sm" variant="primary" path={`/prospecting/${p.id}`} body={{ action: 'convert' }} success="Empresa convertida em lead (sem mensagens automáticas).">
                             Converter
