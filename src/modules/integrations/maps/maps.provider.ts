@@ -2,6 +2,8 @@ import { env } from '@/lib/env';
 import { db } from '@/lib/db';
 import type { BusinessResult, BusinessSearchFilters, MapsProvider } from '../types';
 import { int, pick, rng } from '../mock-random';
+import { logger } from '@/lib/logger';
+import { boundsAround, googleTypeFor, insideSearch, normalizePlace, type LatLng } from './area-filter';
 
 /**
  * Provedores de mapas. Somente APIs oficiais e licenciadas (Places API / Bing Maps API).
@@ -36,17 +38,12 @@ export class GooglePlacesProvider implements MapsProvider {
   category = 'maps' as const;
   mode = 'real' as const;
 
-  private async page(textQuery: string, pageSize: number, pageToken?: string) {
+  private async page(textQuery: string, pageSize: number, pageToken?: string, extra: object = {}, mask = FIELD_MASK) {
     await takeGoogleRequest();
     const res = await fetch('https://places.googleapis.com/v1/places:searchText', {
       method: 'POST',
-      headers: {
-        'content-type': 'application/json',
-        'X-Goog-Api-Key': env.GOOGLE_MAPS_API_KEY!,
-        'X-Goog-FieldMask':
-          'places.id,places.displayName,places.formattedAddress,places.nationalPhoneNumber,places.internationalPhoneNumber,places.websiteUri,places.primaryTypeDisplayName,places.addressComponents,places.businessStatus,nextPageToken',
-      },
-      body: JSON.stringify({ textQuery, languageCode: 'pt-BR', regionCode: 'BR', pageSize, ...(pageToken ? { pageToken } : {}) }),
+      headers: { 'content-type': 'application/json', 'X-Goog-Api-Key': env.GOOGLE_MAPS_API_KEY!, 'X-Goog-FieldMask': mask },
+      body: JSON.stringify({ textQuery, languageCode: 'pt-BR', regionCode: 'BR', pageSize, ...(pageToken ? { pageToken } : {}), ...extra }),
       signal: AbortSignal.timeout(20_000),
     });
     const body = (await res.json().catch(() => ({}))) as { places?: GPlace[]; nextPageToken?: string; error?: { message?: string } };
@@ -63,16 +60,48 @@ export class GooglePlacesProvider implements MapsProvider {
     }
   }
 
+  /** Centro do bairro/cidade, guardado no banco: só a primeira busca de cada lugar gasta uma requisição. */
+  private async center(f: BusinessSearchFilters): Promise<LatLng | null> {
+    const key = [f.neighborhood, f.city, f.uf].map(normalizePlace).join('|');
+    const hit = await db.geoPoint.findUnique({ where: { key } });
+    if (hit) return { lat: hit.lat, lng: hit.lng };
+    const r = await this.page([f.neighborhood, f.city, f.uf, 'Brasil'].filter(Boolean).join(', '), 1, undefined, {}, 'places.location');
+    const loc = r.places?.[0]?.location;
+    if (!loc?.latitude || !loc.longitude) return null;
+    await db.geoPoint.upsert({ where: { key }, create: { key, lat: loc.latitude, lng: loc.longitude }, update: {} });
+    return { lat: loc.latitude, lng: loc.longitude };
+  }
+
   async searchBusinesses(f: BusinessSearchFilters): Promise<BusinessResult[]> {
     const limit = Math.min(f.limit ?? 20, 60);
     const query = `${f.category} em ${[f.neighborhood, f.city, f.uf].filter(Boolean).join(', ')}`;
+    // Raio: restringe a busca ao retângulo do círculo e confere a distância de cada resultado.
+    const center = f.radiusKm ? await this.center(f) : null;
+    const type = googleTypeFor(f.category);
+    const extra = {
+      ...(center ? { locationRestriction: { rectangle: boundsAround(center, f.radiusKm!) } } : {}),
+      ...(type ? { includedType: type, strictTypeFiltering: true } : {}),
+    };
     const out: BusinessResult[] = [];
+    const dropped: string[] = [];
     let token: string | undefined;
+    let pages = 0;
     do {
-      const r = await this.page(query, Math.min(20, limit - out.length), token);
+      const r = await this.page(query, 20, token, extra);
+      pages++;
       for (const p of r.places ?? []) {
         if (p.businessStatus && p.businessStatus !== 'OPERATIONAL') continue; // fechada (temporária ou definitivamente)
         const comp = (t: string) => p.addressComponents?.find((c) => c.types?.includes(t))?.longText;
+        const area = insideSearch(
+          { city: comp('administrative_area_level_2'), uf: p.addressComponents?.find((c) => c.types?.includes('administrative_area_level_1'))?.shortText, location: p.location?.latitude != null && p.location.longitude != null ? { lat: p.location.latitude, lng: p.location.longitude } : null },
+          f,
+          center
+        );
+        if (!area.ok) {
+          dropped.push(`${p.displayName?.text ?? p.id}: ${area.why}`);
+          continue;
+        }
+        if (out.length >= limit) break;
         out.push({
           name: p.displayName?.text ?? 'Sem nome',
           category: p.primaryTypeDisplayName?.text ?? f.category,
@@ -86,10 +115,15 @@ export class GooglePlacesProvider implements MapsProvider {
         });
       }
       token = r.nextPageToken;
-    } while (token && out.length < limit);
+      // No máximo 3 páginas (60 resultados do Google): o descarte não pode virar gasto sem fim.
+    } while (token && out.length < limit && pages < 3);
+    if (dropped.length) logger.info('maps.dropped_outside_area', { query, radiusKm: f.radiusKm ?? null, dropped: dropped.slice(0, 20) });
     return out.slice(0, limit);
   }
 }
+
+const FIELD_MASK =
+  'places.id,places.displayName,places.formattedAddress,places.nationalPhoneNumber,places.internationalPhoneNumber,places.websiteUri,places.primaryTypeDisplayName,places.addressComponents,places.businessStatus,places.location,nextPageToken';
 
 type GPlace = {
   id: string;
@@ -101,6 +135,7 @@ type GPlace = {
   primaryTypeDisplayName?: { text?: string };
   addressComponents?: { longText?: string; shortText?: string; types?: string[] }[];
   businessStatus?: string;
+  location?: { latitude?: number; longitude?: number };
 };
 
 /**

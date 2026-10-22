@@ -29,8 +29,9 @@ export const searchInput = z.object({
 
 /** Grava a busca e as empresas ainda não coletadas (mesma referência de fonte = mesma empresa). */
 export async function saveSearchResults(orgId: string, provider: { key: string; name: string; mode: string }, f: object, results: BusinessResult[], createdById: string | null) {
-  const search = await db.prospectSearch.create({ data: { organizationId: orgId, provider: `${provider.key}:${provider.mode}`, filters: f, resultCount: results.length, createdById } });
   const refs = results.map((r) => r.sourceRef);
+  // Guarda todas as referências: repetir uma busca mostra também as empresas que já estavam na base.
+  const search = await db.prospectSearch.create({ data: { organizationId: orgId, provider: `${provider.key}:${provider.mode}`, filters: f, resultCount: results.length, sourceRefs: refs, createdById } });
   const existing = await db.businessProspect.findMany({ where: { organizationId: orgId, sourceRef: { in: refs } }, select: { sourceRef: true } });
   const known = new Set(existing.map((e) => e.sourceRef));
   const fresh = results.filter((r) => !known.has(r.sourceRef));
@@ -74,13 +75,26 @@ export async function searchBusinesses(ctx: Ctx, raw: unknown) {
   const provider = f.provider === 'google_maps' ? providers.googleMaps : f.provider === 'bing_maps' ? providers.bingMaps : providers.companyRegistry;
   const results = 'searchBusinesses' in provider ? await provider.searchBusinesses(f) : await provider.search(f);
   const { search, added } = await saveSearchResults(ctx.orgId, provider, f, results, ctx.userId);
-  return { search, total: results.length, added, mode: provider.mode };
+  return { search: { id: search.id }, total: results.length, added, mode: provider.mode };
 }
 
-export async function listProspects(ctx: Ctx, opts: { status?: string; city?: string; q?: string; page?: number; day?: Date } = {}) {
+/** Buscas manuais recentes (do próprio consultor; a gestão vê as da equipe), para separar os resultados por busca. */
+export async function recentSearches(ctx: Ctx, take = 15) {
+  assertCan(ctx, 'prospecting.read');
+  return db.prospectSearch.findMany({
+    where: { organizationId: ctx.orgId, createdById: ctx.scope === 'OWN' ? (ctx.userId ?? '__none__') : { not: null } },
+    orderBy: { createdAt: 'desc' },
+    take,
+  });
+}
+
+export async function listProspects(ctx: Ctx, opts: { status?: string; city?: string; q?: string; page?: number; day?: Date; searchId?: string } = {}) {
   assertCan(ctx, 'prospecting.read');
   const page = opts.page ?? 1;
+  const search = opts.searchId ? await db.prospectSearch.findFirst({ where: { id: opts.searchId, organizationId: ctx.orgId }, select: { sourceRefs: true } }) : null;
   const where = {
+    // Uma busca: só as empresas que ELA devolveu (busca de outra pessoa ou de outra org → lista vazia).
+    ...(opts.searchId ? { sourceRef: { in: search?.sourceRefs ?? [] } } : {}),
     organizationId: ctx.orgId,
     ...ownProspects(ctx),
     // Lista diária: só o que foi entregue a este consultor naquele dia.

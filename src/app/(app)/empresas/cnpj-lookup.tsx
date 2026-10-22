@@ -13,6 +13,8 @@ export function CnpjLookup() {
   const [busy, setBusy] = useState(false);
   const [res, setRes] = useState<{ company: Company | null; mode: string } | null>(null);
   const run = async () => {
+    // Sempre clicável: o aviso diz o que falta em vez de o botão parecer quebrado.
+    if (cnpj.replace(/\D/g, '').length !== 14) return toast('Digite os 14 números do CNPJ.', 'error');
     setBusy(true);
     setRes(null);
     try {
@@ -27,7 +29,7 @@ export function CnpjLookup() {
     <div className="space-y-3">
       <div className="flex gap-2 max-w-md">
         <input className={inputClass} placeholder="00.000.000/0000-00" value={cnpj} onChange={(e) => setCnpj(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && run()} />
-        <button className={buttonClass('primary', 'sm')} disabled={busy || cnpj.replace(/\D/g, '').length !== 14} onClick={run}>
+        <button type="button" className={buttonClass('primary') + ' !h-11 shrink-0'} disabled={busy} onClick={run}>
           {busy ? 'Consultando…' : 'Consultar'}
         </button>
       </div>

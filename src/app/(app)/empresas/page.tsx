@@ -1,6 +1,6 @@
 import { requireCtx } from '@/modules/auth/session';
 import { can } from '@/modules/auth/context';
-import { listProspects, trialSearchesLeft } from '@/modules/business-prospecting/prospecting.service';
+import { listProspects, recentSearches, trialSearchesLeft } from '@/modules/business-prospecting/prospecting.service';
 import { Badge, Card, Empty, Notice, PageHeader, Table, Td, Th } from '@/components/ui';
 import { ActionButton, FilterBar, Pagination } from '@/components/client';
 import { formatCnpj, formatPhone, isLandlineBR } from '@/lib/normalize';
@@ -31,10 +31,19 @@ const cnpjSearch = (p: { name: string; city: string; uf: string }) => `https://w
 
 export const metadata = { title: 'Empresas' };
 
+/** "Construtoras · Jundiaí/SP · 5 km · 21/10 14:05" */
+function searchLabel(x: { filters: unknown; createdAt: Date; resultCount: number }) {
+  const f = x.filters as { category?: string; city?: string; uf?: string; neighborhood?: string; radiusKm?: number };
+  const when = x.createdAt.toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo', day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
+  return [f.category, [f.neighborhood, f.city].filter(Boolean).join(', ') + (f.uf ? `/${f.uf}` : ''), f.radiusKm ? `${f.radiusKm} km` : null, `${x.resultCount} result.`, when].filter(Boolean).join(' · ');
+}
+
 export default async function EmpresasPage({ searchParams }: { searchParams: Promise<Record<string, string>> }) {
   const ctx = await requireCtx('prospecting.read');
   const sp = await searchParams;
-  const { items, total, page } = await listProspects(ctx, { status: sp.status, city: sp.city, q: sp.q, page: Number(sp.page ?? 1) });
+  const { items, total, page } = await listProspects(ctx, { status: sp.status, city: sp.city, q: sp.q, page: Number(sp.page ?? 1), searchId: sp.busca || undefined });
+  const searches = await recentSearches(ctx);
+  const current = searches.find((x) => x.id === sp.busca);
   // Lista diária do consultor (montada toda manhã) e, para a gestão, o uso do teto de buscas do Google.
   const org = await db.organization.findUnique({ where: { id: ctx.orgId }, select: { timezone: true } });
   const day = localDay(new Date(), org?.timezone ?? 'America/Sao_Paulo').day;
@@ -199,10 +208,11 @@ export default async function EmpresasPage({ searchParams }: { searchParams: Pro
       <Card title="Consultar CNPJ" subtitle="Cadastro Nacional de Empresas — dados públicos da Receita Federal" className="mt-4">
         <CnpjLookup />
       </Card>
-      <Card pad={false} className="mt-4" title={`Empresas coletadas (${total})`}>
+      <Card pad={false} className="mt-4" title={current ? `Resultado da busca: ${searchLabel(current)} (${total})` : `Empresas coletadas (${total})`}>
         <div className="px-5 pt-3">
           <FilterBar
             fields={[
+              { name: 'busca', label: 'Todas as buscas', options: searches.map((x) => ({ value: x.id, label: searchLabel(x) })) },
               { name: 'q', label: 'Nome da empresa', type: 'search' },
               { name: 'status', label: 'Status', options: [{ value: 'NEW', label: 'Nova' }, { value: 'CONVERTED', label: 'Convertida em lead' }, { value: 'DISCARDED', label: 'Descartada' }] },
             ]}

@@ -1049,6 +1049,8 @@ model ProspectSearch {
   provider       String
   filters        Json
   resultCount    Int                @default(0)
+  /// Referências (sourceRef) de TODAS as empresas que a busca devolveu, inclusive as que já estavam na base.
+  sourceRefs     String[]           @default([])
   createdById    String?
   createdAt      DateTime           @default(now())
   prospects      BusinessProspect[]
@@ -1126,6 +1128,14 @@ model ProspectActivity {
 
   @@index([prospectId, createdAt])
   @@index([organizationId, consultantId, createdAt])
+}
+
+/// Centro de cidade/bairro (Google Places), guardado para não pagar de novo: key = "bairro|cidade|uf" normalizado.
+model GeoPoint {
+  key       String   @id
+  lat       Float
+  lng       Float
+  createdAt DateTime @default(now())
 }
 
 /// Contador diário de chamadas a APIs pagas (teto de custo). Ex.: key = "google_places".

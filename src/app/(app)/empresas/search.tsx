@@ -9,7 +9,7 @@ import { Field, inputClass } from '@/components/client';
 export function SearchCompanies({ left }: { left: number | null }) {
   const router = useRouter();
   const [busy, setBusy] = useState(false);
-  const [f, setF] = useState({ provider: 'google_maps', category: 'Construtoras', city: 'Jundiaí', uf: 'SP', neighborhood: '', radiusKm: '5', cnae: '', size: '', situation: 'ATIVA', limit: '20' });
+  const [f, setF] = useState({ provider: 'google_maps', category: 'Construtoras', city: 'Jundiaí', uf: 'SP', neighborhood: '', radiusKm: '5' });
   const set = (k: string, v: string) => setF((x) => ({ ...x, [k]: v }));
   if (left === 0) return <p className="text-sm font-medium text-bad">Período de teste atingido: você já usou as 2 buscas disponíveis.</p>;
   return (
@@ -19,10 +19,12 @@ export function SearchCompanies({ left }: { left: number | null }) {
         e.preventDefault();
         setBusy(true);
         try {
-          const res = await api<{ total: number; added: number; mode: string }>('/prospecting', {
-            body: { ...f, neighborhood: f.neighborhood || undefined, cnae: f.cnae || undefined, size: f.size || undefined, situation: f.situation || undefined, radiusKm: Number(f.radiusKm), limit: 20 },
+          const res = await api<{ search: { id: string }; total: number; added: number; mode: string }>('/prospecting', {
+            body: { ...f, neighborhood: f.neighborhood || undefined, radiusKm: f.radiusKm ? Number(f.radiusKm) : undefined, limit: 20 },
           });
           toast(`${res.total} empresas encontradas (${res.added} novas)${res.mode === 'mock' ? ' · dados fictícios do provider mock' : ''}.`);
+          // A lista passa a mostrar só o resultado DESTA busca.
+          router.push(`/empresas?busca=${res.search.id}`, { scroll: false });
           router.refresh();
         } catch (err) {
           toast((err as Error).message, 'error');
@@ -35,7 +37,6 @@ export function SearchCompanies({ left }: { left: number | null }) {
         <select className={inputClass} value={f.provider} onChange={(e) => set('provider', e.target.value)}>
           <option value="google_maps">Google Maps (API oficial)</option>
           <option value="bing_maps">Bing Maps (API oficial)</option>
-          <option value="company_registry">Cadastro empresarial</option>
         </select>
       </Field>
       <Field label="Categoria">
@@ -51,27 +52,7 @@ export function SearchCompanies({ left }: { left: number | null }) {
         <input className={inputClass} value={f.neighborhood} onChange={(e) => set('neighborhood', e.target.value)} />
       </Field>
       <Field label="Raio (km)">
-        <input className={inputClass} type="number" min={1} max={50} value={f.radiusKm} onChange={(e) => set('radiusKm', e.target.value)} />
-      </Field>
-      <Field label="CNAE">
-        <input className={inputClass} value={f.cnae} onChange={(e) => set('cnae', e.target.value)} placeholder="4120-4/00" />
-      </Field>
-      <Field label="Porte">
-        <select className={inputClass} value={f.size} onChange={(e) => set('size', e.target.value)}>
-          <option value="">Todos</option>
-          <option>MEI</option>
-          <option>ME</option>
-          <option>EPP</option>
-          <option>Demais</option>
-        </select>
-      </Field>
-      <Field label="Situação">
-        <select className={inputClass} value={f.situation} onChange={(e) => set('situation', e.target.value)}>
-          <option value="">Todas</option>
-          <option>ATIVA</option>
-          <option>INAPTA</option>
-          <option>BAIXADA</option>
-        </select>
+        <input className={inputClass} type="number" min={1} max={50} value={f.radiusKm} placeholder="cidade toda" onChange={(e) => set('radiusKm', e.target.value)} />
       </Field>
       <Field label="Limite">
         <input className={inputClass} type="number" value={20} readOnly aria-readonly title="Limite fixo de 20 empresas por busca" />
@@ -79,7 +60,10 @@ export function SearchCompanies({ left }: { left: number | null }) {
       <button className={buttonClass('primary') + ' h-9'} disabled={busy}>
         {busy ? 'Buscando…' : 'Buscar empresas'}
       </button>
-      {left !== null && <p className="text-xs text-muted sm:col-span-3 lg:col-span-6">Período de teste: {left} de 2 buscas restantes.</p>}
+      <p className="text-xs text-muted sm:col-span-3 lg:col-span-6">
+        O Google busca por categoria e área: com raio, só entram empresas dentro do círculo; sem raio, só as da cidade. Filtros por CNAE, porte e situação chegam com a base de CNPJ da Receita.
+        {left !== null && ` Período de teste: ${left} de 2 buscas restantes.`}
+      </p>
     </form>
   );
 }
