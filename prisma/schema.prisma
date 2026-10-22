@@ -2071,3 +2071,24 @@ model InstagramPostRule {
   @@unique([consultantId, shortcode])
   @@index([mediaId])
 }
+
+/// Importação mensal da base CNPJ da Receita (tabelas no schema "cnpj", fora do Prisma).
+model CnpjImport {
+  id         String    @id @default(cuid())
+  month      String
+  ufs        String[]
+  status     String // RUNNING | DONE | FAILED
+  counts     Json      @default("{}")
+  error      String?
+  startedAt  DateTime  @default(now())
+  finishedAt DateTime?
+
+  @@index([status, startedAt])
+}
+
+/// Cache das consultas de CNPJ na BrasilAPI (enquanto a base local não cobre o CNPJ).
+model CnpjCache {
+  cnpj      String   @id
+  data      Json
+  fetchedAt DateTime @default(now())
+}

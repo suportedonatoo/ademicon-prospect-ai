@@ -84,6 +84,7 @@ npm --prefix apps/landing install && npm --prefix apps/landing run dev   # landi
 - kit de deploy;
 - **Agente Pesquisador** (`docs/agente-pesquisador.md`): empresas da região com nota, decisor, roteiro e mensagem pronta na lista das 7h. Roda com empresas fictícias até a chave da Casa dos Dados;
 - **Ficha da empresa** (sócios → outras empresas do sócio) e **SDR** (cadência, fila do dia `/sdr`, qualificação, passagem para lead).
+- **Base CNPJ** da Receita (`docs/cnpj-base.md`): importação mensal (`npm run cnpj:importar`), consulta local → cache → BrasilAPI. Módulo de Inteligência CNPJ em fases (0 e 1 prontas).
 
 **Depende da Ademicon** (lista em `docs/pendencias-ademicon.md`):
 - marca;

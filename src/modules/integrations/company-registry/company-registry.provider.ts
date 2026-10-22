@@ -1,6 +1,7 @@
 import { env } from '@/lib/env';
 import type { BusinessResult, BusinessSearchFilters, CompanyRegistryProvider } from '../types';
 import { int, pick, rng } from '../mock-random';
+import { CachedBrasilApiProvider, LayeredCnpjProvider, LocalCnpjProvider } from '../../cnpj/cnpj.provider';
 
 /**
  * CADASTRO NACIONAL DE EMPRESAS — consulta de CNPJ na BrasilAPI (dados públicos da Receita Federal,
@@ -137,7 +138,11 @@ export class MockCompanyRegistryProvider implements CompanyRegistryProvider {
   }
 }
 
-/** Real por padrão (BrasilAPI é pública); simulado só em testes ou se COMPANY_REGISTRY_PROVIDER=mock. */
+/**
+ * Real por padrão: base local da Receita → cache → BrasilAPI (src/modules/cnpj/cnpj.provider.ts).
+ * Simulado só em testes ou se COMPANY_REGISTRY_PROVIDER=mock.
+ */
 export function createCompanyRegistryProvider(): CompanyRegistryProvider {
-  return env.APP_ENV === 'test' || env.COMPANY_REGISTRY_PROVIDER === 'mock' ? new MockCompanyRegistryProvider() : new RealCompanyRegistryProvider();
+  if (env.APP_ENV === 'test' || env.COMPANY_REGISTRY_PROVIDER === 'mock') return new MockCompanyRegistryProvider();
+  return new LayeredCnpjProvider([new LocalCnpjProvider(), new CachedBrasilApiProvider(new RealCompanyRegistryProvider())]);
 }

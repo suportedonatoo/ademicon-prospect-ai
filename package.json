@@ -21,7 +21,8 @@
     "db:reset": "prisma migrate reset --force",
     "postinstall": "prisma generate",
     "test:completo": "node scripts/teste-completo.mjs",
-    "extension:build": "node apps/extension/build.mjs"
+    "extension:build": "node apps/extension/build.mjs",
+    "cnpj:importar": "tsx --env-file-if-exists=.env scripts/importar-cnpj.ts"
   },
   "prisma": {
     "seed": "tsx --env-file-if-exists=.env prisma/seed.ts"
@@ -35,6 +36,8 @@
     "ioredis": "^5.11.1",
     "next": "^15.5.26",
     "papaparse": "^5.7.0",
+    "pg": "8.23.1",
+    "pg-copy-streams": "7.0.0",
     "qrcode": "^1.5.4",
     "react": "^19.3.0",
     "react-dom": "^19.3.0",
@@ -48,6 +51,8 @@
     "@tailwindcss/postcss": "^4.3.3",
     "@types/node": "^22.20.4",
     "@types/papaparse": "^5.5.2",
+    "@types/pg": "8.23.1",
+    "@types/pg-copy-streams": "1.2.5",
     "@types/qrcode": "^1.5.6",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
