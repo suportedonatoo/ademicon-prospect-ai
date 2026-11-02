@@ -7,7 +7,8 @@ export const metadata = { title: 'Configurar APIs' };
 
 export default async function ApisPage() {
   const ctx = await requireSuperAdmin();
-  const groups = await listCredentials(ctx);
+  // cnpj.ai tem aba própria (Consulta de CNPJ).
+  const groups = (await listCredentials(ctx)).filter((g) => g.id !== 'cnpj_ai');
   return (
     <>
       <PageHeader

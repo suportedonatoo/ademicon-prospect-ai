@@ -65,7 +65,8 @@ export function buildLeadFacts(lead: LeadRow, memory: Awaited<ReturnType<typeof 
 }
 
 export const PROSPECT_SLOTS = ['product', 'objective', 'value', 'city'] as const;
-export const QUALIFICATION_SLOTS = ['product', 'value', 'city', 'objective', 'term', 'preferredChannel'] as const;
+// Sem "canal preferido": a conversa já é pelo WhatsApp, e a pergunta soava robótica.
+export const QUALIFICATION_SLOTS = ['product', 'objective', 'value', 'term', 'city'] as const;
 
 /** Nunca repetir perguntas: devolve apenas os slots ainda desconhecidos. */
 export function missingSlots(facts: ReturnType<typeof buildLeadFacts>, agent: 'PROSPECT' | 'QUALIFICATION'): string[] {

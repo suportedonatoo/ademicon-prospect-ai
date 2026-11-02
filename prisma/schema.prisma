@@ -1070,6 +1070,9 @@ model BusinessProspect {
   phone          String?
   website        String?
   cnpj           String?
+  /// Google: nota (0–5) e número de avaliações — empresa ativa e estabelecida.
+  rating         Float?
+  reviews        Int?
   source         String
   sourceRef      String?
   collectedAt    DateTime        @default(now())

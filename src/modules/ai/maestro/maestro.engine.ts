@@ -337,6 +337,12 @@ async function runTurn(orgId: string, conversationId: string, text: string | nul
   }
 }
 
+/** Mensagem que avisa o cliente da transferência. */
+export function handoffText(consultantFirstName: string | null, channel: string) {
+  const where = channel === 'WEB' ? 'por aqui ou pelo WhatsApp que você informou' : 'por aqui';
+  return `Obrigado pelas informações! Agora ${consultantFirstName ?? 'um consultor'} continua o seu atendimento ${where}.`;
+}
+
 /** HUMAN HANDOFF: AI → HANDOFF → CONSULTOR (bot PAUSED, humano ACTIVE, resumo automático). */
 export async function performHandoff(orgId: string, conversationId: string, reason: string) {
   const ctx = systemCtx(orgId, 'Maestro');
@@ -376,7 +382,8 @@ export async function performHandoff(orgId: string, conversationId: string, reas
   await deliverMessage(orgId, conversationId, {
     // O consultor é o dono do lead (link próprio, divisão ou transferência): ele é apresentado pelo nome,
     // nunca como "um consultor", que soa como outra pessoa.
-    content: consultant && !/^consultor/i.test(firstName(consultant.name)) ? `Obrigado pelas informações! Agora ${firstName(consultant.name)} continua o seu atendimento por aqui.` : 'Obrigado pelas informações! Um consultor vai continuar o atendimento por aqui.',
+    // No chat do site o cliente costuma fechar a página: o consultor também pode chamar pelo WhatsApp informado.
+    content: handoffText(consultant && !/^consultor/i.test(firstName(consultant.name)) ? firstName(consultant.name) : null, conversation.channel),
     senderType: 'AI',
     agentKey: 'QUALIFICATION',
   });

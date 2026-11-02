@@ -53,6 +53,8 @@ export interface BusinessSearchFilters {
   size?: string;
   situation?: string;
   limit?: number;
+  /** Google: nota mínima (0–5). */
+  minRating?: number;
 }
 
 export interface BusinessResult {
@@ -68,6 +70,8 @@ export interface BusinessResult {
   cnae?: string;
   size?: string;
   situation?: string;
+  rating?: number;
+  reviews?: number;
   sourceRef: string;
 }
 

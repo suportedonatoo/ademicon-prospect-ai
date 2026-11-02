@@ -1,7 +1,7 @@
 import 'server-only';
 import { NextResponse, type NextRequest } from 'next/server';
 import { GestaoError } from './gestao';
-import { allowQueryFallback, CENTRAL_SITE, isValidSubdomain, subdomainFromHost } from './site';
+import { CENTRAL_SITE, isValidSubdomain, subdomainFromHost } from './site';
 
 // Utilitários das rotas /api/* do serviço de landing (o navegador fala só com este serviço).
 
@@ -35,16 +35,19 @@ export function visitor(req: NextRequest) {
 }
 
 /**
- * Site da requisição: sempre pelo endereço acessado (subdomínio da PJ); endereço principal = landing central.
- * Em desenvolvimento aceita o "site" enviado pela página.
+ * Site da requisição: pelo endereço acessado (subdomínio da PJ ou caminho /c/<link> da página de origem);
+ * sem isso, o "site" que a própria página envia; endereço principal = landing central.
  */
 export function siteOf(req: NextRequest, fallback?: unknown) {
   const fromHost = subdomainFromHost(req.headers.get('x-forwarded-host') ?? req.headers.get('host'));
   if (fromHost) return fromHost;
-  // Link por caminho (<site>/c/<link>): o site vem da página de onde a chamada partiu (mesma origem), não do corpo.
+  // Link por caminho (<site>/c/<link>): o site vem da página de onde a chamada partiu (mesma origem).
   const fromPath = sitePathOf(req.headers.get('referer'));
   if (fromPath) return fromPath;
-  if (allowQueryFallback() && typeof fallback === 'string' && isValidSubdomain(fallback)) return fallback;
+  // Navegadores dentro de apps (Instagram, WhatsApp, Facebook) e modos de privacidade podem não mandar o
+  // referer: sem esta volta, o cliente do link do consultor caía na landing central e ia para outro consultor.
+  // A página só envia o site em que está; o sistema de gestão confere se o link existe.
+  if (typeof fallback === 'string' && isValidSubdomain(fallback)) return fallback;
   return CENTRAL_SITE;
 }
 

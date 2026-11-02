@@ -36,7 +36,7 @@ export class GooglePlacesProvider implements MapsProvider {
   category = 'maps' as const;
   mode = 'real' as const;
 
-  private async page(textQuery: string, pageSize: number, pageToken?: string) {
+  private async page(textQuery: string, pageSize: number, pageToken?: string, minRating?: number) {
     await takeGoogleRequest();
     const res = await fetch('https://places.googleapis.com/v1/places:searchText', {
       method: 'POST',
@@ -44,9 +44,9 @@ export class GooglePlacesProvider implements MapsProvider {
         'content-type': 'application/json',
         'X-Goog-Api-Key': env.GOOGLE_MAPS_API_KEY!,
         'X-Goog-FieldMask':
-          'places.id,places.displayName,places.formattedAddress,places.nationalPhoneNumber,places.internationalPhoneNumber,places.websiteUri,places.primaryTypeDisplayName,places.addressComponents,places.businessStatus,nextPageToken',
+          'places.id,places.displayName,places.formattedAddress,places.nationalPhoneNumber,places.internationalPhoneNumber,places.websiteUri,places.primaryTypeDisplayName,places.addressComponents,places.businessStatus,places.rating,places.userRatingCount,nextPageToken',
       },
-      body: JSON.stringify({ textQuery, languageCode: 'pt-BR', regionCode: 'BR', pageSize, ...(pageToken ? { pageToken } : {}) }),
+      body: JSON.stringify({ textQuery, languageCode: 'pt-BR', regionCode: 'BR', pageSize, ...(pageToken ? { pageToken } : {}), ...(minRating ? { minRating } : {}) }),
       signal: AbortSignal.timeout(20_000),
     });
     const body = (await res.json().catch(() => ({}))) as { places?: GPlace[]; nextPageToken?: string; error?: { message?: string } };
@@ -69,7 +69,7 @@ export class GooglePlacesProvider implements MapsProvider {
     const out: BusinessResult[] = [];
     let token: string | undefined;
     do {
-      const r = await this.page(query, Math.min(20, limit - out.length), token);
+      const r = await this.page(query, Math.min(20, limit - out.length), token, f.minRating);
       for (const p of r.places ?? []) {
         if (p.businessStatus && p.businessStatus !== 'OPERATIONAL') continue; // fechada (temporária ou definitivamente)
         const comp = (t: string) => p.addressComponents?.find((c) => c.types?.includes(t))?.longText;
@@ -82,6 +82,8 @@ export class GooglePlacesProvider implements MapsProvider {
           uf: p.addressComponents?.find((c) => c.types?.includes('administrative_area_level_1'))?.shortText ?? f.uf,
           phone: p.nationalPhoneNumber ?? p.internationalPhoneNumber,
           website: p.websiteUri,
+          rating: p.rating,
+          reviews: p.userRatingCount,
           sourceRef: `google_places:${p.id}`,
         });
       }
@@ -101,6 +103,8 @@ type GPlace = {
   primaryTypeDisplayName?: { text?: string };
   addressComponents?: { longText?: string; shortText?: string; types?: string[] }[];
   businessStatus?: string;
+  rating?: number;
+  userRatingCount?: number;
 };
 
 /**

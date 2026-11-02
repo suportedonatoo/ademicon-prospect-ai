@@ -1,6 +1,6 @@
 import { requireCtx } from '@/modules/auth/session';
 import { can } from '@/modules/auth/context';
-import { listProspects, trialSearchesLeft } from '@/modules/business-prospecting/prospecting.service';
+import { listProspects, prospectQuality, qualityLevel, trialSearchesLeft } from '@/modules/business-prospecting/prospecting.service';
 import { Badge, Card, Empty, Notice, PageHeader, Table, Td, Th } from '@/components/ui';
 import { ActionButton, FilterBar, Pagination } from '@/components/client';
 import { formatCnpj, formatPhone, isLandlineBR } from '@/lib/normalize';
@@ -20,6 +20,23 @@ const waLink = (phone: string) => {
   const d = phone.replace(/\D/g, '');
   return `https://wa.me/${d.length <= 11 ? `55${d}` : d}`;
 };
+
+/** Selo de qualidade do contato (celular, avaliações, nota e site). */
+function Quality({ p }: { p: { phone: string | null; website: string | null; rating: number | null; reviews: number | null } }) {
+  const q = prospectQuality(p);
+  const level = qualityLevel(q);
+  return (
+    <span className="inline-flex items-center gap-1.5 whitespace-nowrap" title={`Qualidade ${q}/100: celular, avaliações e nota no Google, site`}>
+      <Badge tone={level === 'Alta' ? 'green' : level === 'Média' ? 'amber' : 'gray'}>{level}</Badge>
+      {p.rating != null && (
+        <span className="text-xs text-muted tabular">
+          ★ {p.rating.toFixed(1)}
+          {p.reviews != null ? ` (${p.reviews})` : ''}
+        </span>
+      )}
+    </span>
+  );
+}
 
 /** O Google Maps não informa CNPJ: pesquisa pronta para o consultor achar o número. */
 const cnpjSearch = (p: { name: string; city: string; uf: string }) => `https://www.google.com/search?q=${encodeURIComponent(`"${p.name}" ${p.city} ${p.uf} CNPJ`)}`;
@@ -54,7 +71,10 @@ export default async function EmpresasPage({ searchParams }: { searchParams: Pro
               {today.map((p) => (
                 <li key={p.id} className="px-5 py-3 flex flex-wrap items-center gap-x-4 gap-y-2">
                   <span className="min-w-0 flex-1">
-                    <b className="font-medium block truncate">{p.name}</b>
+                    <span className="flex items-center gap-2 min-w-0">
+                      <b className="font-medium truncate">{p.name}</b>
+                      <Quality p={p} />
+                    </span>
                     <span className="text-xs text-muted block truncate">
                       {p.category} · {p.neighborhood ? `${p.neighborhood} · ` : ''}
                       {p.city}/{p.uf} · <span className="tabular">{formatPhone(p.phone)}</span>
@@ -132,6 +152,7 @@ export default async function EmpresasPage({ searchParams }: { searchParams: Pro
               <thead>
                 <tr>
                   <Th>Empresa</Th>
+                  <Th>Qualidade</Th>
                   <Th>Categoria</Th>
                   <Th>Local</Th>
                   <Th>Contato</Th>
@@ -147,6 +168,9 @@ export default async function EmpresasPage({ searchParams }: { searchParams: Pro
                     <Td>
                       <b className="font-medium">{p.name}</b>
                       {p.website && <div className="text-xs text-muted truncate max-w-56">{p.website}</div>}
+                    </Td>
+                    <Td>
+                      <Quality p={p} />
                     </Td>
                     <Td>
                       {p.category}

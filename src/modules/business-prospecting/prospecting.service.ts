@@ -5,7 +5,7 @@ import type { Ctx } from '../auth/context';
 import { assertCan, systemCtx } from '../auth/context';
 import { providers } from '../integrations/registry';
 import { acquire } from '../leads/acquisition-engine';
-import { normalizeCnpj, normalizePhone } from '@/lib/normalize';
+import { isLandlineBR, normalizeCnpj, normalizePhone } from '@/lib/normalize';
 import type { BusinessResult } from '../integrations/types';
 
 /** Consultor vê as empresas das buscas que ele fez e as que recebeu na lista diária. */
@@ -25,7 +25,35 @@ export const searchInput = z.object({
   size: z.string().max(20).optional(),
   situation: z.string().max(20).optional(),
   limit: z.coerce.number().int().min(1).max(20).default(20), // 20 = uma requisição paga ao Google
+  // Qualidade (Google): o que não passa não é gravado.
+  minRating: z.coerce.number().min(0).max(5).optional(),
+  minReviews: z.coerce.number().int().min(0).max(1000).optional(),
+  onlyMobile: z.boolean().optional(),
+  onlyWebsite: z.boolean().optional(),
 });
+
+/**
+ * Qualidade do contato (0–100): dá para chamar no WhatsApp (celular), empresa estabelecida (muitas
+ * avaliações no Google), bem avaliada e com site. Ordena a lista do dia e aparece como Alta/Média/Baixa.
+ */
+export function prospectQuality(p: { phone?: string | null; website?: string | null; rating?: number | null; reviews?: number | null }) {
+  const reviews = p.reviews ?? 0;
+  const rating = p.rating ?? 0;
+  return Math.min(
+    100,
+    (p.phone ? (isLandlineBR(p.phone) ? 15 : 40) : 0) + (reviews >= 50 ? 30 : reviews >= 20 ? 22 : reviews >= 5 ? 12 : 0) + (rating >= 4.3 ? 15 : rating >= 3.8 ? 8 : 0) + (p.website ? 15 : 0)
+  );
+}
+export const qualityLevel = (q: number) => (q >= 70 ? 'Alta' : q >= 45 ? 'Média' : 'Baixa');
+
+/** Filtros de qualidade da busca manual. */
+export function passesQuality(r: BusinessResult, f: { minRating?: number; minReviews?: number; onlyMobile?: boolean; onlyWebsite?: boolean }) {
+  if (f.onlyMobile && (!r.phone || isLandlineBR(r.phone))) return false;
+  if (f.onlyWebsite && !r.website) return false;
+  if (f.minReviews && (r.reviews ?? 0) < f.minReviews) return false;
+  if (f.minRating && (r.rating ?? 0) < f.minRating) return false;
+  return true;
+}
 
 /** Grava a busca e as empresas ainda não coletadas (mesma referência de fonte = mesma empresa). */
 export async function saveSearchResults(orgId: string, provider: { key: string; name: string; mode: string }, f: object, results: BusinessResult[], createdById: string | null) {
@@ -49,6 +77,8 @@ export async function saveSearchResults(orgId: string, provider: { key: string; 
       uf: r.uf,
       phone: normalizePhone(r.phone) ?? r.phone,
       website: r.website,
+      rating: r.rating ?? null,
+      reviews: r.reviews ?? null,
       cnpj: normalizeCnpj(r.cnpj) ?? null,
       source: provider.name,
       sourceRef: r.sourceRef,
@@ -72,9 +102,10 @@ export async function searchBusinesses(ctx: Ctx, raw: unknown) {
   const f = searchInput.parse(raw);
   if ((await trialSearchesLeft(ctx)) === 0) throw BadRequest(TRIAL_OVER);
   const provider = f.provider === 'google_maps' ? providers.googleMaps : f.provider === 'bing_maps' ? providers.bingMaps : providers.companyRegistry;
-  const results = 'searchBusinesses' in provider ? await provider.searchBusinesses(f) : await provider.search(f);
+  const found = 'searchBusinesses' in provider ? await provider.searchBusinesses(f) : await provider.search(f);
+  const results = found.filter((r) => passesQuality(r, f));
   const { search, added } = await saveSearchResults(ctx.orgId, provider, f, results, ctx.userId);
-  return { search, total: results.length, added, mode: provider.mode };
+  return { search, total: results.length, added, filteredOut: found.length - results.length, mode: provider.mode };
 }
 
 export async function listProspects(ctx: Ctx, opts: { status?: string; city?: string; q?: string; page?: number; day?: Date } = {}) {

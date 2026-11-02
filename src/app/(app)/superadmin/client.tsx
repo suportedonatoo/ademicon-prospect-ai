@@ -25,7 +25,7 @@ export function MenuToggle({ full }: { full: boolean }) {
 type Field = { key: string; label: string; secret: boolean; hint?: string; options?: string[]; source: string | null; display: string | null; updatedAt: string | null; updatedBy: string | null };
 type Group = { id: string; title: string; description: string; docs?: string; fields: Field[] };
 
-const TEST_KEY: Record<string, string> = { whatsapp: 'whatsapp', ai: 'ai', google_ads: 'google_ads', meta: 'meta', maps: 'maps', instagram: 'instagram' };
+const TEST_KEY: Record<string, string> = { whatsapp: 'whatsapp', ai: 'ai', google_ads: 'google_ads', meta: 'meta', maps: 'maps', instagram: 'instagram', cnpj_ai: 'cnpj_ai' };
 
 export function CredentialsGroup({ group }: { group: Group }) {
   const router = useRouter();

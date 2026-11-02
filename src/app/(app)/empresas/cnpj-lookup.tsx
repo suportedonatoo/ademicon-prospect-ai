@@ -7,11 +7,11 @@ import { inputClass } from '@/components/client';
 
 type Company = { legalName: string; tradeName?: string; cnae?: string; size?: string; situation?: string; city?: string; uf?: string; phone?: string; email?: string; partners?: { name: string; role?: string }[] };
 
-/** Consulta de CNPJ no Cadastro Nacional de Empresas (Receita Federal, via BrasilAPI). */
+/** Consulta de CNPJ no Cadastro Nacional de Empresas (Receita Federal, via cnpj.ai ou BrasilAPI). */
 export function CnpjLookup() {
   const [cnpj, setCnpj] = useState('');
   const [busy, setBusy] = useState(false);
-  const [res, setRes] = useState<{ company: Company | null; mode: string } | null>(null);
+  const [res, setRes] = useState<{ company: Company | null; mode: string; source?: string } | null>(null);
   const run = async () => {
     setBusy(true);
     setRes(null);
@@ -77,7 +77,7 @@ export function CnpjLookup() {
                 : '—'}
             </dd>
           </div>
-          {res.mode === 'mock' && <p className="sm:col-span-2 text-xs text-warn">Modo simulado — dados fictícios.</p>}
+          {res.mode === 'mock' ? <p className="sm:col-span-2 text-xs text-warn">Modo simulado — dados fictícios.</p> : res.source && <p className="sm:col-span-2 text-xs text-faint">Fonte: {res.source}</p>}
         </dl>
       )}
     </div>

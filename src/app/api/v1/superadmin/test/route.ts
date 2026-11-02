@@ -7,10 +7,15 @@ import { getAIProvider } from '@/modules/ai/providers';
 /** POST /api/v1/superadmin/test { provider } — testa a conexão agora (healthCheck do provider). */
 export const POST = authed({ rate: 30 }, async ({ req, ctx }) => {
   assertSuperAdmin(ctx);
-  const { provider } = z.object({ provider: z.enum(['whatsapp', 'ai', 'google_ads', 'meta', 'maps', 'instagram']) }).parse(await body(req));
+  const { provider } = z.object({ provider: z.enum(['whatsapp', 'ai', 'google_ads', 'meta', 'maps', 'instagram', 'cnpj_ai']) }).parse(await body(req));
   if (provider === 'maps') {
     const [g, b, c] = await Promise.all([providers.googleMaps.healthCheck(), providers.bingMaps.healthCheck(), providers.companyRegistry.healthCheck()]);
     return { ok: g.ok && c.ok, mode: g.mode, detail: `Google: ${g.detail} · Bing: ${b.detail} · CNPJ: ${c.detail}` };
+  }
+  if (provider === 'cnpj_ai') {
+    const c = providers.companyRegistry;
+    if (c.name.startsWith('cnpj.ai')) return c.healthCheck();
+    return { ok: false, mode: c.mode, detail: `Sem chave do cnpj.ai: a consulta está usando ${c.name}.` };
   }
   if (provider === 'instagram') {
     const { instagramHealth } = await import('@/modules/instagram/instagram.service');

@@ -1,4 +1,5 @@
 import { env } from '@/lib/env';
+import { logger } from '@/lib/logger';
 import type { BusinessResult, BusinessSearchFilters, CompanyRegistryProvider } from '../types';
 import { int, pick, rng } from '../mock-random';
 
@@ -70,6 +71,82 @@ export class RealCompanyRegistryProvider implements CompanyRegistryProvider {
   }
 }
 
+/**
+ * cnpj.ai — API de desenvolvedor (v2), dados da Receita Federal. Chave em Super Admin → Consulta de CNPJ.
+ * Cota da conta: 60 consultas por minuto (todas as chaves somadas; erro também conta).
+ * Se o cnpj.ai falhar (fora do ar, cota, chave recusada), a consulta cai na BrasilAPI para o consultor não ficar
+ * sem resposta; a chave recusada aparece no "Testar conexão" da aba do Super Admin.
+ */
+export class CnpjAiProvider implements CompanyRegistryProvider {
+  key = 'company_registry';
+  name = 'cnpj.ai (Receita Federal)';
+  category = 'registry' as const;
+  mode = 'real' as const;
+  private backup = new RealCompanyRegistryProvider();
+
+  constructor(private apiKey: string) {}
+
+  async healthCheck() {
+    try {
+      const r = await this.fetchCnpj('00000000000191'); // Banco do Brasil (CNPJ público)
+      return { ok: !!r, mode: this.mode, detail: r ? `Chave válida · consulta OK (${r.legalName})` : 'Sem resposta' };
+    } catch (e) {
+      return { ok: false, mode: this.mode, detail: (e as Error).message };
+    }
+  }
+
+  async lookupCnpj(cnpj: string) {
+    try {
+      return await this.fetchCnpj(cnpj);
+    } catch (e) {
+      logger.warn('cnpj_ai.fallback', { error: (e as Error).message });
+      return this.backup.lookupCnpj(cnpj);
+    }
+  }
+
+  private async fetchCnpj(cnpj: string) {
+    const digits = cnpj.replace(/\D/g, '');
+    if (digits.length !== 14) return null;
+    const res = await fetch(`https://api.cnpj.ai/v2/estabelecimentos/${digits}/basic`, {
+      headers: { authorization: `Bearer ${this.apiKey}`, accept: 'application/json' },
+      signal: AbortSignal.timeout(15_000),
+    });
+    if (res.status === 404) return null;
+    const b = (await res.json().catch(() => ({}))) as CnpjAiBody;
+    if (!res.ok) {
+      const why = res.status === 401 ? 'chave do cnpj.ai inválida ou revogada' : res.status === 429 ? 'limite de 60 consultas por minuto do cnpj.ai atingido' : (b.erro?.mensagem ?? `HTTP ${res.status}`);
+      throw new Error(`cnpj.ai: ${why}`);
+    }
+    const est = b.dados?.estabelecimento ?? {};
+    const emp = b.dados?.empresa ?? {};
+    const phone = est.ddd1 && est.telefone1 ? `${est.ddd1}${est.telefone1}` : undefined;
+    return {
+      legalName: emp.razao_social ?? '',
+      tradeName: est.nome_fantasia || undefined,
+      cnae: est.cnae_fiscal_principal ? `${est.cnae_fiscal_principal}${est.descricoes?.cnae_fiscal_principal ? ` · ${est.descricoes.cnae_fiscal_principal}` : ''}` : undefined,
+      size: emp.descricoes?.porte_empresa || emp.porte_empresa || undefined,
+      situation: (est.descricoes?.situacao_cadastral ?? est.situacao_cadastral)?.toUpperCase() || undefined,
+      city: est.descricoes?.municipio || undefined,
+      uf: est.uf || undefined,
+      phone,
+      email: est.correio_eletronico?.toLowerCase() || undefined,
+      partners: (emp.socios?.itens ?? []).filter((s) => s.nome_socio_razao_social).map((s) => ({ name: s.nome_socio_razao_social!, role: s.descricoes?.qualificacao_socio || undefined })),
+    };
+  }
+
+  async search(): Promise<BusinessResult[]> {
+    throw new Error('O cnpj.ai consulta um CNPJ por vez; não busca empresas por cidade/atividade. Use Google Maps e consulte o CNPJ de cada empresa.');
+  }
+}
+
+type CnpjAiBody = {
+  dados?: {
+    estabelecimento?: { nome_fantasia?: string | null; situacao_cadastral?: string | null; cnae_fiscal_principal?: string | null; uf?: string | null; ddd1?: string | null; telefone1?: string | null; correio_eletronico?: string | null; descricoes?: Record<string, string> };
+    empresa?: { razao_social?: string | null; porte_empresa?: string | null; descricoes?: Record<string, string>; socios?: { itens?: { nome_socio_razao_social?: string | null; descricoes?: Record<string, string> }[] } };
+  };
+  erro?: { codigo?: string; mensagem?: string };
+};
+
 const CNAES = [
   ['4120-4/00', 'Construção de edifícios'],
   ['4511-1/01', 'Comércio de automóveis'],
@@ -111,7 +188,8 @@ export class MockCompanyRegistryProvider implements CompanyRegistryProvider {
   }
 }
 
-/** Real por padrão (BrasilAPI é pública); simulado só em testes ou se COMPANY_REGISTRY_PROVIDER=mock. */
+/** cnpj.ai quando há chave; senão BrasilAPI (pública). Simulado só em testes ou se COMPANY_REGISTRY_PROVIDER=mock. */
 export function createCompanyRegistryProvider(): CompanyRegistryProvider {
-  return env.APP_ENV === 'test' || env.COMPANY_REGISTRY_PROVIDER === 'mock' ? new MockCompanyRegistryProvider() : new RealCompanyRegistryProvider();
+  if (env.APP_ENV === 'test' || env.COMPANY_REGISTRY_PROVIDER === 'mock') return new MockCompanyRegistryProvider();
+  return env.CNPJ_AI_API_KEY ? new CnpjAiProvider(env.CNPJ_AI_API_KEY) : new RealCompanyRegistryProvider();
 }

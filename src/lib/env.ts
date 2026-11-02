@@ -67,6 +67,8 @@ const schema = z.object({
   BING_MAPS_API_KEY: z.string().optional(),
   COMPANY_REGISTRY_API_URL: z.string().optional(),
   COMPANY_REGISTRY_API_KEY: z.string().optional(),
+  /** cnpj.ai (API de desenvolvedor): com a chave, a consulta de CNPJ usa o cnpj.ai no lugar da BrasilAPI. */
+  CNPJ_AI_API_KEY: z.string().optional(),
   /** brasilapi (padrão, consulta pública de CNPJ) | mock */
   COMPANY_REGISTRY_PROVIDER: z.enum(['brasilapi', 'mock']).default('brasilapi'),
   /** Endereço público das landings das PJs; {subdomain} é trocado pelo subdomínio da PJ. */

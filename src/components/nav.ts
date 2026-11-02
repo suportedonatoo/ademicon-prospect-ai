@@ -136,6 +136,7 @@ export const SUPER_NAV: NavGroup[] = [
       { label: 'Painel', href: '/superadmin', icon: 'grid' },
       { label: 'Colaboradores', href: '/admin/equipe', icon: 'users' },
       { label: 'Configurar APIs', href: '/superadmin/apis', icon: 'plug' },
+      { label: 'Consulta de CNPJ', href: '/superadmin/cnpj-ai', icon: 'building' },
       { label: 'Saúde do sistema', href: '/superadmin/saude', icon: 'activity' },
       { label: 'Google Ads e Meta Ads', href: '/superadmin/anuncios', icon: 'megaphone' },
       { label: 'Treinamento', href: '/treinamento', icon: 'cap' },

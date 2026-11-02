@@ -1,11 +1,10 @@
-import { isLandlineBR } from '@/lib/normalize';
 import { db } from '@/lib/db';
 import { isProduction } from '@/lib/env';
 import { logger } from '@/lib/logger';
 import { providers } from '../integrations/registry';
 import { googleRequestsLeft } from '../integrations/maps/maps.provider';
 import { notifyConsultant } from '../notifications/notification.service';
-import { saveSearchResults } from './prospecting.service';
+import { prospectQuality, saveSearchResults } from './prospecting.service';
 
 // LISTA DIÁRIA — toda manhã cada consultor recebe até DAILY_TARGET contatos para trabalhar:
 // primeiro os leads que chegaram para ele e ainda estão sem contato; o que faltar é completado com
@@ -102,9 +101,9 @@ export async function buildDailyLists(orgId: string, now = new Date()) {
   const totalNeed = plan.reduce((n, p) => n + p.need, 0);
 
   const refill = totalNeed ? await refillPool(orgId, totalNeed) : { requests: 0, skipped: null };
-  // Celulares primeiro (dá para ligar e chamar no WhatsApp); fixos completam a lista quando faltar.
-  const candidates = await db.businessProspect.findMany({ where: poolWhere(orgId), select: { id: true, phone: true }, orderBy: { collectedAt: 'asc' }, take: totalNeed * 4 });
-  const pool = [...candidates.filter((c) => !isLandlineBR(c.phone)), ...candidates.filter((c) => isLandlineBR(c.phone))].slice(0, totalNeed);
+  // Melhores contatos primeiro: celular (dá para chamar no WhatsApp), empresa estabelecida e bem avaliada.
+  const candidates = await db.businessProspect.findMany({ where: poolWhere(orgId), select: { id: true, phone: true, website: true, rating: true, reviews: true }, orderBy: { collectedAt: 'asc' }, take: totalNeed * 4 });
+  const pool = candidates.sort((a, b) => prospectQuality(b) - prospectQuality(a)).slice(0, totalNeed);
 
   // Rodízio: uma empresa por consultor a cada volta, para faltar igual para todos se o estoque não cobrir.
   const given = new Map<string, string[]>(plan.map((p) => [p.id, []]));

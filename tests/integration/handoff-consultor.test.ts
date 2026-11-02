@@ -33,7 +33,7 @@ describe('Transferência para o consultor dono do lead', () => {
     const r = await receiveInboundMessage(A.org.id, conversation.id, 'Quero falar com um consultor agora');
     expect(r.handoff).toBe(true);
     const ai = await db.message.findMany({ where: { conversationId: conversation.id, senderType: 'AI' } });
-    expect(ai.map((m) => m.content)).toEqual(['Obrigado pelas informações! Agora Anderson continua o seu atendimento por aqui.']);
+    expect(ai.map((m) => m.content)).toEqual(['Obrigado pelas informações! Agora Anderson continua o seu atendimento por aqui ou pelo WhatsApp que você informou.']);
     expect(ai.some((m) => /um consultor/i.test(m.content))).toBe(false);
   });
 
@@ -78,6 +78,27 @@ describe('Transferência para o consultor dono do lead', () => {
     const conv = await db.conversation.findFirstOrThrow({ where: { leadId: first.leadId } });
     await db.message.create({ data: { organizationId: A.org.id, conversationId: conv.id, direction: 'OUTBOUND', senderType: 'HUMAN', content: 'Oi Victor', status: 'SENT' } });
     await ingestLead(ctx, { name: 'Victor Cliente', phone, source: 'LANDING', product: 'IMOVEL', routingHint: `LINK:${luiz.id}`, landingHeat: 'MORNO' });
+    expect((await db.lead.findUniqueOrThrow({ where: { id: first.leadId } })).consultantId).toBe(anderson.id);
+  });
+  it('oportunidade aberta por automação não segura o cliente; a aberta pelo consultor segura', async () => {
+    const { ingestLead } = await import('@/modules/leads/lead-engine');
+    const { systemCtx } = await import('@/modules/auth/context');
+    const { createOpportunity } = await import('@/modules/opportunities/opportunity.service');
+    const ctx = systemCtx(A.org.id, 'Landing');
+    const bia = await db.consultant.create({ data: { organizationId: A.org.id, pjId: A.pjA.id, name: 'Bia Teste', email: `bia-${Date.now()}@t.test`, products: [] } });
+    const phone = uniquePhone();
+    const first = await ingestLead(ctx, { name: 'Carla Cliente', phone, source: 'LANDING', product: 'IMOVEL', routingHint: 'CENTRAL', landingHeat: 'MORNO' });
+    await db.lead.update({ where: { id: first.leadId }, data: { consultantId: bia.id } });
+    // playbook/automação cria a oportunidade sozinho (sem pessoa) → não conta como atendimento
+    await createOpportunity(systemCtx(A.org.id, 'Automação'), { leadId: first.leadId });
+    await ingestLead(ctx, { name: 'Carla Cliente', phone, source: 'LANDING', product: 'IMOVEL', routingHint: `LINK:${anderson.id}`, landingHeat: 'MORNO' });
+    expect((await db.lead.findUniqueOrThrow({ where: { id: first.leadId } })).consultantId).toBe(anderson.id);
+    // oportunidade aberta por uma pessoa (Anderson) → o cliente fica com ele mesmo voltando pela página da Bia
+    await db.opportunity.updateMany({ where: { leadId: first.leadId }, data: { status: 'LOST' } });
+    await db.lead.update({ where: { id: first.leadId }, data: { status: 'ASSIGNED' } });
+    await createOpportunity({ ...systemCtx(A.org.id, 'Anderson'), userId: (await db.user.findFirstOrThrow({ where: { organizationId: A.org.id } })).id }, { leadId: first.leadId });
+    await db.lead.update({ where: { id: first.leadId }, data: { routingHint: `LINK:${anderson.id}` } });
+    await ingestLead(ctx, { name: 'Carla Cliente', phone, source: 'LANDING', product: 'IMOVEL', routingHint: `LINK:${bia.id}`, landingHeat: 'MORNO' });
     expect((await db.lead.findUniqueOrThrow({ where: { id: first.leadId } })).consultantId).toBe(anderson.id);
   });
 });

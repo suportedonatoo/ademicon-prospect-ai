@@ -338,7 +338,8 @@ async function claimByConsultantLink(orgId: string, existing: { id: string; cons
   const worked =
     !!existing.consultantId &&
     ((await db.message.count({ where: { senderType: 'HUMAN', conversation: { leadId: existing.id } } })) > 0 ||
-      (await db.opportunity.count({ where: { leadId: existing.id, status: 'OPEN' } })) > 0);
+      // Oportunidade criada por automação/playbook não conta como atendimento: só a aberta por uma pessoa.
+      (await db.opportunity.count({ where: { leadId: existing.id, status: 'OPEN', activities: { some: { type: 'CREATED', actorId: { not: null } } } } })) > 0);
   if (worked) {
     await db.leadActivity.create({ data: { organizationId: orgId, leadId: existing.id, type: 'NOTE', description: `Simulou de novo pela página de ${consultant.name}; continua com o consultor que já o atende.`, actorType: 'SYSTEM' } });
     return;

@@ -110,13 +110,21 @@ export const CREDENTIAL_GROUPS: CredentialGroup[] = [
   {
     id: 'maps',
     title: 'Mapas e Cadastro de Empresas (prospecção)',
-    description: 'Busca de empresas por categoria e cidade (Google Maps / Bing Maps) e consulta de CNPJ (Receita Federal via BrasilAPI — pública, sem chave).',
+    description: 'Busca de empresas por categoria e cidade (Google Maps / Bing Maps) e consulta de CNPJ (BrasilAPI pública; com a chave do cnpj.ai, na aba Consulta de CNPJ, passa a usar o cnpj.ai).',
     docs: 'https://developers.google.com/maps/documentation/places/web-service/text-search',
     fields: [
       { key: 'GOOGLE_MAPS_API_KEY', label: 'Google Maps API key (Places API New)', secret: true },
       { key: 'BING_MAPS_API_KEY', label: 'Bing Maps key', secret: true, hint: 'Bing Maps for Enterprise (a Microsoft está descontinuando o serviço)' },
       { key: 'COMPANY_REGISTRY_PROVIDER', label: 'Consulta de CNPJ', secret: false, options: ['brasilapi', 'mock'] },
     ],
+  },
+  {
+    // Fica na aba própria do Super Admin (/superadmin/cnpj-ai), não na lista de Configurar APIs.
+    id: 'cnpj_ai',
+    title: 'cnpj.ai — consulta de CNPJ',
+    description: 'Com a chave, a consulta de CNPJ de todos os consultores (Empresas → Consultar CNPJ e enriquecimento dos leads) passa a usar o cnpj.ai. Sem chave, segue a BrasilAPI gratuita.',
+    docs: 'https://cnpj.ai/api',
+    fields: [{ key: 'CNPJ_AI_API_KEY', label: 'Chave da API do cnpj.ai', secret: true }],
   },
 ];
 
