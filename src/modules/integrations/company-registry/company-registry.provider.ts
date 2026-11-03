@@ -1,6 +1,6 @@
 import { env } from '@/lib/env';
 import { logger } from '@/lib/logger';
-import type { BusinessResult, BusinessSearchFilters, CompanyRegistryProvider, CompanyReport } from '../types';
+import type { BusinessResult, BusinessSearchFilters, CompanyNetwork, CompanyRegistryProvider, CompanyReport } from '../types';
 import { int, pick, rng } from '../mock-random';
 
 /**
@@ -135,6 +135,62 @@ export class CnpjAiProvider implements CompanyRegistryProvider {
     };
   }
 
+  /**
+   * Rede societária pela API oficial: sócios da empresa e, quando o sócio é outra empresa, os sócios dela
+   * (até `depth` níveis, no máximo `maxQueries` consultas, cada uma conta na cota). A API não diz em quais
+   * outras empresas uma pessoa é sócia, então a rede só "sobe" pelos sócios.
+   */
+  async network(cnpj: string, depth = 2, maxQueries = 10): Promise<CompanyNetwork | null> {
+    const root = cnpj.replace(/\D/g, '').slice(0, 8);
+    if (root.length !== 8) return null;
+    const nodes = new Map<string, CompanyNetwork['nodes'][number]>();
+    const edges: CompanyNetwork['edges'] = [];
+    const queue: { raiz: string; level: number }[] = [{ raiz: root, level: 0 }];
+    let queries = 0;
+    let truncated = false;
+    while (queue.length) {
+      const { raiz, level } = queue.shift()!;
+      if (queries >= maxQueries) {
+        truncated = true;
+        break;
+      }
+      queries++;
+      const res = await fetch(`https://api.cnpj.ai/v2/empresas/${raiz}/basic?limite=50`, {
+        headers: { authorization: `Bearer ${this.apiKey}`, accept: 'application/json' },
+        signal: AbortSignal.timeout(15_000),
+      });
+      if (res.status === 404 && level > 0) continue;
+      if (res.status === 404) return null;
+      if (!res.ok) throw new Error(res.status === 429 ? 'cnpj.ai: limite de 60 consultas por minuto atingido; tente em 1 minuto' : `cnpj.ai: HTTP ${res.status}`);
+      const emp = ((await res.json()) as CnpjAiBody).dados?.empresa ?? {};
+      const id = `pj:${raiz}`;
+      const node = nodes.get(id) ?? { id, label: '', kind: 'empresa' as const, level, cnpj: raiz };
+      node.label = emp.razao_social || node.label || raiz;
+      nodes.set(id, node);
+      if ((emp.socios?.total ?? 0) > (emp.socios?.itens?.length ?? 0)) truncated = true;
+      for (const s of emp.socios?.itens ?? []) {
+        const doc = (s.cpf_cnpj_socio ?? '').replace(/\D/g, '');
+        // Receita: 1 = pessoa jurídica (documento é o CNPJ inteiro), 2 = pessoa física (CPF mascarado), 3 = estrangeiro.
+        const pj = s.identificador_socio === '1' && doc.length === 14;
+        const pid = pj ? `pj:${doc.slice(0, 8)}` : `pf:${s.cpf_cnpj_socio ?? ''}:${s.nome_socio_razao_social ?? ''}`;
+        if (!nodes.has(pid)) {
+          nodes.set(pid, {
+            id: pid,
+            label: s.nome_socio_razao_social ?? '—',
+            kind: pj ? 'empresa' : s.identificador_socio === '3' ? 'estrangeiro' : 'pessoa',
+            level: level + 1,
+            ...(pj ? { cnpj: doc } : { age: AGE[Number(s.faixa_etaria)] || undefined }),
+          });
+          // Empresa sócia no último nível não é aberta: a rede continua além do que aparece.
+          if (pj && level + 1 < depth) queue.push({ raiz: doc.slice(0, 8), level: level + 1 });
+          else if (pj) truncated = true;
+        }
+        edges.push({ from: pid, to: id, role: s.descricoes?.qualificacao_socio });
+      }
+    }
+    return { nodes: [...nodes.values()], edges, queries, truncated: truncated || queue.length > 0 };
+  }
+
   async search(): Promise<BusinessResult[]> {
     throw new Error('O cnpj.ai consulta um CNPJ por vez; não busca empresas por cidade/atividade. Use Google Maps e consulte o CNPJ de cada empresa.');
   }
@@ -171,7 +227,7 @@ type CnpjAiBody = {
       capital_social?: number | null;
       descricoes?: Record<string, string>;
       simples?: { opcao_simples?: boolean | null; data_opcao_simples?: Str; opcao_mei?: boolean | null } | null;
-      socios?: { total?: number | null; itens?: { nome_socio_razao_social?: Str; data_entrada_sociedade?: Str; faixa_etaria?: Str; descricoes?: Record<string, string> }[] };
+      socios?: { total?: number | null; itens?: { nome_socio_razao_social?: Str; identificador_socio?: Str; cpf_cnpj_socio?: Str; data_entrada_sociedade?: Str; faixa_etaria?: Str; descricoes?: Record<string, string> }[] };
     };
     registros_publicos?: Record<string, Record<string, { status: CompanyReport['sources'][number]['status']; total?: number | null; competencia?: Str; carregada_em?: Str; itens?: Record<string, unknown>[]; proveniencia?: { fonte?: string } }>>;
   };

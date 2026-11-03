@@ -1,8 +1,8 @@
 'use client';
 
-import type { ReactNode } from 'react';
-import type { CompanyReport } from '@/modules/integrations/types';
-import { toast } from '@/lib/client';
+import { useState, type ReactNode } from 'react';
+import type { CompanyNetwork, CompanyReport } from '@/modules/integrations/types';
+import { api, toast } from '@/lib/client';
 import { Badge, Table, Td, Th, buttonClass, cx } from '@/components/ui';
 
 type Company = { legalName: string; tradeName?: string; size?: string; situation?: string; city?: string; uf?: string; email?: string; report: CompanyReport };
@@ -23,6 +23,7 @@ const STATUS = {
 const TABS = [
   ['receita', 'Receita Federal'],
   ['socios', 'Sócios'],
+  ['rede', 'Rede societária'],
   ['atividades', 'Atividades'],
   ['endereco', 'Endereço e contato'],
   ['cobertura', 'Registros públicos'],
@@ -71,6 +72,102 @@ function Item({ item }: { item: Record<string, unknown> }) {
         </div>
       ))}
     </dl>
+  );
+}
+
+const COL = 290;
+const ROW = 58;
+const BOX = { w: 230, h: 42 };
+const cut = (t: string, n = 30) => (t.length > n ? `${t.slice(0, n - 1)}…` : t);
+
+/** Desenho em colunas: a empresa consultada à esquerda, os sócios à direita, os sócios dos sócios mais à direita. */
+function NetworkGraph({ net }: { net: CompanyNetwork }) {
+  const maxLevel = Math.max(...net.nodes.map((n) => n.level));
+  const pos = new Map<string, { x: number; y: number }>();
+  const order: string[][] = [];
+  for (let l = 0; l <= maxLevel; l++) {
+    // Sócios ficam perto da empresa de que participam.
+    const parentIdx = (id: string) => Math.min(...net.edges.filter((e) => e.from === id).map((e) => order[l - 1]?.indexOf(e.to) ?? 0).filter((i) => i >= 0), 999);
+    order[l] = net.nodes.filter((n) => n.level === l).map((n) => n.id).sort((a, b) => parentIdx(a) - parentIdx(b));
+  }
+  const rows = Math.max(...order.map((c) => c.length));
+  const height = rows * ROW + 20;
+  order.forEach((col, l) => {
+    const top = (height - col.length * ROW) / 2;
+    col.forEach((id, i) => pos.set(id, { x: l * COL + 10, y: top + i * ROW + (ROW - BOX.h) / 2 }));
+  });
+  return (
+    <div className="overflow-x-auto scroll-thin rounded-2xl border border-line bg-chrome">
+      <svg width={(maxLevel + 1) * COL - COL + BOX.w + 20} height={height} className="block min-w-full" role="img" aria-label="Rede societária">
+        {net.edges.map((e, i) => {
+          const a = pos.get(e.from);
+          const b = pos.get(e.to);
+          if (!a || !b) return null;
+          const x1 = a.x;
+          const y1 = a.y + BOX.h / 2;
+          const x2 = b.x + BOX.w;
+          const y2 = b.y + BOX.h / 2;
+          const mid = (x1 + x2) / 2;
+          return (
+            <path key={i} d={`M${x1},${y1} C${mid},${y1} ${mid},${y2} ${x2},${y2}`} className="fill-none stroke-slate-300" strokeWidth={1.5}>
+              <title>{e.role ?? 'Sócio'}</title>
+            </path>
+          );
+        })}
+        {net.nodes.map((n) => {
+          const p = pos.get(n.id)!;
+          const root = n.level === 0;
+          const company = n.kind === 'empresa';
+          return (
+            <g key={n.id} transform={`translate(${p.x},${p.y})`}>
+              <title>{[n.label, n.cnpj && (n.cnpj.length === 14 ? cnpjMask(n.cnpj) : `CNPJ raiz ${n.cnpj}`), n.age].filter(Boolean).join('\n')}</title>
+              <rect width={BOX.w} height={BOX.h} rx={company ? 10 : 21} className={root ? 'fill-ink' : company ? 'fill-brand-50 stroke-brand-500' : 'fill-surface stroke-line'} strokeWidth={1.5} />
+              <text x={14} y={17} className={cx('text-[12px] font-semibold', root ? 'fill-white' : 'fill-ink')}>
+                {cut(n.label)}
+              </text>
+              <text x={14} y={32} className={cx('text-[10.5px]', root ? 'fill-lime' : 'fill-muted')}>
+                {root ? 'Empresa consultada' : company ? 'Empresa sócia' : n.kind === 'estrangeiro' ? 'Sócio estrangeiro' : `Pessoa física${n.age ? ` · ${n.age}` : ''}`}
+              </text>
+            </g>
+          );
+        })}
+      </svg>
+    </div>
+  );
+}
+
+function Network({ cnpj }: { cnpj: string }) {
+  const [net, setNet] = useState<CompanyNetwork | null>(null);
+  const [busy, setBusy] = useState(false);
+  const run = async () => {
+    setBusy(true);
+    try {
+      const r = await api<{ network: CompanyNetwork | null }>(`/prospecting/cnpj/rede?cnpj=${cnpj}`);
+      if (!r.network) toast('Rede societária não encontrada.', 'error');
+      setNet(r.network);
+    } catch (e) {
+      toast((e as Error).message, 'error');
+    } finally {
+      setBusy(false);
+    }
+  };
+  if (!net)
+    return (
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <p className="text-sm text-muted max-w-2xl">Mostra os sócios desta empresa e, quando um sócio é outra empresa, os sócios dela também. Usa até 10 consultas da cota do cnpj.ai.</p>
+        <button className={buttonClass('primary', 'sm')} onClick={run} disabled={busy}>
+          {busy ? 'Montando…' : 'Montar rede societária'}
+        </button>
+      </div>
+    );
+  return (
+    <div className="space-y-3">
+      <NetworkGraph net={net} />
+      <p className="text-xs text-muted">
+        {net.nodes.length} participantes · {net.queries} consulta{net.queries === 1 ? '' : 's'} ao cnpj.ai. Passe o mouse sobre um nome ou uma linha para ver CNPJ e qualificação.
+        {net.truncated && ' A rede é maior que o limite desta consulta; parte dela não aparece.'} A Receita não informa em quais outras empresas uma pessoa física é sócia.
+      </p>
+    </div>
   );
 }
 
@@ -216,6 +313,10 @@ export function CompanyReportPanel({ company }: { company: Company }) {
         ) : (
           <p className="text-sm text-muted">A Receita não informa sócios para esta empresa.</p>
         )}
+      </Box>
+
+      <Box id="rede" title="Rede societária" aside="Fonte: cnpj.ai">
+        <Network cnpj={r.cnpj} />
       </Box>
 
       <Box id="cobertura" title="Registros públicos" aside="Fonte: cnpj.ai">

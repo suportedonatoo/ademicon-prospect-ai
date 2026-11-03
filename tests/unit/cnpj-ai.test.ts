@@ -64,3 +64,28 @@ describe('cnpj.ai', () => {
     expect(r?.legalName).toBe('PADARIA PAO DOURADO LTDA');
   });
 });
+
+describe('cnpj.ai · rede societária', () => {
+  const empresa = (razao: string, socios: { nome: string; tipo: '1' | '2'; doc: string }[]) =>
+    reply(200, { dados: { empresa: { razao_social: razao, socios: { total: socios.length, itens: socios.map((s) => ({ nome_socio_razao_social: s.nome, identificador_socio: s.tipo, cpf_cnpj_socio: s.doc, faixa_etaria: '4', descricoes: { qualificacao_socio: 'Sócio' } })) } } } });
+
+  it('sobe pelos sócios que são empresas, até 2 níveis', async () => {
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce(empresa('ALFA LTDA', [{ nome: 'JOAO', tipo: '2', doc: '***123456**' }, { nome: 'HOLDING BETA SA', tipo: '1', doc: '22222222000100' }]))
+      .mockResolvedValueOnce(empresa('HOLDING BETA SA', [{ nome: 'MARIA', tipo: '2', doc: '***654321**' }, { nome: 'GAMA PARTICIPACOES', tipo: '1', doc: '33333333000100' }]));
+    vi.stubGlobal('fetch', fetchMock);
+    const net = (await new CnpjAiProvider('k').network('11.111.111/0001-91'))!;
+    expect(fetchMock.mock.calls.map((c) => String(c[0]))).toEqual(['https://api.cnpj.ai/v2/empresas/11111111/basic?limite=50', 'https://api.cnpj.ai/v2/empresas/22222222/basic?limite=50']);
+    expect(net.nodes.map((n) => [n.label, n.kind, n.level])).toEqual([
+      ['ALFA LTDA', 'empresa', 0],
+      ['JOAO', 'pessoa', 1],
+      ['HOLDING BETA SA', 'empresa', 1],
+      ['MARIA', 'pessoa', 2],
+      ['GAMA PARTICIPACOES', 'empresa', 2],
+    ]);
+    expect(net.edges).toContainEqual({ from: 'pj:22222222', to: 'pj:11111111', role: 'Sócio' });
+    expect(net.queries).toBe(2);
+    expect(net.truncated).toBe(true); // GAMA é empresa sócia no último nível e não foi aberta
+  });
+});

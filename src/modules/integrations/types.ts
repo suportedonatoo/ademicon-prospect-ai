@@ -98,9 +98,19 @@ export interface CompanyReport {
   sources: { group: string; org: string; name: string; status: 'encontrado' | 'sem_ocorrencia' | 'indisponivel' | 'erro'; total: number; date?: string; items: Record<string, unknown>[] }[];
 }
 
+/** Rede societária: quem é sócio de quem, a partir de uma empresa (sócios de sócios que são empresas). */
+export interface CompanyNetwork {
+  nodes: { id: string; label: string; kind: 'empresa' | 'pessoa' | 'estrangeiro'; level: number; cnpj?: string; age?: string }[];
+  edges: { from: string; to: string; role?: string }[];
+  queries: number;
+  truncated: boolean;
+}
+
 export interface CompanyRegistryProvider extends IntegrationProvider {
   lookupCnpj(cnpj: string): Promise<{ legalName: string; tradeName?: string; cnae?: string; size?: string; situation?: string; city?: string; uf?: string; phone?: string; email?: string; partners?: { name: string; role?: string }[]; report?: CompanyReport } | null>;
   search(filters: BusinessSearchFilters): Promise<BusinessResult[]>;
+  /** Só o cnpj.ai monta a rede. */
+  network?(cnpj: string): Promise<CompanyNetwork | null>;
 }
 
 // ── WhatsApp ──
