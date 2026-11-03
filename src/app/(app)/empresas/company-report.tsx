@@ -75,10 +75,9 @@ function Item({ item }: { item: Record<string, unknown> }) {
   );
 }
 
-const COL = 290;
+const COL = 340;
 const ROW = 58;
-const BOX = { w: 230, h: 42 };
-const cut = (t: string, n = 30) => (t.length > n ? `${t.slice(0, n - 1)}…` : t);
+const BOX = { w: 280, h: 42 };
 
 /** Desenho em colunas: a empresa consultada à esquerda, os sócios à direita, os sócios dos sócios mais à direita. */
 function NetworkGraph({ net }: { net: CompanyNetwork }) {
@@ -122,12 +121,13 @@ function NetworkGraph({ net }: { net: CompanyNetwork }) {
             <g key={n.id} transform={`translate(${p.x},${p.y})`}>
               <title>{[n.label, n.cnpj && (n.cnpj.length === 14 ? cnpjMask(n.cnpj) : `CNPJ raiz ${n.cnpj}`), n.age].filter(Boolean).join('\n')}</title>
               <rect width={BOX.w} height={BOX.h} rx={company ? 10 : 21} className={root ? 'fill-ink' : company ? 'fill-brand-50 stroke-brand-500' : 'fill-surface stroke-line'} strokeWidth={1.5} />
-              <text x={14} y={17} className={cx('text-[12px] font-semibold', root ? 'fill-white' : 'fill-ink')}>
-                {cut(n.label)}
-              </text>
-              <text x={14} y={32} className={cx('text-[10.5px]', root ? 'fill-lime' : 'fill-muted')}>
-                {root ? 'Empresa consultada' : company ? 'Empresa sócia' : n.kind === 'estrangeiro' ? 'Sócio estrangeiro' : `Pessoa física${n.age ? ` · ${n.age}` : ''}`}
-              </text>
+              {/* HTML dentro do SVG: o navegador corta o nome com "…" na largura real da caixa. */}
+              <foreignObject x={14} y={5} width={BOX.w - 24} height={BOX.h - 8}>
+                <div className={cx('truncate text-[12px] font-semibold leading-[16px]', root ? 'text-white' : 'text-ink')}>{n.label}</div>
+                <div className={cx('truncate text-[10.5px] leading-[14px]', root ? 'text-lime' : 'text-muted')}>
+                  {root ? 'Empresa consultada' : company ? 'Empresa sócia' : n.kind === 'estrangeiro' ? 'Sócio estrangeiro' : `Pessoa física${n.age ? ` · ${n.age}` : ''}`}
+                </div>
+              </foreignObject>
             </g>
           );
         })}
