@@ -79,8 +79,27 @@ export interface MapsProvider extends IntegrationProvider {
   searchBusinesses(filters: BusinessSearchFilters): Promise<BusinessResult[]>;
 }
 
+/** Ficha completa da empresa (só o cnpj.ai entrega): cadastro da Receita + registros públicos (PGFN, CGU, MTE, Ibama…). */
+export interface CompanyReport {
+  cnpj: string;
+  unit?: string;
+  situationSince?: string;
+  startDate?: string;
+  legalNature?: string;
+  capital?: number;
+  simples?: { simples: boolean | null; simplesSince?: string; mei: boolean | null };
+  baseMonth?: string;
+  mainActivity?: { code: string; desc?: string };
+  otherActivities: { code: string; desc?: string }[];
+  address?: string;
+  phones: string[];
+  partners: { name: string; type?: string; role?: string; age?: string; since?: string }[];
+  partnersTotal: number;
+  sources: { group: string; org: string; name: string; status: 'encontrado' | 'sem_ocorrencia' | 'indisponivel' | 'erro'; total: number; date?: string; items: Record<string, unknown>[] }[];
+}
+
 export interface CompanyRegistryProvider extends IntegrationProvider {
-  lookupCnpj(cnpj: string): Promise<{ legalName: string; tradeName?: string; cnae?: string; size?: string; situation?: string; city?: string; uf?: string; phone?: string; email?: string; partners?: { name: string; role?: string }[] } | null>;
+  lookupCnpj(cnpj: string): Promise<{ legalName: string; tradeName?: string; cnae?: string; size?: string; situation?: string; city?: string; uf?: string; phone?: string; email?: string; partners?: { name: string; role?: string }[]; report?: CompanyReport } | null>;
   search(filters: BusinessSearchFilters): Promise<BusinessResult[]>;
 }
 

@@ -1,0 +1,593 @@
+{
+  "dados": {
+    "empresa": {
+      "cnpj_basico": "11111111",
+      "razao_social": "PADARIA PAO DOURADO LTDA",
+      "natureza_juridica": "2062",
+      "qualificacao_responsavel": "05",
+      "capital_social": 100000.0,
+      "porte_empresa": "01",
+      "ente_federativo_responsavel": null,
+      "descricoes": {
+        "natureza_juridica": "Sociedade Empresária Limitada",
+        "qualificacao_responsavel": "",
+        "porte_empresa": "ME"
+      },
+      "socios": {
+        "itens": [
+          {
+            "cnpj_basico": "11111111",
+            "identificador_socio": "2",
+            "nome_socio_razao_social": "JOAO DA SILVA",
+            "cpf_cnpj_socio": "***123456**",
+            "qualificacao_socio": "49",
+            "data_entrada_sociedade": "2015-06-10",
+            "pais": null,
+            "representante_legal": null,
+            "nome_representante": null,
+            "qualificacao_representante_legal": null,
+            "faixa_etaria": "4",
+            "descricoes": {
+              "qualificacao_socio": "Sócio-Administrador",
+              "identificador_socio": "Pessoa Física"
+            }
+          },
+          {
+            "cnpj_basico": "11111111",
+            "identificador_socio": "2",
+            "nome_socio_razao_social": "MARIA OLIVEIRA",
+            "cpf_cnpj_socio": "***654321**",
+            "qualificacao_socio": "22",
+            "data_entrada_sociedade": "2015-06-10",
+            "pais": null,
+            "representante_legal": null,
+            "nome_representante": null,
+            "qualificacao_representante_legal": null,
+            "faixa_etaria": "4",
+            "descricoes": {
+              "qualificacao_socio": "Sócio",
+              "identificador_socio": "Pessoa Física"
+            }
+          }
+        ],
+        "total": 2,
+        "proximo_cursor": null,
+        "proxima_url": null
+      },
+      "simples": null
+    },
+    "estabelecimento": {
+      "cnpj_basico": "11111111",
+      "cnpj_ordem": "0001",
+      "cnpj_dv": "91",
+      "identificador_matriz_filial": "1",
+      "nome_fantasia": "PAO DOURADO",
+      "situacao_cadastral": "02",
+      "data_situacao_cadastral": "2020-01-01",
+      "motivo_situacao_cadastral": "00",
+      "nome_cidade_exterior": null,
+      "pais": null,
+      "data_inicio_atividade": "2015-06-10",
+      "cnae_fiscal_principal": "4721102",
+      "cnae_fiscal_secundaria": null,
+      "tipo_logradouro": "RUA",
+      "logradouro": "DAS FLORES",
+      "numero": "100",
+      "complemento": null,
+      "bairro": "CENTRO",
+      "cep": "90000000",
+      "uf": "RS",
+      "municipio": "8801",
+      "ddd1": "51",
+      "telefone1": "33334444",
+      "ddd2": null,
+      "telefone2": null,
+      "ddd_fax": null,
+      "fax": null,
+      "correio_eletronico": "contato@paodourado.com.br",
+      "situacao_especial": null,
+      "data_situacao_especial": null,
+      "cnpj": "11111111000191",
+      "descricoes": {
+        "situacao_cadastral": "Ativa",
+        "motivo_situacao_cadastral": "Sem motivo",
+        "municipio": "PORTO ALEGRE",
+        "cnae_fiscal_principal": "Padaria e confeitaria",
+        "identificador_matriz_filial": "Matriz"
+      }
+    },
+    "registros_publicos": {
+      "divida_ativa_uniao": {
+        "pgfn": {
+          "itens": [
+            {
+              "cnpj_basico": "11111111",
+              "cnpj_fonte": "11111111000191",
+              "tipo_devedor": "PRINCIPAL",
+              "numero_inscricao": "IN-11111111-FGTS",
+              "origem": "FGTS",
+              "tipo_situacao_inscricao": "Em cobrança",
+              "situacao_inscricao": "INSCRITA",
+              "receita_principal": "Contribuições FGTS",
+              "data_inscricao": "20190730",
+              "indicador_ajuizado": "NAO",
+              "valor_consolidado": 50000.0,
+              "em_cobranca": true
+            },
+            {
+              "cnpj_basico": "11111111",
+              "cnpj_fonte": "11111111000191",
+              "tipo_devedor": "PRINCIPAL",
+              "numero_inscricao": "IN-11111111-NAO_PREV",
+              "origem": "NAO_PREV",
+              "tipo_situacao_inscricao": "Benefício fiscal",
+              "situacao_inscricao": "INSCRITA",
+              "receita_principal": null,
+              "data_inscricao": "20190730",
+              "indicador_ajuizado": "NAO",
+              "valor_consolidado": 12345.67,
+              "em_cobranca": false
+            }
+          ],
+          "total": 2,
+          "proximo_cursor": null,
+          "proxima_url": null,
+          "fonte": "pgfn",
+          "status": "encontrado",
+          "escopo": "estabelecimento",
+          "documento": "11111111000191",
+          "competencia": "2026_trimestre_01",
+          "carregada_em": "2026-07-09",
+          "cobertura_inicio": null,
+          "desatualizada": null,
+          "proveniencia": {
+            "fonte": "PGFN — Dívida ativa da União",
+            "url": "https://dadosabertos.pgfn.gov.br",
+            "nota": "Inscrições por titular e tipo de devedor, inclusive corresponsáveis. Valores não são somados entre papéis. Datas de inscrição usam AAAAMMDD na carga.",
+            "licenca": null,
+            "licenca_url": null,
+            "metodologia_url": null
+          }
+        }
+      },
+      "sancoes_impedimentos_acordos": {
+        "ceis": {
+          "itens": [
+            {
+              "id_registro": "CEIS-1",
+              "cnpj_basico": "11111111",
+              "cnpj_fonte": "11111111000191",
+              "processo": "PROC-CEIS",
+              "categoria": "Suspensão",
+              "data_inicio": "2026-01-01",
+              "data_fim": "2027-01-01",
+              "data_publicacao": "2026-01-05",
+              "publicacao": "DOU",
+              "abrangencia": "Federal",
+              "orgao": "MINISTÉRIO TESTE",
+              "uf_orgao": "DF",
+              "esfera_orgao": "Federal",
+              "fundamentacao": "Lei 14.133/2021",
+              "origem": "CGU"
+            }
+          ],
+          "total": 1,
+          "proximo_cursor": null,
+          "proxima_url": null,
+          "fonte": "ceis",
+          "status": "encontrado",
+          "escopo": "estabelecimento",
+          "documento": "11111111000191",
+          "competencia": "2026-08",
+          "carregada_em": "2026-08-22",
+          "cobertura_inicio": null,
+          "desatualizada": false,
+          "proveniencia": {
+            "fonte": "CGU — CEIS",
+            "url": "https://portaldatransparencia.gov.br/download-de-dados/ceis",
+            "nota": "Fotografia do cadastro. A abrangência e o titular são os informados pela fonte; ausência não equivale a certidão.",
+            "licenca": null,
+            "licenca_url": null,
+            "metodologia_url": null
+          }
+        },
+        "cnep": {
+          "itens": [
+            {
+              "id_registro": "CNEP-LEN",
+              "cnpj_basico": "11111111",
+              "cnpj_fonte": "11111111000191",
+              "processo": "PROC-LEN",
+              "categoria": "Acordo de leniência",
+              "valor_multa": 0.0,
+              "data_inicio": "2025-01-01",
+              "data_fim": "2028-01-01",
+              "data_publicacao": "2025-01-02",
+              "publicacao": "DOU",
+              "abrangencia": "Federal",
+              "orgao": "CGU",
+              "uf_orgao": "DF",
+              "esfera_orgao": "Federal",
+              "fundamentacao": "Lei 12.846/2013",
+              "origem": "CGU",
+              "eh_acordo_leniencia": true
+            }
+          ],
+          "total": 1,
+          "proximo_cursor": null,
+          "proxima_url": null,
+          "fonte": "cnep",
+          "status": "encontrado",
+          "escopo": "estabelecimento",
+          "documento": "11111111000191",
+          "competencia": "2026-08",
+          "carregada_em": "2026-08-22",
+          "cobertura_inicio": null,
+          "desatualizada": false,
+          "proveniencia": {
+            "fonte": "CGU — CNEP",
+            "url": "https://portaldatransparencia.gov.br/download-de-dados/cnep",
+            "nota": "Registros individuais, inclusive acordos também publicados na fonte de leniência. Não somar as duas fontes como ocorrências distintas.",
+            "licenca": null,
+            "licenca_url": null,
+            "metodologia_url": null
+          }
+        },
+        "cepim": {
+          "itens": [],
+          "total": 0,
+          "proximo_cursor": null,
+          "proxima_url": null,
+          "fonte": "cepim",
+          "status": "sem_ocorrencia",
+          "escopo": "estabelecimento",
+          "documento": "11111111000191",
+          "competencia": "2026-08",
+          "carregada_em": "2026-08-22",
+          "cobertura_inicio": null,
+          "desatualizada": false,
+          "proveniencia": {
+            "fonte": "CGU — CEPIM",
+            "url": "https://portaldatransparencia.gov.br/download-de-dados/cepim",
+            "nota": "Fotografia do cadastro de entidades privadas sem fins lucrativos impedidas. Preserva convênio e motivo.",
+            "licenca": null,
+            "licenca_url": null,
+            "metodologia_url": null
+          }
+        },
+        "acordos_leniencia": {
+          "itens": [
+            {
+              "id_registro": "LEN-1:11111111",
+              "id_fonte": "LEN-1",
+              "cnpj_basico": "11111111",
+              "cnpj_fonte": "11111111000191",
+              "processo": "PROC-LEN",
+              "data_inicio": "2025-01-01",
+              "data_fim": "2028-01-01",
+              "orgao": "CGU/AGU",
+              "uf": "DF",
+              "situacao": "Em execução",
+              "origem": "CGU"
+            }
+          ],
+          "total": 1,
+          "proximo_cursor": null,
+          "proxima_url": null,
+          "fonte": "acordos_leniencia",
+          "status": "encontrado",
+          "escopo": "estabelecimento",
+          "documento": "11111111000191",
+          "competencia": "2026-08",
+          "carregada_em": "2026-08-22",
+          "cobertura_inicio": null,
+          "desatualizada": false,
+          "proveniencia": {
+            "fonte": "CGU/AGU — Acordos de leniência",
+            "url": "https://portaldatransparencia.gov.br/download-de-dados/acordos-leniencia",
+            "nota": "Acordos são apresentados de forma informativa; podem compartilhar processo com registros do CNEP.",
+            "licenca": null,
+            "licenca_url": null,
+            "metodologia_url": null
+          }
+        }
+      },
+      "trabalho_analogo_escravidao": {
+        "mte_empregadores": {
+          "itens": [
+            {
+              "id_registro": "MTE-LISTA-1",
+              "id_fonte": "1",
+              "cnpj_basico": "11111111",
+              "cnpj_fonte": "11111111000191",
+              "ano_acao_fiscal": 2025,
+              "uf": "PE",
+              "empregador": "AÇAÍ DO NORTE EIRELI",
+              "estabelecimento": "OBRA TESTE, RECIFE/PE",
+              "trabalhadores_envolvidos": 4,
+              "cnae": "4120-4/00",
+              "data_decisao": "2026-02-01",
+              "historico_inclusao": "06/04/2026",
+              "data_inclusao_atual": "2026-04-06"
+            }
+          ],
+          "total": 1,
+          "proximo_cursor": null,
+          "proxima_url": null,
+          "fonte": "mte_empregadores",
+          "status": "encontrado",
+          "escopo": "estabelecimento",
+          "documento": "11111111000191",
+          "competencia": "2026-08-19",
+          "carregada_em": "2026-08-22",
+          "cobertura_inicio": null,
+          "desatualizada": false,
+          "proveniencia": {
+            "fonte": "MTE — Cadastro de empregadores",
+            "url": "https://www.gov.br/trabalho-e-emprego/pt-br/assuntos/inspecao-do-trabalho/areas-de-atuacao/combate-ao-trabalho-escravo-e-analogo-ao-de-escravo",
+            "nota": "Cadastro publicado após decisão administrativa definitiva. Histórico de inclusão preservado como texto; datas data_* em ISO.",
+            "licenca": null,
+            "licenca_url": null,
+            "metodologia_url": null
+          }
+        },
+        "mte_ceac": {
+          "itens": [],
+          "total": 0,
+          "proximo_cursor": null,
+          "proxima_url": null,
+          "fonte": "mte_ceac",
+          "status": "sem_ocorrencia",
+          "escopo": "estabelecimento",
+          "documento": "11111111000191",
+          "competencia": "2026-08-14",
+          "carregada_em": "2026-08-22",
+          "cobertura_inicio": null,
+          "desatualizada": false,
+          "proveniencia": {
+            "fonte": "MTE — CEAC",
+            "url": "https://www.gov.br/trabalho-e-emprego/pt-br/assuntos/inspecao-do-trabalho/areas-de-atuacao/combate-ao-trabalho-escravo-e-analogo-ao-de-escravo",
+            "nota": "Cadastro de empregadores que celebraram TAC; separado da Lista de Empregadores. Históricos preservados como texto.",
+            "licenca": null,
+            "licenca_url": null,
+            "metodologia_url": null
+          }
+        }
+      },
+      "habilitacao_aduaneira": {
+        "habilitacao_aduaneira": {
+          "itens": [
+            {
+              "cnpj_basico": "11111111",
+              "razao_social_fonte": "PADARIA PAO DOURADO LTDA",
+              "modalidade_habilitacao": "LIMITADA (ATÉ US$ 50.000)",
+              "limite_habilitacao_usd": 50000,
+              "situacao": "ATIVA",
+              "competencia": "2026-07-08"
+            }
+          ],
+          "total": 1,
+          "proximo_cursor": null,
+          "proxima_url": null,
+          "fonte": "habilitacao_aduaneira",
+          "status": "encontrado",
+          "escopo": "empresa",
+          "documento": "11111111",
+          "competencia": "2026-07-08",
+          "carregada_em": "2026-08-22",
+          "cobertura_inicio": null,
+          "desatualizada": false,
+          "proveniencia": {
+            "fonte": "Receita Federal — Habilitação aduaneira",
+            "url": "https://www.gov.br/receitafederal/dados/intervenientes-aduaneiros/view",
+            "nota": "Fonte identificada apenas por CNPJ básico. Informação da empresa compartilhada entre estabelecimentos; não comprova operação de comércio exterior.",
+            "licenca": null,
+            "licenca_url": null,
+            "metodologia_url": null
+          }
+        }
+      },
+      "fiscalizacao_ambiental": {
+        "ibama_autos": {
+          "itens": [
+            {
+              "id_registro": "IBAMA-AUTO-1",
+              "id_fonte": "9001",
+              "cnpj_basico": "11111111",
+              "cnpj_fonte": "11111111000191",
+              "nome_infrator": "PADARIA PAO DOURADO LTDA",
+              "status_formulario": "Lavrado",
+              "situacao_aie": "Ativo",
+              "cancelado": "N",
+              "numero_auto": "A-100",
+              "serie_auto": "A",
+              "tipo_auto": "Multa",
+              "tipo_multa": "Simples",
+              "valor_multa": 25000.0,
+              "descricao_auto": "Auto de teste",
+              "data_auto": "2026-07-01",
+              "data_ciencia": "2026-07-02",
+              "data_fato": "2026-06-30",
+              "processo": "02000.000001/2026-01",
+              "codigo_infracao": "501",
+              "descricao_infracao": "Descrição da infração",
+              "tipo_infracao": "Administrativa",
+              "municipio": "RECIFE",
+              "uf": "PE",
+              "unidade_controle": "SUPES-PE",
+              "operacao": "Operação teste",
+              "solicitacao_recurso_operacional": null,
+              "operacao_solicitacao_recurso": null,
+              "fase_processual": "Defesa",
+              "recurso": "Recurso pendente",
+              "decisao": null,
+              "decisao_definitiva": null,
+              "origem_registro": "SIFISC",
+              "atualizado_em": "2026-08-21"
+            }
+          ],
+          "total": 1,
+          "proximo_cursor": null,
+          "proxima_url": null,
+          "fonte": "ibama_autos",
+          "status": "encontrado",
+          "escopo": "estabelecimento",
+          "documento": "11111111000191",
+          "competencia": "2026-08-21",
+          "carregada_em": "2026-08-22",
+          "cobertura_inicio": null,
+          "desatualizada": false,
+          "proveniencia": {
+            "fonte": "Ibama — Autos de infração",
+            "url": "https://dadosabertos.ibama.gov.br",
+            "nota": "Auto, recurso e decisão são atos distintos. Não infere condenação definitiva. Datas preservadas em ISO quando disponíveis.",
+            "licenca": null,
+            "licenca_url": null,
+            "metodologia_url": null
+          }
+        },
+        "ibama_embargos": {
+          "itens": [],
+          "total": 0,
+          "proximo_cursor": null,
+          "proxima_url": null,
+          "fonte": "ibama_embargos",
+          "status": "sem_ocorrencia",
+          "escopo": "estabelecimento",
+          "documento": "11111111000191",
+          "competencia": "2026-08-20",
+          "carregada_em": "2026-08-22",
+          "cobertura_inicio": null,
+          "desatualizada": false,
+          "proveniencia": {
+            "fonte": "Ibama — Embargos",
+            "url": "https://dadosabertos.ibama.gov.br",
+            "nota": "Termos de embargo, áreas e estados processuais são preservados. Fonte ausente é indisponível, não sem ocorrência.",
+            "licenca": null,
+            "licenca_url": null,
+            "metodologia_url": null
+          }
+        }
+      },
+      "rntrc": {
+        "rntrc": {
+          "itens": [
+            {
+              "numero_rntrc": "00123456",
+              "cnpj_basico": "11111111",
+              "cnpj_fonte": "11111111000191",
+              "nome_transportador": "PADARIA PAO DOURADO LTDA",
+              "categoria_transportador": "ETC",
+              "situacao_rntrc": "ATIVO",
+              "municipio": "PORTO ALEGRE",
+              "uf": "RS",
+              "cep": "90000000",
+              "equiparado": "NAO",
+              "data_primeiro_cadastro": "2021-05-06",
+              "data_situacao_rntrc": "2026-08-10"
+            }
+          ],
+          "total": 1,
+          "proximo_cursor": null,
+          "proxima_url": null,
+          "fonte": "rntrc",
+          "status": "encontrado",
+          "escopo": "estabelecimento",
+          "documento": "11111111000191",
+          "competencia": "2026-07",
+          "carregada_em": "2026-08-22",
+          "cobertura_inicio": null,
+          "desatualizada": false,
+          "proveniencia": {
+            "fonte": "ANTT — RNTRC",
+            "url": "https://dados.antt.gov.br/dataset/rntrc",
+            "nota": "Somente empresas e cooperativas. Categoria e situação cadastral não comprovam uma operação de transporte. Datas em ISO.",
+            "licenca": null,
+            "licenca_url": null,
+            "metodologia_url": null
+          }
+        }
+      },
+      "contratos_publicos": {
+        "pncp": {
+          "itens": [],
+          "total": 0,
+          "proximo_cursor": null,
+          "proxima_url": null,
+          "fonte": "pncp",
+          "status": "sem_ocorrencia",
+          "escopo": "estabelecimento",
+          "documento": "11111111000191",
+          "competencia": "2026-08-20",
+          "carregada_em": "2026-08-22",
+          "cobertura_inicio": "2026-01-01",
+          "desatualizada": false,
+          "proveniencia": {
+            "fonte": "PNCP — Participação em contratos",
+            "url": "https://pncp.gov.br",
+            "nota": "Uma linha por contrato, CNPJ participante e papel. O valor global é do contrato; não representa a parcela do subcontratado. Datas ISO, com horário quando publicado.",
+            "licenca": null,
+            "licenca_url": null,
+            "metodologia_url": null
+          }
+        },
+        "pncp_orgao": {
+          "itens": [],
+          "total": 0,
+          "proximo_cursor": null,
+          "proxima_url": null,
+          "fonte": "pncp_orgao",
+          "status": "sem_ocorrencia",
+          "escopo": "estabelecimento",
+          "documento": "11111111000191",
+          "competencia": "2026-08-20",
+          "carregada_em": "2026-08-22",
+          "cobertura_inicio": "2026-01-01",
+          "desatualizada": false,
+          "proveniencia": {
+            "fonte": "PNCP — Contratos como órgão contratante",
+            "url": "https://pncp.gov.br",
+            "nota": "Contratos em que o CNPJ consultado é o órgão contratante. Não são receitas do órgão. Datas ISO, com horário quando publicado.",
+            "licenca": null,
+            "licenca_url": null,
+            "metodologia_url": null
+          }
+        }
+      },
+      "financiamentos_bndes": {
+        "bndes": {
+          "itens": [],
+          "total": 0,
+          "proximo_cursor": null,
+          "proxima_url": null,
+          "fonte": "bndes",
+          "status": "sem_ocorrencia",
+          "escopo": "estabelecimento",
+          "documento": "11111111000191",
+          "competencia": "2026-08",
+          "carregada_em": "2026-08-25",
+          "cobertura_inicio": "2002-01-01",
+          "desatualizada": false,
+          "proveniencia": {
+            "fonte": "BNDES — Operações de financiamento",
+            "url": "https://dadosabertos.bndes.gov.br/dataset/operacoes-financiamento",
+            "nota": "cnpj_vinculado pode ser inferido nas operações automáticas; documento_fonte e metodo_vinculo preservam a distinção. Casos ambíguos não são vinculados. Uma linha não automática é um subcrédito. Valores contratado e desembolsado usam conversões em datas diferentes. Datas em ISO.",
+            "licenca": "ODbL 1.0",
+            "licenca_url": "https://opendatacommons.org/licenses/odbl/1-0/",
+            "metodologia_url": "https://cnpj.ai/metodologia/bndes"
+          }
+        }
+      }
+    }
+  },
+  "meta": {
+    "versao": "v2",
+    "release": "2.0.0",
+    "recurso": "estabelecimentos",
+    "documento": "11111111000191",
+    "competencia_receita": "2026-07",
+    "fotografia": "exemplo-ficticio",
+    "requisicao_id": "00000000-0000-4000-8000-000000000000",
+    "disponibilidade": "completa"
+  }
+}

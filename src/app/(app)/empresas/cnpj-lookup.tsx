@@ -4,8 +4,10 @@ import { useState } from 'react';
 import { api, toast } from '@/lib/client';
 import { buttonClass } from '@/components/ui';
 import { inputClass } from '@/components/client';
+import type { CompanyReport } from '@/modules/integrations/types';
+import { CompanyReportPanel } from './company-report';
 
-type Company = { legalName: string; tradeName?: string; cnae?: string; size?: string; situation?: string; city?: string; uf?: string; phone?: string; email?: string; partners?: { name: string; role?: string }[] };
+type Company = { legalName: string; tradeName?: string; cnae?: string; size?: string; situation?: string; city?: string; uf?: string; phone?: string; email?: string; partners?: { name: string; role?: string }[]; report?: CompanyReport };
 
 /** Consulta de CNPJ no Cadastro Nacional de Empresas (Receita Federal, via cnpj.ai ou BrasilAPI). */
 export function CnpjLookup() {
@@ -32,7 +34,12 @@ export function CnpjLookup() {
         </button>
       </div>
       {res && !res.company && <p className="text-sm text-muted">CNPJ não encontrado.</p>}
-      {res?.company && (
+      {res?.company?.report && (
+        <div className="-mx-6 -mb-6 mt-4 border-t border-line bg-canvas p-4 sm:p-6 rounded-b-3xl">
+          <CompanyReportPanel company={{ ...res.company, report: res.company.report }} />
+        </div>
+      )}
+      {res?.company && !res.company.report && (
         <dl className="grid sm:grid-cols-2 gap-x-6 gap-y-1 text-sm">
           <div>
             <dt className="text-xs text-muted">Razão social</dt>

@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { CnpjAiProvider } from '@/modules/integrations/company-registry/company-registry.provider';
+import { CnpjAiProvider, cnpjAiReport } from '@/modules/integrations/company-registry/company-registry.provider';
+import full from '../fixtures/cnpj-ai-full.json';
 
 // Resposta no formato do exemplo oficial (cnpj.ai/static/api-v2-exemplo-full.json).
 const sample = {
@@ -19,7 +20,7 @@ describe('cnpj.ai', () => {
     vi.stubGlobal('fetch', fetchMock);
     const r = await new CnpjAiProvider('chave-teste').lookupCnpj('11.111.111/0001-91');
     const [url, init] = fetchMock.mock.calls[0] as unknown as [string, RequestInit];
-    expect(url).toBe('https://api.cnpj.ai/v2/estabelecimentos/11111111000191/basic');
+    expect(url).toBe('https://api.cnpj.ai/v2/estabelecimentos/11111111000191/full');
     expect((init.headers as Record<string, string>).authorization).toBe('Bearer chave-teste');
     expect(r).toEqual({
       legalName: 'PADARIA PAO DOURADO LTDA',
@@ -33,6 +34,16 @@ describe('cnpj.ai', () => {
       email: 'contato@paodourado.com.br',
       partners: [{ name: 'JOAO DA SILVA', role: 'Sócio-Administrador' }],
     });
+  });
+
+  it('ficha completa (exemplo oficial do /full): cadastro, sócios e registros públicos', () => {
+    const r = cnpjAiReport(full as Parameters<typeof cnpjAiReport>[0])!;
+    expect(r).toMatchObject({ cnpj: '11111111000191', unit: 'Matriz', capital: 100000, legalNature: 'Sociedade Empresária Limitada', startDate: '2015-06-10', baseMonth: '2026-07', phones: ['(51) 33334444'] });
+    expect(r.address).toBe('RUA DAS FLORES, 100, CENTRO — PORTO ALEGRE/RS · CEP 90000000');
+    expect(r.partners[0]).toEqual({ name: 'JOAO DA SILVA', type: 'Pessoa Física', role: 'Sócio-Administrador', age: '31 a 40 anos', since: '2015-06-10' });
+    expect(r.sources).toHaveLength(14);
+    expect(r.sources.find((s) => s.name === 'CEIS')).toMatchObject({ group: 'Sanções, impedimentos e acordos', org: 'CGU', status: 'encontrado', total: 1 });
+    expect(r.sources.find((s) => s.name === 'CEPIM')).toMatchObject({ status: 'sem_ocorrencia', total: 0 });
   });
 
   it('CNPJ inexistente → null; chave recusada aparece no teste de conexão', async () => {

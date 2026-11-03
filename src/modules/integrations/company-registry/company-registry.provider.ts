@@ -1,6 +1,6 @@
 import { env } from '@/lib/env';
 import { logger } from '@/lib/logger';
-import type { BusinessResult, BusinessSearchFilters, CompanyRegistryProvider } from '../types';
+import type { BusinessResult, BusinessSearchFilters, CompanyRegistryProvider, CompanyReport } from '../types';
 import { int, pick, rng } from '../mock-random';
 
 /**
@@ -107,7 +107,7 @@ export class CnpjAiProvider implements CompanyRegistryProvider {
   private async fetchCnpj(cnpj: string) {
     const digits = cnpj.replace(/\D/g, '');
     if (digits.length !== 14) return null;
-    const res = await fetch(`https://api.cnpj.ai/v2/estabelecimentos/${digits}/basic`, {
+    const res = await fetch(`https://api.cnpj.ai/v2/estabelecimentos/${digits}/full`, {
       headers: { authorization: `Bearer ${this.apiKey}`, accept: 'application/json' },
       signal: AbortSignal.timeout(15_000),
     });
@@ -131,6 +131,7 @@ export class CnpjAiProvider implements CompanyRegistryProvider {
       phone,
       email: est.correio_eletronico?.toLowerCase() || undefined,
       partners: (emp.socios?.itens ?? []).filter((s) => s.nome_socio_razao_social).map((s) => ({ name: s.nome_socio_razao_social!, role: s.descricoes?.qualificacao_socio || undefined })),
+      report: cnpjAiReport(b),
     };
   }
 
@@ -139,13 +140,98 @@ export class CnpjAiProvider implements CompanyRegistryProvider {
   }
 }
 
+type Str = string | null;
 type CnpjAiBody = {
   dados?: {
-    estabelecimento?: { nome_fantasia?: string | null; situacao_cadastral?: string | null; cnae_fiscal_principal?: string | null; uf?: string | null; ddd1?: string | null; telefone1?: string | null; correio_eletronico?: string | null; descricoes?: Record<string, string> };
-    empresa?: { razao_social?: string | null; porte_empresa?: string | null; descricoes?: Record<string, string>; socios?: { itens?: { nome_socio_razao_social?: string | null; descricoes?: Record<string, string> }[] } };
+    estabelecimento?: {
+      cnpj?: string;
+      nome_fantasia?: Str;
+      situacao_cadastral?: Str;
+      data_situacao_cadastral?: Str;
+      data_inicio_atividade?: Str;
+      cnae_fiscal_principal?: Str;
+      cnae_fiscal_secundaria?: Str;
+      tipo_logradouro?: Str;
+      logradouro?: Str;
+      numero?: Str;
+      complemento?: Str;
+      bairro?: Str;
+      cep?: Str;
+      uf?: Str;
+      ddd1?: Str;
+      telefone1?: Str;
+      ddd2?: Str;
+      telefone2?: Str;
+      correio_eletronico?: Str;
+      descricoes?: Record<string, string>;
+    };
+    empresa?: {
+      razao_social?: Str;
+      porte_empresa?: Str;
+      capital_social?: number | null;
+      descricoes?: Record<string, string>;
+      simples?: { opcao_simples?: boolean | null; data_opcao_simples?: Str; opcao_mei?: boolean | null } | null;
+      socios?: { total?: number | null; itens?: { nome_socio_razao_social?: Str; data_entrada_sociedade?: Str; faixa_etaria?: Str; descricoes?: Record<string, string> }[] };
+    };
+    registros_publicos?: Record<string, Record<string, { status: CompanyReport['sources'][number]['status']; total?: number | null; competencia?: Str; carregada_em?: Str; itens?: Record<string, unknown>[]; proveniencia?: { fonte?: string } }>>;
   };
+  meta?: { competencia_receita?: Str };
   erro?: { codigo?: string; mensagem?: string };
 };
+
+const SOURCE_GROUPS: Record<string, string> = {
+  divida_ativa_uniao: 'Dívida ativa da União',
+  sancoes_impedimentos_acordos: 'Sanções, impedimentos e acordos',
+  trabalho_analogo_escravidao: 'Trabalho análogo à escravidão',
+  habilitacao_aduaneira: 'Habilitação aduaneira',
+  fiscalizacao_ambiental: 'Fiscalização ambiental',
+  rntrc: 'Transportador rodoviário de cargas',
+  contratos_publicos: 'Contratos públicos',
+  financiamentos_bndes: 'Financiamentos do BNDES',
+};
+// Códigos de faixa etária do quadro societário da Receita.
+const AGE = ['', '0 a 12 anos', '13 a 20 anos', '21 a 30 anos', '31 a 40 anos', '41 a 50 anos', '51 a 60 anos', '61 a 70 anos', '71 a 80 anos', 'mais de 80 anos'];
+const phoneOf = (ddd?: Str, n?: Str) => (ddd && n ? `(${ddd}) ${n}` : undefined);
+
+/** Resposta /full do cnpj.ai → ficha do painel de Empresas. */
+export function cnpjAiReport(b: CnpjAiBody): CompanyReport | undefined {
+  const est = b.dados?.estabelecimento;
+  const emp = b.dados?.empresa ?? {};
+  if (!est?.cnpj) return undefined;
+  const d = est.descricoes ?? {};
+  // A Receita manda as secundárias como "4930201,4930202"; descrição quando o cnpj.ai trouxer (por código ou em lista).
+  const codes = (est.cnae_fiscal_secundaria ?? '').split(/[,;\s]+/).filter(Boolean);
+  const descs = (d.cnae_fiscal_secundaria ?? '').split(/\s*[;|]\s*/).filter(Boolean);
+  const simples = emp.simples;
+  return {
+    cnpj: est.cnpj,
+    unit: d.identificador_matriz_filial,
+    situationSince: est.data_situacao_cadastral ?? undefined,
+    startDate: est.data_inicio_atividade ?? undefined,
+    legalNature: emp.descricoes?.natureza_juridica || undefined,
+    capital: emp.capital_social ?? undefined,
+    simples: simples ? { simples: simples.opcao_simples ?? null, simplesSince: simples.data_opcao_simples ?? undefined, mei: simples.opcao_mei ?? null } : undefined,
+    baseMonth: b.meta?.competencia_receita ?? undefined,
+    mainActivity: est.cnae_fiscal_principal ? { code: est.cnae_fiscal_principal, desc: d.cnae_fiscal_principal } : undefined,
+    otherActivities: codes.map((code, i) => ({ code, desc: d[code] ?? (descs.length === codes.length ? descs[i] : undefined) })),
+    address: [[est.tipo_logradouro, est.logradouro].filter(Boolean).join(' '), est.numero, est.complemento, est.bairro].filter(Boolean).join(', ') + (d.municipio ? ` — ${d.municipio}/${est.uf ?? ''}` : '') + (est.cep ? ` · CEP ${est.cep}` : '') || undefined,
+    phones: [phoneOf(est.ddd1, est.telefone1), phoneOf(est.ddd2, est.telefone2)].filter((x): x is string => !!x),
+    partners: (emp.socios?.itens ?? []).map((s) => ({
+      name: s.nome_socio_razao_social ?? '—',
+      type: s.descricoes?.identificador_socio,
+      role: s.descricoes?.qualificacao_socio,
+      age: AGE[Number(s.faixa_etaria)] || undefined,
+      since: s.data_entrada_sociedade ?? undefined,
+    })),
+    partnersTotal: emp.socios?.total ?? emp.socios?.itens?.length ?? 0,
+    sources: Object.entries(b.dados?.registros_publicos ?? {}).flatMap(([group, list]) =>
+      Object.values(list).map((p) => {
+        const [org, name] = (p.proveniencia?.fonte ?? '').split(' — ');
+        return { group: SOURCE_GROUPS[group] ?? group, org: name ? org : '', name: name ?? org, status: p.status, total: p.total ?? p.itens?.length ?? 0, date: p.competencia ?? p.carregada_em ?? undefined, items: p.itens ?? [] };
+      })
+    ),
+  };
+}
 
 const CNAES = [
   ['4120-4/00', 'Construção de edifícios'],
