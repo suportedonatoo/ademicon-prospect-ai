@@ -1,5 +1,6 @@
 'use client';
 
+import { withBase } from '@/lib/base-path';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { api, toast } from '@/lib/client';
@@ -124,10 +125,10 @@ export function ReportBuilder({ spec, options, saved, exportQs }: { spec: Report
         </button>
         {exportQs !== null && (
           <>
-            <a className={buttonClass('secondary')} href={`/api/v1/reports/export?format=csv&${exportQs}`}>
+            <a className={buttonClass('secondary')} href={withBase(`/api/v1/reports/export?format=csv&${exportQs}`)}>
               Exportar CSV
             </a>
-            <a className={buttonClass('secondary')} href={`/api/v1/reports/export?format=xlsx&${exportQs}`}>
+            <a className={buttonClass('secondary')} href={withBase(`/api/v1/reports/export?format=xlsx&${exportQs}`)}>
               XLSX
             </a>
           </>

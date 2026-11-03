@@ -1,5 +1,6 @@
 'use client';
 
+import { withBase } from '@/lib/base-path';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { api, toast } from '@/lib/client';
@@ -91,7 +92,7 @@ export function SendToPhoneButton({ targetType, targetId, size = 'sm' }: { targe
               </div>
             ) : (
               <p className="text-xs text-muted">
-                Nenhum celular conectado. Abra a plataforma no celular e ative as notificações em <a className="text-brand-600 underline" href="/configuracoes/notificacoes">Notificações e dispositivos</a>.
+                Nenhum celular conectado. Abra a plataforma no celular e ative as notificações em <a className="text-brand-600 underline" href={withBase('/configuracoes/notificacoes')}>Notificações e dispositivos</a>.
               </p>
             )}
           </section>
@@ -228,7 +229,7 @@ export function DesktopPermissionButton() {
       onClick={async () => {
         const p = await Notification.requestPermission();
         setPerm(p);
-        if (p === 'granted') new Notification('Notificações ativadas', { body: 'Você será avisado de leads quentes, mensagens e SLA.', icon: '/icon.png' });
+        if (p === 'granted') new Notification('Notificações ativadas', { body: 'Você será avisado de leads quentes, mensagens e SLA.', icon: withBase('/icon.png') });
       }}
     >
       Ativar notificações no computador

@@ -1,3 +1,4 @@
+import { withBase } from '@/lib/base-path';
 import type { ReactNode } from 'react';
 import { Badge, bigValue, cx, type Tone } from './ui';
 
@@ -44,7 +45,7 @@ export function Kpi({ label, value, tone = 'default', hint, href }: { label: str
     </div>
   );
   return href ? (
-    <a href={href} className="block hover:opacity-90">
+    <a href={withBase(href)} className="block hover:opacity-90">
       {body}
     </a>
   ) : (

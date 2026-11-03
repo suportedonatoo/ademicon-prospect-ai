@@ -1,3 +1,4 @@
+import { withBase } from '@/lib/base-path';
 import type { Metadata, Viewport } from 'next';
 import { Geist } from 'next/font/google';
 import { TempPasswords, Toaster } from '@/components/client';
@@ -9,8 +10,8 @@ const geist = Geist({ subsets: ['latin'], variable: '--font-geist', display: 'sw
 export const metadata: Metadata = {
   title: { default: env.APP_NAME, template: `%s · ${env.APP_NAME}` },
   description: 'Plataforma de prospecção, aquisição, IA e gestão comercial.',
-  manifest: '/manifest.webmanifest',
-  icons: { icon: '/icon.png', apple: '/icon.png' },
+  manifest: withBase('/manifest.webmanifest'),
+  icons: { icon: withBase('/icon.png'), apple: withBase('/icon.png') },
   appleWebApp: { capable: true, title: 'Prospect AI', statusBarStyle: 'default' },
 };
 

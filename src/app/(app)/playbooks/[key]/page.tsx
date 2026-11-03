@@ -1,3 +1,4 @@
+import { withBase } from '@/lib/base-path';
 import { notFound } from 'next/navigation';
 import { requireCtx } from '@/modules/auth/session';
 import { can } from '@/modules/auth/context';
@@ -45,7 +46,7 @@ export default async function PlaybookPage({ params, searchParams }: { params: P
               <ul className="divide-y divide-line">
                 {versions.map((v) => (
                   <li key={v.id} className="px-4 py-2.5 flex items-center gap-2 text-sm">
-                    <a href={`/playbooks/${key}?v=${v.version}`} className="font-medium hover:underline">
+                    <a href={withBase(`/playbooks/${key}?v=${v.version}`)} className="font-medium hover:underline">
                       v{v.version}
                     </a>
                     <Badge tone={v.status === 'ACTIVE' ? 'green' : v.status === 'DRAFT' ? 'amber' : 'gray'}>{v.status}</Badge>
@@ -72,7 +73,7 @@ export default async function PlaybookPage({ params, searchParams }: { params: P
                   {runs.map((r) => (
                     <li key={r.id} className="px-4 py-2.5 text-xs">
                       <div className="flex items-center gap-2">
-                        <a href={`/leads/${r.leadId}`} className="font-medium text-sm hover:underline">
+                        <a href={withBase(`/leads/${r.leadId}`)} className="font-medium text-sm hover:underline">
                           {leadNames.get(r.leadId) ?? 'Lead'}
                         </a>
                         <Badge tone={r.status === 'COMPLETED' ? 'green' : r.status === 'CANCELLED' ? 'gray' : 'blue'}>{r.status}</Badge>

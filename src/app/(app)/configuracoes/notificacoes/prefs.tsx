@@ -1,5 +1,6 @@
 'use client';
 
+import { withBase } from '@/lib/base-path';
 import { useCallback, useEffect, useState } from 'react';
 import { api, toast } from '@/lib/client';
 import { Badge, Card, buttonClass } from '@/components/ui';
@@ -218,7 +219,7 @@ export function PreferencesAndDevices() {
             </button>
           )}
           <p className="text-xs text-muted mt-2">
-            Instalação: <a className="text-brand-600 underline" href="/extensao">instruções</a>.
+            Instalação: <a className="text-brand-600 underline" href={withBase('/extensao')}>instruções</a>.
           </p>
         </Card>
       </div>

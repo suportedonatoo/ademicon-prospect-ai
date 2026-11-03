@@ -1,10 +1,11 @@
 import { z } from 'zod';
+import { appUrlWithBase } from './base-path';
 
 // Variáveis de ambiente validadas uma única vez. Segredos nunca são logados.
 const schema = z.object({
   APP_ENV: z.enum(['development', 'staging', 'production', 'test']).default('development'),
   APP_NAME: z.string().default('Ademicon Prospect AI'),
-  APP_URL: z.string().default('http://localhost:3500'),
+  APP_URL: z.string().default('http://localhost:3500').transform(appUrlWithBase),
   SESSION_SECRET: z.string().min(16).default('dev-only-session-secret-change-me'),
   DATABASE_URL: z.string(),
   REDIS_URL: z.string().optional(),
@@ -96,6 +97,8 @@ const blankToUndefined = Object.fromEntries(
 const shared = globalThis as unknown as { __env?: z.infer<typeof schema> };
 export const env = (shared.__env ??= schema.parse(blankToUndefined));
 export const isProduction = env.APP_ENV === 'production';
+/** Domínio sem o prefixo: callbacks de OAuth e webhooks continuam na raiz (/api/* é repassado ao sistema). */
+export const appOrigin = new URL(env.APP_URL).origin;
 
 if (isProduction && env.SESSION_SECRET === 'dev-only-session-secret-change-me') {
   throw new Error('SESSION_SECRET precisa ser definido em produção.');

@@ -62,7 +62,9 @@ function config() {
   const url = process.env.GESTAO_API_URL;
   const key = process.env.LANDING_SERVICE_API_KEY;
   if (!url || !key) throw new GestaoError('Serviço de landing não configurado (GESTAO_API_URL / LANDING_SERVICE_API_KEY).', 503);
-  return { url: url.replace(/\/$/, ''), key };
+  // A gestão responde em /secret-ademicon (chamar direto evita o repasse da raiz do domínio).
+  const base = url.replace(/\/$/, '');
+  return { url: base.endsWith('/secret-ademicon') ? base : `${base}/secret-ademicon`, key };
 }
 
 async function call<T>(subdomain: string | null, path: string, init: { method?: string; body?: unknown; revalidate?: number } = {}): Promise<T> {

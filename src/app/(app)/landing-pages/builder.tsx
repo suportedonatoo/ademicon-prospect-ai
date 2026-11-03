@@ -1,5 +1,6 @@
 'use client';
 
+import { withBase } from '@/lib/base-path';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { api, toast } from '@/lib/client';
@@ -259,7 +260,7 @@ export function LandingBuilder({ id, status, initial, canEdit, canPublish, optio
             <iframe
               key={reloadKey + device}
               title="Preview da landing"
-              src={`/landing/${initial?.slug ?? v.slug}?preview=1`}
+              src={withBase(`/landing/${initial?.slug ?? v.slug}?preview=1`)}
               className={cx('bg-white mx-auto rounded-lg shadow border border-line', device === 'mobile' ? 'w-[390px] h-[760px]' : 'w-full h-[760px]')}
             />
           </div>

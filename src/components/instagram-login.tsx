@@ -1,3 +1,4 @@
+import { withBase } from '@/lib/base-path';
 import { instagramConnectConfigured } from '@/modules/instagram/instagram.service';
 import { Badge, Notice } from '@/components/ui';
 import { ActionButton } from '@/components/client';
@@ -49,7 +50,7 @@ export function InstagramLogin({
           {canManage && (
             <>
               {own && instagramConnectConfigured() && (
-                <a href={`/api/v1/instagram/connect?next=${next}`} className="text-sm text-brand-600 underline">
+                <a href={withBase(`/api/v1/instagram/connect?next=${next}`)} className="text-sm text-brand-600 underline">
                   trocar de conta
                 </a>
               )}
@@ -64,7 +65,7 @@ export function InstagramLogin({
       ) : own ? (
         <div className="flex flex-wrap items-center gap-4">
           <a
-            href={`/api/v1/instagram/connect?next=${next}`}
+            href={withBase(`/api/v1/instagram/connect?next=${next}`)}
             className="inline-flex items-center gap-2.5 rounded-xl px-5 h-12 font-semibold text-white shadow-sm hover:opacity-95"
             style={{ background: 'linear-gradient(45deg, #f58529, #dd2a7b 45%, #8134af 75%, #515bd4)' }}
           >

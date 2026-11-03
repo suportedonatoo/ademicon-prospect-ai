@@ -1,5 +1,6 @@
 'use client';
 
+import { withBase } from '@/lib/base-path';
 import { useState } from 'react';
 import { api } from '@/lib/client';
 import { buttonClass } from '@/components/ui';
@@ -21,7 +22,7 @@ export function LoginForm({ demoAccounts, demoPassword, next = '/' }: { demoAcco
           setError('');
           try {
             await api('/auth/login', { body: { email, password } });
-            window.location.href = next;
+            window.location.href = withBase(next);
           } catch (err) {
             setError((err as Error).message);
             setBusy(false);

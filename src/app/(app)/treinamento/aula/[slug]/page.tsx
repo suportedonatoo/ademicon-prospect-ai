@@ -1,3 +1,4 @@
+import { withBase } from '@/lib/base-path';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import type { ReactNode } from 'react';
@@ -147,7 +148,7 @@ function Blocks({ blocks, done }: { blocks: Block[]; done: Map<string, boolean> 
               </Card>
             );
           case 'figure': {
-            const src = `/api/v1/training/img/${b.src}`;
+            const src = withBase(`/api/v1/training/img/${b.src}`);
             const phone = b.h > b.w * 1.5;
             return (
               <figure key={i} className="rounded-3xl border border-line bg-surface overflow-hidden">

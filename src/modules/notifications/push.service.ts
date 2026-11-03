@@ -1,3 +1,4 @@
+import { withBase } from '@/lib/base-path';
 import webpush from 'web-push';
 import { db } from '@/lib/db';
 import { env } from '@/lib/env';
@@ -66,7 +67,7 @@ export async function deliverPush(notificationId: string) {
   ]);
   const safe = prefs?.hideSensitiveOnLockScreen ?? true;
   const text = safe ? lockScreenText(n.category, n.priority) : { title: n.title, body: n.body ?? '' };
-  const payload: PushPayload = { ...text, url: `/api/v1/notifications/${n.id}/open?via=push`, tag: n.dedupeKey ?? n.id, priority: n.priority };
+  const payload: PushPayload = { ...text, url: withBase(`/api/v1/notifications/${n.id}/open?via=push`), tag: n.dedupeKey ?? n.id, priority: n.priority };
   let sent = 0;
   const ctx = systemCtx(n.organizationId, 'Push');
   for (const d of devices) {

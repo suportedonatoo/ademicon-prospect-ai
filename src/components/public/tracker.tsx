@@ -1,5 +1,6 @@
 'use client';
 
+import { withBase } from '@/lib/base-path';
 import { useEffect } from 'react';
 import { SESSION_KEY } from './simulator-widget';
 
@@ -14,7 +15,7 @@ export function LandingTracker({ slug, disabled }: { slug: string; disabled?: bo
     } catch {
       /* navegação privada */
     }
-    fetch('/api/v1/public/track', {
+    fetch(withBase('/api/v1/public/track'), {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify({

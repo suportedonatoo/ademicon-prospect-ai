@@ -1,5 +1,6 @@
 'use client';
 
+import { withBase } from '@/lib/base-path';
 import { useEffect, useRef, useState } from 'react';
 import { api, toast } from '@/lib/client';
 import { Badge, buttonClass } from '@/components/ui';
@@ -102,7 +103,7 @@ export function InstagramAutoDmForm({ consultantId, consultantName }: { consulta
           <div className="mt-1 rounded-2xl border border-line bg-canvas p-3">
             {d.hasImage ? (
               // eslint-disable-next-line @next/next/no-img-element -- imagem privada do sistema
-              <img src={`/api/v1/instagram/auto-dm/${consultantId}/image?v=${imgV}`} alt="Foto de apresentação" className="w-full rounded-xl" />
+              <img src={withBase(`/api/v1/instagram/auto-dm/${consultantId}/image?v=${imgV}`)} alt="Foto de apresentação" className="w-full rounded-xl" />
             ) : (
               <p className="text-xs text-muted py-6 text-center">Sem foto própria: vai a foto do seu perfil (se houver).</p>
             )}

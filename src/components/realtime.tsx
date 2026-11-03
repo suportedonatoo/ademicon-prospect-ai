@@ -1,5 +1,6 @@
 'use client';
 
+import { withBase } from '@/lib/base-path';
 import { useEffect } from 'react';
 
 // Cliente de TEMPO REAL: uma única conexão SSE por aba (/api/v1/realtime/stream).
@@ -32,7 +33,7 @@ export function RealtimeBridge() {
     let closed = false;
 
     const connect = () => {
-      es = new EventSource('/api/v1/realtime/stream');
+      es = new EventSource(withBase('/api/v1/realtime/stream'));
       es.addEventListener('ready', () => window.dispatchEvent(new CustomEvent('rt:status', { detail: 'online' })));
       es.addEventListener('notification', (ev) => {
         const n = JSON.parse((ev as MessageEvent).data) as RtNotification;
@@ -64,10 +65,10 @@ function showDesktop(n: RtNotification) {
   // Com a aba visível e focada, o sino basta — exceto para alta prioridade.
   if (document.visibilityState === 'visible' && document.hasFocus() && !['HIGH', 'CRITICAL'].includes(n.priority)) return;
   try {
-    const notif = new Notification(n.title, { body: n.body ?? '', tag: n.id, icon: '/icon.png', requireInteraction: n.priority === 'CRITICAL' });
+    const notif = new Notification(n.title, { body: n.body ?? '', tag: n.id, icon: withBase('/icon.png'), requireInteraction: n.priority === 'CRITICAL' });
     notif.onclick = () => {
       window.focus();
-      if (n.link) window.location.href = `${n.link}${n.link.includes('?') ? '&' : '?'}via=desktop`;
+      if (n.link) window.location.href = withBase(`${n.link}${n.link.includes('?') ? '&' : '?'}via=desktop`);
       notif.close();
     };
   } catch {

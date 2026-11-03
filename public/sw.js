@@ -10,12 +10,12 @@ self.addEventListener('push', (event) => {
   } catch {
     data = { title: 'Nova notificação', body: '' };
   }
-  const url = typeof data.url === 'string' && data.url.startsWith('/') ? data.url : '/notificacoes';
+  const url = typeof data.url === 'string' && data.url.startsWith('/') ? data.url : '/secret-ademicon/notificacoes';
   event.waitUntil(
     self.registration.showNotification(data.title || 'Nova notificação', {
       body: data.body || '',
-      icon: '/icon.png',
-      badge: '/icon.png',
+      icon: '/secret-ademicon/icon.png',
+      badge: '/secret-ademicon/icon.png',
       tag: data.tag || undefined,
       renotify: !!data.tag,
       requireInteraction: data.priority === 'CRITICAL',
@@ -26,7 +26,7 @@ self.addEventListener('push', (event) => {
 
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
-  const url = new URL((event.notification.data && event.notification.data.url) || '/notificacoes', self.location.origin).href;
+  const url = new URL((event.notification.data && event.notification.data.url) || '/secret-ademicon/notificacoes', self.location.origin).href;
   // Link externo (ex.: WhatsApp do cliente): abre direto, sem passar por uma janela da plataforma.
   if (!url.startsWith(self.location.origin)) return event.waitUntil(self.clients.openWindow(url));
   event.waitUntil(

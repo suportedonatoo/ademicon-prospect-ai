@@ -1,6 +1,13 @@
 import type { NextConfig } from 'next';
+import { BASE_PATH } from './src/lib/base-path';
 
 const isDev = process.env.NODE_ENV !== 'production';
+
+// Domínio público. A raiz mostra o site da Stack (public/site), e /api/* e /sw.js da raiz continuam
+// chegando ao sistema (webhooks, OAuth, extensão e push já cadastrados com esses endereços).
+// O Next só reescreve para fora do basePath com URL absoluta, por isso o repasse passa pelo próprio domínio.
+const ORIGIN = new URL(process.env.APP_URL || (isDev ? 'http://localhost:3500' : 'https://stacksolution.com.br')).origin;
+const APP = `${ORIGIN}${BASE_PATH}`;
 
 // Cabeçalhos de segurança aplicados a todas as rotas.
 const securityHeaders = [
@@ -29,11 +36,27 @@ const securityHeaders = [
 
 const nextConfig: NextConfig = {
   poweredByHeader: false,
+  basePath: BASE_PATH,
+  async rewrites() {
+    return {
+      beforeFiles: [
+        { source: '/api/:path*', destination: `${APP}/api/:path*`, basePath: false },
+        { source: '/sw.js', destination: `${APP}/sw.js`, basePath: false },
+      ],
+      afterFiles: [],
+      fallback: [
+        { source: '/', destination: `${APP}/site/index.html`, basePath: false },
+        // Tudo fora de /secret-ademicon é arquivo do site (o filtro evita repasse em círculo).
+        { source: '/:path((?!secret-ademicon(?:/|$)).+)', destination: `${APP}/site/:path`, basePath: false },
+      ],
+    };
+  },
   distDir: process.env.NEXT_DIST_DIR || '.next',
   serverExternalPackages: ['bullmq', 'ioredis', 'exceljs', '@prisma/client', 'bcryptjs', 'web-push', 'qrcode'],
   async headers() {
     return [
-      { source: '/:path*', headers: securityHeaders },
+      // O site da Stack (public/site) usa CDNs e demos próprias: fica fora dessa política.
+      { source: '/:path((?!site/).*)', headers: securityHeaders },
       // O Service Worker precisa ser sempre revalidado (atualizações de segurança chegam na hora).
       { source: '/sw.js', headers: [{ key: 'Cache-Control', value: 'no-cache, no-store, must-revalidate' }, { key: 'Service-Worker-Allowed', value: '/' }] },
     ];

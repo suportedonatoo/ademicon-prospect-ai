@@ -1,3 +1,4 @@
+import { withBase } from '@/lib/base-path';
 import { db } from '@/lib/db';
 import { BadRequest, Forbidden, NotFound } from '@/lib/errors';
 import type { Ctx } from '../auth/context';
@@ -83,4 +84,4 @@ export async function readConsultantPhoto(ctx: Ctx, consultantId: string) {
 
 /** URL interna da foto; a chave entra como versão para o navegador não mostrar a antiga. */
 export const photoUrlFor = (consultantId: string, photoKey: string | null | undefined) =>
-  photoKey ? `/api/v1/team/${consultantId}/photo?v=${encodeURIComponent(photoKey.split('/').pop() ?? '')}` : null;
+  photoKey ? withBase(`/api/v1/team/${consultantId}/photo?v=${encodeURIComponent(photoKey.split('/').pop() ?? '')}`) : null;

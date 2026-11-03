@@ -1,6 +1,6 @@
 import crypto from 'node:crypto';
 import { db } from '@/lib/db';
-import { env } from '@/lib/env';
+import { appOrigin, env } from '@/lib/env';
 import { enqueue } from '@/lib/queue';
 import { logger } from '@/lib/logger';
 import { BadRequest, Conflict, Forbidden } from '@/lib/errors';
@@ -69,7 +69,8 @@ export function verifyInstagramSignature(rawBody: string, signature: string | nu
 
 // ---------- Conta do consultor (Login do Instagram) ----------
 
-const REDIRECT = () => `${env.APP_URL}/api/v1/instagram/callback`;
+// Na raiz do domínio: é o endereço cadastrado na Meta (/api/* é repassado ao sistema).
+const REDIRECT = () => `${appOrigin}/api/v1/instagram/callback`;
 const STATE_TTL_MS = 15 * 60_000;
 const sign = (payload: string) => crypto.createHmac('sha256', `ig-connect:${env.SESSION_SECRET}`).update(payload).digest('base64url');
 

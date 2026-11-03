@@ -1,5 +1,6 @@
 'use client';
 
+import { withBase } from '@/lib/base-path';
 import { useEffect, useRef, useState } from 'react';
 import { api, toast } from '@/lib/client';
 import { Badge, buttonClass } from '@/components/ui';
@@ -239,7 +240,7 @@ function RuleForm({ consultantId, consultantName, rule, onDone }: { consultantId
                 Array.from({ length: savedImages }, (_, n) => (
                   <span key={`s${n}`} className="relative">
                     {/* eslint-disable-next-line @next/next/no-img-element -- foto privada do sistema */}
-                    <img src={`/api/v1/instagram/videos/${rule.id}/images/${n}?v=${savedImages}`} alt="" className="size-24 rounded-xl object-cover border border-line" />
+                    <img src={withBase(`/api/v1/instagram/videos/${rule.id}/images/${n}?v=${savedImages}`)} alt="" className="size-24 rounded-xl object-cover border border-line" />
                     <button
                       type="button"
                       className="absolute -top-2 -right-2 size-6 rounded-full bg-ink text-white text-xs"

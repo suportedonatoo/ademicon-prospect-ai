@@ -1,3 +1,4 @@
+import { withBase } from '@/lib/base-path';
 import { Prisma } from '@prisma/client';
 import { z } from 'zod';
 import { db } from '@/lib/db';
@@ -156,7 +157,7 @@ async function dispatch(notificationId: string, channels: NotificationChannel[],
       priority: n.priority,
       title: n.title,
       body: n.body,
-      link: n.link ? `/api/v1/notifications/${n.id}/open` : null,
+      link: n.link ? withBase(`/api/v1/notifications/${n.id}/open`) : null,
       desktop: channels.includes('DESKTOP'),
       extension: channels.includes('EXTENSION'),
       createdAt: n.createdAt,

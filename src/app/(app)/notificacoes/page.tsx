@@ -1,3 +1,4 @@
+import { withBase } from '@/lib/base-path';
 import Link from 'next/link';
 import { requireCtx } from '@/modules/auth/session';
 import { listNotifications, notificationMetrics } from '@/modules/notifications/notification.service';
@@ -82,7 +83,7 @@ export default async function NotificationsPage({ searchParams }: { searchParams
           <ul className="divide-y divide-line">
             {list.items.map((n) => (
               <li key={n.id}>
-                <a href={`/api/v1/notifications/${n.id}/open?via=center`} className={cx('flex items-start gap-3 px-5 py-3 hover:bg-slate-50', !n.readAt && 'bg-brand-50/50')}>
+                <a href={withBase(`/api/v1/notifications/${n.id}/open?via=center`)} className={cx('flex items-start gap-3 px-5 py-3 hover:bg-slate-50', !n.readAt && 'bg-brand-50/50')}>
                   <span className={cx('mt-1.5 size-2 rounded-full shrink-0', n.readAt ? 'bg-transparent' : 'bg-brand-500')} aria-label={n.readAt ? 'lida' : 'não lida'} />
                   <span className="min-w-0 flex-1">
                     <b className="block text-sm text-ink">{n.title}</b>

@@ -1,5 +1,6 @@
 'use client';
 
+import { withBase } from '@/lib/base-path';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { api, toast } from '@/lib/client';
@@ -81,8 +82,7 @@ export function ImportWizard({ fields, campaigns }: { fields: Record<string, str
               {busy ? 'Enviando…' : 'Enviar arquivo'}
             </button>
             {/* download de arquivo gerado pela API (não é navegação de página) */}
-            {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
-            <a href="/api/v1/imports/sample" className="block text-center text-xs text-brand-600 hover:underline">
+            <a href={withBase('/api/v1/imports/sample')} className="block text-center text-xs text-brand-600 hover:underline">
               Baixar planilha de exemplo (1.000 registros fictícios)
             </a>
           </div>

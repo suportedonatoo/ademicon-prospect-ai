@@ -1,6 +1,6 @@
 import crypto from 'node:crypto';
 import { db } from '@/lib/db';
-import { env } from '@/lib/env';
+import { appOrigin, env } from '@/lib/env';
 import { logger } from '@/lib/logger';
 import { BadRequest, Forbidden } from '@/lib/errors';
 import { decryptSecret, encryptSecret } from '@/lib/secrets';
@@ -18,7 +18,8 @@ import type { Ctx } from '../auth/context';
 
 const SCOPES = ['openid', 'email', 'https://www.googleapis.com/auth/calendar.events', 'https://www.googleapis.com/auth/calendar.freebusy'];
 const CAL = 'https://www.googleapis.com/calendar/v3';
-const REDIRECT = () => `${env.APP_URL}/api/v1/google/calendar/callback`;
+// Na raiz do domínio: é o endereço cadastrado no Google Cloud (/api/* é repassado ao sistema).
+const REDIRECT = () => `${appOrigin}/api/v1/google/calendar/callback`;
 const STATE_TTL_MS = 15 * 60_000;
 
 export const googleCalendarConfigured = () => !!(env.GOOGLE_CLIENT_ID && env.GOOGLE_CLIENT_SECRET);

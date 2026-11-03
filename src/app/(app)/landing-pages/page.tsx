@@ -1,3 +1,4 @@
+import { withBase } from '@/lib/base-path';
 import Link from 'next/link';
 import { requireCtx } from '@/modules/auth/session';
 import { can } from '@/modules/auth/context';
@@ -39,7 +40,7 @@ export default async function LandingsPage() {
                   </div>
                 </Td>
                 <Td>
-                  <a className="text-xs font-mono text-brand-600 hover:underline" href={`/landing/${p.slug}${p.status === 'PUBLISHED' ? '' : '?preview=1'}`} target="_blank">
+                  <a className="text-xs font-mono text-brand-600 hover:underline" href={withBase(`/landing/${p.slug}${p.status === 'PUBLISHED' ? '' : '?preview=1'}`)} target="_blank">
                     /landing/{p.slug}
                   </a>
                 </Td>

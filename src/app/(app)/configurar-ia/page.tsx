@@ -1,3 +1,4 @@
+import { withBase } from '@/lib/base-path';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { requireCtx } from '@/modules/auth/session';
@@ -115,7 +116,7 @@ export default async function ConfigurarIaPage({ searchParams }: { searchParams:
                 ) : !googleCalendarConfigured() ? (
                   <span className="text-muted">Ainda não disponível: a equipe da plataforma precisa preencher o Client ID e o segredo do Google em Configurar APIs.</span>
                 ) : own ? (
-                  <a href="/api/v1/google/calendar/connect" className={buttonClass('primary')}>
+                  <a href={withBase('/api/v1/google/calendar/connect')} className={buttonClass('primary')}>
                     Conectar Google Agenda
                   </a>
                 ) : (

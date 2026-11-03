@@ -1,5 +1,6 @@
 'use client';
 
+import { withBase } from '@/lib/base-path';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
@@ -92,7 +93,7 @@ export function Shell({ nav, user, appName, actions, children }: { nav: NavGroup
               </button>
             </form>
             {(user.role === 'SUPER_ADMIN' || user.role === 'ADMIN') && (
-              <a href="/api-docs" target="_blank" className="flex items-center gap-1.5 text-xs text-muted hover:text-ink px-1 mt-3">
+              <a href={withBase('/api-docs')} target="_blank" className="flex items-center gap-1.5 text-xs text-muted hover:text-ink px-1 mt-3">
                 <Icon name="file" className="size-3.5" /> Documentação da API
               </a>
             )}
@@ -184,7 +185,7 @@ function Notifications() {
             )}
             {data.items.map((n) => (
               <li key={n.id}>
-                <a href={`/api/v1/notifications/${n.id}/open?via=bell`} onClick={() => setOpen(false)} className={cx('block px-4 py-2.5 hover:bg-slate-50', !n.readAt && 'bg-brand-50/60')}>
+                <a href={withBase(`/api/v1/notifications/${n.id}/open?via=bell`)} onClick={() => setOpen(false)} className={cx('block px-4 py-2.5 hover:bg-slate-50', !n.readAt && 'bg-brand-50/60')}>
                   <div className="text-sm font-medium text-ink flex items-center gap-1.5">
                     {(n.priority === 'HIGH' || n.priority === 'CRITICAL') && <span className={cx('size-2 rounded-full shrink-0', n.priority === 'CRITICAL' ? 'bg-bad' : 'bg-series-4')} aria-label={`Prioridade ${n.priority}`} />}
                     {n.title}
@@ -209,7 +210,7 @@ function UserMenu({ user }: { user: ShellUser }) {
   const item = 'w-full flex items-center gap-3 rounded-xl px-3 py-2.5 text-[14.5px] text-ink hover:bg-slate-100 text-left';
   const logout = async () => {
     await api('/auth/logout', { method: 'POST' }).catch(() => undefined);
-    window.location.href = '/login';
+    window.location.href = withBase('/login');
   };
   return (
     <div className="relative">

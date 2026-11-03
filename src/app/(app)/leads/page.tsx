@@ -1,3 +1,4 @@
+import { withBase } from '@/lib/base-path';
 import Link from 'next/link';
 import { requireCtx } from '@/modules/auth/session';
 import { can } from '@/modules/auth/context';
@@ -29,10 +30,10 @@ export default async function LeadsPage({ searchParams }: { searchParams: Promis
           <>
             {can(ctx, 'lead.export') && (
               <>
-                <a className={buttonClass('secondary')} href={`/api/v1/leads/export?format=csv&${exportQs}`}>
+                <a className={buttonClass('secondary')} href={withBase(`/api/v1/leads/export?format=csv&${exportQs}`)}>
                   Exportar CSV
                 </a>
-                <a className={buttonClass('secondary')} href={`/api/v1/leads/export?format=xlsx&${exportQs}`}>
+                <a className={buttonClass('secondary')} href={withBase(`/api/v1/leads/export?format=xlsx&${exportQs}`)}>
                   XLSX
                 </a>
               </>

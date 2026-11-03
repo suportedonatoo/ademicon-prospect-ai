@@ -1,3 +1,4 @@
+import { withBase } from '@/lib/base-path';
 import { NextResponse, type NextRequest } from 'next/server';
 import { errorResponse, resolveCtx } from '@/lib/api';
 import { openNotification } from '@/modules/notifications/notification.service';
@@ -11,10 +12,10 @@ export async function GET(req: NextRequest, context: { params: Promise<{ id: str
   const { id } = await context.params;
   const ctx = await resolveCtx(req);
   const self = `/api/v1/notifications/${encodeURIComponent(id)}/open${req.nextUrl.search}`;
-  if (!ctx) return NextResponse.redirect(new URL(`/login?next=${encodeURIComponent(self)}`, req.url));
+  if (!ctx) return NextResponse.redirect(new URL(withBase(`/login?next=${encodeURIComponent(self)}`), req.url));
   try {
     const { link } = await openNotification(ctx, id, req.nextUrl.searchParams.get('via') ?? 'bell');
-    return NextResponse.redirect(new URL(link, req.url));
+    return NextResponse.redirect(new URL(withBase(link), req.url));
   } catch (e) {
     return errorResponse(e);
   }

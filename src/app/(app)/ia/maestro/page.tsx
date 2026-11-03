@@ -1,3 +1,4 @@
+import { withBase } from '@/lib/base-path';
 import Link from 'next/link';
 import { requireCtx } from '@/modules/auth/session';
 import { can } from '@/modules/auth/context';
@@ -81,7 +82,7 @@ export default async function MaestroPage({ searchParams }: { searchParams: Prom
                 <Td className="text-right whitespace-nowrap">
                   {can(ctx, 'knowledge.manage') && (
                     <span className="inline-flex gap-1">
-                      <a className="text-xs text-brand-600 hover:underline mr-2" href={`/ia/knowledge/novo?q=${encodeURIComponent(g.question)}`}>
+                      <a className="text-xs text-brand-600 hover:underline mr-2" href={withBase(`/ia/knowledge/novo?q=${encodeURIComponent(g.question)}`)}>
                         Criar conteúdo
                       </a>
                       <ActionButton size="sm" variant="ghost" path={`/ai/gaps/${g.id}`} method="PATCH" body={{ status: 'RESOLVED' }}>

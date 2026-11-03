@@ -1,3 +1,4 @@
+import { withBase } from '@/lib/base-path';
 import { requireCtx } from '@/modules/auth/session';
 import { can } from '@/modules/auth/context';
 import { listSimulators, FIELD_LABELS } from '@/modules/simulators/simulator.service';
@@ -45,7 +46,7 @@ export default async function SimulatorsPage() {
                   {num(s._count.simulations)} simulações · {s._count.landingPages} landings
                 </span>
                 <span className="flex gap-2">
-                  <a className="text-brand-600 hover:underline text-xs" href={`/simulador/${s.slug}`} target="_blank">
+                  <a className="text-brand-600 hover:underline text-xs" href={withBase(`/simulador/${s.slug}`)} target="_blank">
                     Testar ↗
                   </a>
                   {can(ctx, 'simulator.configure') && (

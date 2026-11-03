@@ -1,0 +1,1044 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FlowHub — todo o trabalho da empresa num lugar só</title>
+<meta name="description" content="Tarefas, projetos, agenda, mensagens, emails, documentos e CRM das suas ferramentas numa central só, com uma IA que mostra as fontes e nunca executa nada sem a sua confirmação.">
+<link rel="icon" href="icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#eff1eb; --surface:#fbfcf8; --surface-2:#f4f6f0; --border:#e2e5dc;
+  --text:#0b0b0b; --text-2:#5c6057; --text-3:#8b8f85;
+  --lime:#8cf23c; --lime-soft:#e6fbd5; --glow:#cff7ae;
+  --ink:#0b0b0b; --ink-2:#1a1c18; --ink-line:#2a2c28; --ink-muted:#b6bab0;
+  --r-md:14px; --r-lg:22px; --r-xl:28px;
+  --ease:cubic-bezier(.2,.8,.2,1);
+  --shadow:0 30px 60px -20px rgb(20 24 10 / .28), 0 6px 16px rgb(20 24 10 / .08);
+  --max:1240px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;overflow-x:clip}
+body{font-family:Outfit,ui-sans-serif,system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.5;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+img{display:block;max-width:100%}
+a{color:inherit;text-decoration:none}
+.wrap{max-width:var(--max);margin:0 auto;padding:0 24px}
+section{padding:120px 0}
+h1,h2,h3{font-weight:400;letter-spacing:-.035em;line-height:1.02}
+h2{font-size:clamp(36px,5vw,64px)}
+.eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:500;padding:6px 14px;border:1px dashed var(--text-3);border-radius:999px;color:var(--text-2)}
+.eyebrow i{width:7px;height:7px;border-radius:50%;background:var(--lime);box-shadow:0 0 0 3px var(--lime-soft)}
+.lead{font-size:clamp(17px,1.6vw,20px);color:var(--text-2);max-width:620px}
+
+/* botões */
+.btn{display:inline-flex;align-items:center;gap:10px;height:52px;padding:0 8px 0 24px;border-radius:999px;font-weight:500;font-size:16px;transition:transform .2s var(--ease),background .2s}
+.btn:hover{transform:translateY(-2px)}
+.btn .dot{width:36px;height:36px;border-radius:50%;display:grid;place-items:center;font-size:16px}
+.btn-ink{background:var(--ink);color:#fff}
+.btn-ink .dot{background:var(--lime);color:var(--ink)}
+.btn-lime{background:var(--lime);color:var(--ink)}
+.btn-lime .dot{background:var(--ink);color:var(--lime)}
+.btn-ghost{padding:0 24px;border:1px solid var(--border);background:var(--surface)}
+
+/* nav (pílulas sobre o hero escuro) */
+#nav{position:sticky;top:0;z-index:50;padding:20px 0;transition:background .3s}
+#nav.scrolled{background:rgb(11 11 11 / .82);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+.nav-in{display:flex;align-items:center;gap:16px}
+.logo{display:flex;align-items:center;gap:4px;font-weight:900;font-size:14px}
+.logo .a{position:relative;background:#fff;color:var(--ink);padding:6px 12px;border-radius:16px 16px 16px 3px}
+.logo .a::after{content:"";position:absolute;left:0;bottom:-6px;width:12px;height:12px;background:#fff;clip-path:polygon(0 0,100% 0,0 100%)}
+.logo .b{background:var(--lime);color:var(--ink);padding:6px 12px;border-radius:999px;border:1.5px solid #fff}
+.links{display:flex;gap:8px;margin:0 auto}
+.links a{padding:6px 16px;border-radius:999px;border:1px solid rgb(255 255 255 / .3);color:#fff;font-size:13px;font-weight:600;transition:background .2s}
+.links a:hover{background:rgb(255 255 255 / .1)}
+.nav-cta{padding:9px 24px;border-radius:999px;border:1px solid #fff;color:#fff;font-size:14px;font-weight:600;white-space:nowrap;transition:background .2s,color .2s}
+.nav-cta:hover{background:#fff;color:var(--ink)}
+
+/* hero (porte do componente "hero": palavras gigantes em relevo, cards de vidro, setas e selo) */
+.hx{position:relative;overflow:hidden;background:var(--ink);color:#fff;margin-top:-80px;padding-top:80px}
+.hx-grid{position:absolute;inset:0;background-image:linear-gradient(to right,rgb(255 255 255 / .07) 1px,transparent 1px),linear-gradient(to bottom,rgb(255 255 255 / .07) 1px,transparent 1px);background-size:64px 64px;pointer-events:none}
+.hx-main{position:relative;z-index:1;max-width:1440px;margin:0 auto;padding:48px 16px 176px;display:flex;flex-direction:column;align-items:center}
+.hx-stage{position:relative;width:100%;max-width:1024px;margin:16px auto 0}
+.hx h1{display:flex;flex-direction:column;gap:16px;font-weight:900;text-transform:uppercase;letter-spacing:-.05em;line-height:.85;--ex:#2f7209}
+.hx h1 span{position:relative;display:block;white-space:nowrap;text-shadow:1px 1px 0 var(--ex),2px 2px 0 var(--ex),3px 3px 0 var(--ex),4px 4px 0 var(--ex),5px 5px 0 var(--ex),6px 6px 0 var(--ex),7px 7px 0 var(--ex),8px 8px 0 var(--ex),9px 9px 0 var(--ex),10px 10px 0 var(--ex),11px 11px 0 var(--ex),12px 12px 0 var(--ex),13px 13px 0 var(--ex),14px 14px 0 var(--ex)}
+.hx .l1{z-index:3;font-size:clamp(4.5rem,12vw,160px);color:var(--lime);padding-left:25%}
+.hx .l2{z-index:2;font-size:clamp(5rem,15vw,220px);display:flex;justify-content:center}
+.hx .l3{z-index:1;font-size:clamp(4.5rem,12vw,160px);padding-left:30%}
+.hx-over{position:absolute;inset:0;pointer-events:none}
+.hx-card{position:absolute;z-index:4;pointer-events:auto;animation:bob 5s ease-in-out infinite}
+.hx-card.c1{bottom:-13%;left:3%}
+.hx-card.c2{top:-9%;right:-5%;--bob:-20px;animation-duration:6s;animation-delay:1s}
+@keyframes bob{50%{transform:translateY(var(--bob,-15px))}}
+.hx-card > div{width:clamp(7.5rem,11vw,9.5rem);aspect-ratio:3/3.5;padding:14px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;background:rgb(255 255 255 / .12);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid rgb(255 255 255 / .35);border-radius:2rem;box-shadow:0 25px 50px -12px rgb(0 0 0 / .6);rotate:-12deg;transition:rotate .5s}
+.hx-card.c2 > div{rotate:12deg}
+.hx-card > div:hover{rotate:0deg}
+.hx-card .av{width:4.25rem;height:4.25rem;border-radius:50%;margin-bottom:10px;border:3px solid rgb(255 255 255 / .5);overflow:hidden;background:#fff;display:grid;place-items:center}
+.hx-card .av img{width:55%;height:55%;object-fit:contain}
+.hx-card.c2 .av{background:var(--ink)}
+.hx-card.c2 .av img{width:100%;height:100%}
+.hx-card strong{font-size:15px;font-weight:700;line-height:1.2}
+.hx-card small{font-size:12px;color:rgb(255 255 255 / .8);margin-top:4px}
+.hx-arrow{position:absolute;z-index:3;width:8rem;height:8rem;color:var(--lime)}
+.hx-arrow svg{width:100%;height:100%;overflow:visible}
+.hx-arrow.al{width:6rem;height:6rem;bottom:-20%;left:19%}
+.hx-arrow.ar{width:6rem;height:6rem;bottom:-24%;right:-3%}
+.hx-badge{position:absolute;z-index:5;top:-5%;left:5%;pointer-events:auto;width:9rem;height:9rem;border-radius:50%;background:var(--lime);color:var(--ink);display:grid;place-items:center;rotate:12deg;border:3px solid rgb(0 0 0 / .05);box-shadow:0 20px 25px -5px rgb(0 0 0 / .45);transition:scale .3s}
+.hx-badge:hover{scale:1.05}
+.hx-badge .spin{position:absolute;inset:4px;animation:spin 10s linear infinite}
+.hx-badge .spin svg{width:100%;height:100%}
+.hx-badge .spin text{font-size:10px;font-weight:900;text-transform:uppercase}
+.hx-badge > svg{width:40px;height:40px;overflow:visible}
+@keyframes spin{to{rotate:360deg}}
+.hx-sub{max-width:560px;margin:120px auto 0;text-align:center;color:rgb(255 255 255 / .7);font-size:18px}
+.hx-ctas{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:28px}
+.hx-panel{position:relative;z-index:2;background:var(--bg);color:var(--text);border-radius:56px 56px 0 0;padding:64px 40px;box-shadow:0 -20px 50px rgb(0 0 0 / .2)}
+.hx-steps{max-width:1152px;margin:0 auto;display:grid;grid-template-columns:repeat(3,1fr);gap:32px}
+.hx-step{position:relative;height:16rem;padding:32px;background:var(--surface);border:1px solid var(--border);border-radius:2rem;display:flex;flex-direction:column;align-items:center;text-align:center}
+.hx-step h3{font-size:24px;font-weight:900;text-transform:uppercase;line-height:1.1;letter-spacing:-.02em;margin-bottom:8px}
+.hx-step > p{font-size:12px;font-weight:700;color:rgb(11 11 11 / .6);margin-bottom:auto}
+.hx-step .to{position:absolute;z-index:3;right:-48px;bottom:32px;width:64px;height:64px}
+.hx-step .to svg{width:100%;height:100%;overflow:visible}
+.g1,.g2{position:relative;width:100%;display:flex;justify-content:center;margin-top:24px}
+.g1 .p{display:flex;align-items:center;gap:12px;padding:8px 64px 8px 8px;border-radius:16px;background:var(--ink);color:#fff;text-align:left;box-shadow:0 10px 15px -3px rgb(0 0 0 / .25)}
+.g1 .p i{width:32px;height:32px;border-radius:50%;background:#fff;display:grid;place-items:center;flex:none}
+.g1 .p i img{width:18px;height:18px}
+.g1 .p b{display:block;font-size:11px;line-height:1}
+.g1 .p small{display:block;font-size:9px;opacity:.7;margin-top:4px}
+.g1 .tag{position:absolute;right:8px;top:50%;translate:0 -50%;padding:8px 12px;border-radius:12px;background:var(--lime);color:var(--ink);font-size:11px;font-weight:900;box-shadow:0 4px 6px rgb(0 0 0 / .15)}
+.g2 .p{display:flex;align-items:center;padding:6px;border-radius:999px;background:var(--ink);color:#fff;box-shadow:0 10px 15px -3px rgb(0 0 0 / .25)}
+.g2 .p span{padding:8px 16px;border-radius:999px;background:rgb(255 255 255 / .15);font-size:13px;font-weight:700;margin-right:8px}
+.g2 .p b{font-size:12px;padding:0 16px}
+.g2 .go{position:absolute;right:33%;bottom:-24px;display:grid;place-items:center;width:36px;height:36px;border-radius:50%;background:var(--lime);rotate:12deg;box-shadow:0 10px 15px -3px rgb(0 0 0 / .2)}
+.g3{position:relative;width:100%;max-width:200px;margin-top:24px;padding:16px 24px;border-radius:2rem;background:var(--lime);display:flex;flex-direction:column;align-items:center;box-shadow:0 10px 15px -3px rgb(0 0 0 / .2)}
+.g3::after{content:"";position:absolute;bottom:-8px;left:32px;width:20px;height:20px;background:var(--lime);rotate:45deg}
+.g3 small{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em}
+.g3 b{font-size:20px;font-weight:900}
+
+/* por dentro */
+.hero-stats{display:flex;gap:40px;flex-wrap:wrap}
+.stat{display:flex;align-items:center;gap:10px}
+.stat strong{font-size:56px;font-weight:300;letter-spacing:-.05em;line-height:1}
+.stat span{font-size:13px;color:var(--text-2);line-height:1.25;max-width:110px}
+.shot{margin-top:48px;border-radius:var(--r-xl);overflow:hidden;box-shadow:var(--shadow);border:6px solid var(--surface);background:var(--surface)}
+.shot img{width:100%;height:auto}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* faixa de integrações */
+.marquee{padding:56px 0 0;overflow:hidden}
+.marquee p{text-align:center;font-size:14px;color:var(--text-2);margin-bottom:20px}
+.marquee .mask{max-width:var(--max);margin:0 auto;overflow:hidden;-webkit-mask-image:linear-gradient(90deg,transparent,#000 10%,#000 90%,transparent);mask-image:linear-gradient(90deg,transparent,#000 10%,#000 90%,transparent)}
+.track{display:flex;width:max-content;padding:12px 0;animation:roll var(--duration,50s) linear infinite}
+.track span{display:flex;align-items:center;gap:10px;margin:0 32px;font-size:17px;font-weight:500;white-space:nowrap}
+.track img{width:28px;height:28px;object-fit:contain;border-radius:6px}
+.marquee:hover .track{animation-play-state:paused}
+@keyframes roll{to{transform:translateX(-50%)}}
+
+/* problema */
+.problem{display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:center}
+/* hub: ferramentas espalhadas fluindo para o FlowHub (palco fixo 640x560, escalado por --k) */
+.hubviz{position:relative;height:calc(560px * var(--k,1))}
+.stage{position:absolute;top:0;left:calc((100% - 640px * var(--k,1)) / 2);width:640px;height:560px;transform:scale(var(--k,1));transform-origin:0 0}
+.stage::before{content:"";position:absolute;left:320px;top:280px;width:520px;height:520px;translate:-50% -50%;border-radius:50%;background:radial-gradient(closest-side,var(--glow),transparent);opacity:.8}
+.stage svg{position:absolute;inset:0;overflow:visible}
+.stage .ring{fill:none;stroke:var(--border-strong,#c9cec0);stroke-dasharray:2 7;opacity:.7}
+.stage .wire{fill:none;stroke:#a9af9d;stroke-width:1.5;stroke-dasharray:5 6}
+.stage .pkt{fill:var(--lime);stroke:var(--ink);stroke-width:1.5}
+.src{position:absolute;display:flex;align-items:center;gap:12px;padding:12px 16px 12px 12px;background:var(--surface);border-radius:18px;box-shadow:0 18px 40px -18px rgb(20 24 10 / .35),0 2px 6px rgb(20 24 10 / .06);white-space:nowrap;transform:rotate(var(--r));animation:float 5s ease-in-out var(--d) infinite alternate;transition:opacity .7s var(--ease),translate .9s var(--ease);transition-delay:calc(var(--i) * 90ms)}
+.src .lg{width:40px;height:40px;border-radius:12px;background:var(--surface-2);display:grid;place-items:center;flex:none}
+.src .lg img{width:22px;height:22px;object-fit:contain}
+.src strong{display:block;font-size:15px;font-weight:500;line-height:1.2}
+.src small{display:block;font-size:13px;color:var(--text-2)}
+.src em{position:absolute;top:-8px;right:-8px;min-width:24px;height:24px;padding:0 7px;border-radius:999px;background:var(--ink);color:var(--lime);font:600 12px/24px Outfit,sans-serif;text-align:center;font-style:normal}
+@keyframes float{to{transform:translateY(-9px) rotate(var(--r))}}
+.hubcard{position:absolute;left:200px;top:140px;width:240px;padding:18px;background:var(--ink);color:#fff;border-radius:26px;box-shadow:0 40px 80px -24px rgb(20 24 10 / .55);z-index:2;transition:opacity .8s var(--ease),scale .8s var(--ease)}
+.hubcard .hh{display:flex;align-items:center;gap:8px;font-weight:500}
+.hubcard .hh b{width:28px;height:28px;border-radius:50%;background:var(--lime);color:var(--ink);display:grid;place-items:center;font-size:13px}
+.hubcard .hh span{margin-left:auto;font-size:12px;padding:3px 10px;border-radius:999px;background:var(--lime);color:var(--ink)}
+.hubcard .n{display:flex;align-items:center;gap:10px;margin:16px 0 12px}
+.hubcard .n strong{font-size:52px;font-weight:300;letter-spacing:-.05em;line-height:1}
+.hubcard .n span{font-size:13px;color:var(--ink-muted);line-height:1.25}
+.hubcard ul{list-style:none;display:grid;gap:6px}
+.hubcard li{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:12px;background:var(--ink-2);font-size:13px}
+.hubcard li img{width:16px;height:16px;object-fit:contain;flex:none}
+.hubcard li i{margin-left:auto;font-style:normal;font-size:11px;color:var(--lime)}
+.hubcard .hf{margin-top:12px;font-size:12px;color:var(--ink-muted)}
+.hubcard .hf span{color:var(--lime)}
+.hubviz:not(.in) .src{opacity:0;translate:var(--fx) var(--fy)}
+.hubviz:not(.in) .hubcard{opacity:0;scale:.92}
+
+/* bento */
+.head{display:flex;justify-content:space-between;align-items:end;gap:32px;margin-bottom:48px;flex-wrap:wrap}
+.bento{display:grid;grid-template-columns:repeat(6,1fr);gap:16px}
+.card{background:var(--surface);border-radius:var(--r-xl);padding:32px;display:flex;flex-direction:column;gap:12px;overflow:hidden;position:relative}
+.card h3{font-size:28px}
+.card p{color:var(--text-2)}
+.card.dark{background:var(--ink);color:#fff}
+.card.dark p{color:var(--ink-muted)}
+.card.limeb{background:var(--lime)}
+.card.limeb p{color:#25321a}
+.c-wide{grid-column:span 4}
+.c-mid{grid-column:span 3}
+.c-sm{grid-column:span 2}
+.card .peek{margin:12px -32px -32px 32px;border-radius:var(--r-lg) 0 0 0;overflow:hidden;border:1px solid var(--border);height:360px}
+.card .peek img{width:auto;max-width:none;height:560px}
+.pills{display:flex;flex-wrap:wrap;gap:6px;margin-top:auto}
+.pills span{font-size:13px;padding:6px 12px;border-radius:999px;background:var(--surface-2)}
+.dark .pills span{background:var(--ink-2);color:#e6e8e1}
+.times{display:flex;gap:8px;margin-top:auto}
+.times span{flex:1;text-align:center;padding:16px 0;border-radius:var(--r-md);background:var(--surface-2);font-size:22px;font-weight:300}
+.times span:nth-child(2){background:var(--lime)}
+.big{font-size:84px;font-weight:300;letter-spacing:-.05em;line-height:1;margin-top:auto}
+
+/* IA */
+.ai{background:var(--ink);color:#fff;border-radius:40px;padding:80px 64px;display:grid;grid-template-columns:.9fr 1.1fr;gap:56px;align-items:center}
+.ai .eyebrow{color:var(--ink-muted);border-color:#4a4d45}
+.ai h2{margin:20px 0}
+.ai .lead{color:var(--ink-muted)}
+.ai ul{list-style:none;margin-top:32px;display:grid;gap:14px}
+.ai li{display:flex;gap:14px;align-items:flex-start}
+.ai li b{flex:none;width:28px;height:28px;border-radius:50%;background:var(--lime);color:var(--ink);display:grid;place-items:center;font-size:14px;margin-top:1px}
+.ai li span{color:var(--ink-muted)}
+.ai li strong{color:#fff;font-weight:500;display:block}
+.ai .shot{margin:0;border-color:#1a1c18}
+
+/* integrações */
+.cats{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.cat{background:var(--surface);border-radius:var(--r-lg);padding:24px}
+.cat h4{font-size:15px;font-weight:500;margin-bottom:12px;display:flex;justify-content:space-between}
+.cat h4 small{color:var(--text-3);font-weight:400}
+.cat p{font-size:15px;color:var(--text-2);line-height:1.7}
+
+/* segurança */
+.sec{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.sec .card{min-height:260px}
+.sec .card h3{font-size:22px;margin-top:auto}
+.sec .card .k{font-size:44px;font-weight:300;letter-spacing:-.04em;line-height:1}
+
+/* plataformas */
+.platforms{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.pf{background:var(--surface);border-radius:var(--r-lg);padding:28px;display:flex;flex-direction:column;gap:40px}
+.pf svg{width:30px;height:30px}
+.pf strong{font-size:22px;font-weight:400;display:block}
+.pf span{color:var(--text-2);font-size:14px}
+
+/* preços (porte do PricingSection) */
+.pricing{position:relative;isolation:isolate}
+.pricing::before{content:"";position:absolute;top:0;bottom:0;left:10%;right:10%;z-index:-1;background:radial-gradient(circle at center,var(--glow) 0%,transparent 70%);opacity:.9;pointer-events:none}
+.pr-head{text-align:center;max-width:780px;margin:0 auto 28px}
+.pr-head h2 em{font-style:normal;display:inline-block;padding:0 .2em .06em;border:1.5px dashed #3b8a10;border-radius:.22em;background:var(--lime-soft)}
+.pr-head p{color:var(--text-2);font-size:17px;max-width:70%;margin:18px auto 0}
+.pr-switch{position:relative;display:flex;width:fit-content;margin:0 auto;padding:4px;border-radius:999px;background:var(--surface);border:1px solid var(--border)}
+.pr-switch button{position:relative;z-index:1;display:flex;align-items:center;gap:8px;height:48px;padding:0 24px;border:0;border-radius:999px;background:none;font:500 16px Outfit,sans-serif;color:var(--text-2);cursor:pointer;transition:color .25s}
+.pr-switch button:hover{color:var(--text)}
+.pr-switch button[aria-pressed="true"]{color:#fff}
+.pr-switch small{padding:2px 8px;border-radius:999px;background:var(--lime);color:var(--ink);font-size:12px;font-weight:600}
+.pr-pill{position:absolute;top:4px;bottom:4px;left:0;border-radius:999px;background:var(--ink);box-shadow:0 4px 12px -2px rgb(11 11 11 / .35);transition:translate .5s cubic-bezier(.3,1.35,.5,1),width .5s cubic-bezier(.3,1.35,.5,1)}
+.pr-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;padding-top:28px}
+.plan{position:relative;height:100%;padding:28px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-xl)}
+.plan.pop{background:var(--lime-soft);border-color:var(--lime);box-shadow:0 0 0 2px var(--lime)}
+.plan .top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.plan h3{font-size:32px;font-weight:500;margin-bottom:8px}
+.plan .badge{padding:4px 12px;border-radius:999px;background:var(--ink);color:var(--lime);font-size:13px;font-weight:500}
+.plan .desc{min-height:42px;margin-bottom:18px;font-size:14px;color:var(--text-2)}
+.plan .price{display:flex;align-items:baseline;gap:4px}
+.plan .price strong{display:inline-flex;align-items:baseline;font-size:40px;font-weight:500;letter-spacing:-.03em}
+.plan .price > span{color:var(--text-2)}
+.plan .cta{display:block;margin:24px 0 8px;padding:16px;border-radius:14px;background:var(--ink);color:#fff;text-align:center;font-size:18px;font-weight:500;box-shadow:0 10px 22px -10px rgb(11 11 11 / .6);transition:transform .2s var(--ease)}
+.plan .cta:hover{transform:translateY(-2px)}
+.plan.pop .cta{background:var(--lime);color:var(--ink);box-shadow:0 10px 24px -8px rgb(59 138 16 / .55)}
+.plan .feats{list-style:none;display:grid;gap:10px;padding:16px 0 20px}
+.plan li{display:flex;align-items:center;gap:12px;font-size:14px;font-weight:500;color:var(--text-2)}
+.plan .feats svg{flex:none;width:20px;height:20px;color:var(--text)}
+.plan .inc{padding-top:16px;border-top:1px solid var(--border)}
+.plan.pop .inc{border-color:rgb(59 138 16 / .25)}
+.plan .inc h4{margin-bottom:12px;font-size:16px;font-weight:500}
+.plan .inc ul{list-style:none;display:grid;gap:8px}
+.plan .inc i{flex:none;display:grid;place-items:center;width:24px;height:24px;border-radius:50%;background:var(--lime)}
+.plan .inc svg{width:14px;height:14px;color:var(--ink)}
+/* número que rola (porte do NumberFlow): cada dígito é uma coluna 0–9 que desliza */
+.nf{display:inline-flex;height:1.1em;line-height:1.1em;overflow:hidden}
+.nf .d{display:flex;flex-direction:column;transition:translate .7s cubic-bezier(.2,.9,.25,1)}
+/* entrada em sequência com desfoque */
+.pr-rv{opacity:0;translate:0 -20px;filter:blur(10px);transition:opacity .5s,translate .5s,filter .5s;transition-delay:calc(var(--i) * .15s)}
+.pricing.in .pr-rv{opacity:1;translate:none;filter:none}
+
+/* faq */
+.faq{display:grid;grid-template-columns:.8fr 1.2fr;gap:64px}
+details{border-bottom:1px solid var(--border);padding:22px 0}
+summary{cursor:pointer;list-style:none;display:flex;justify-content:space-between;gap:24px;font-size:19px}
+summary::-webkit-details-marker{display:none}
+summary::after{content:"+";flex:none;width:30px;height:30px;border-radius:50%;background:var(--surface);display:grid;place-items:center;transition:transform .25s var(--ease)}
+details[open] summary::after{transform:rotate(45deg);background:var(--lime)}
+details p{color:var(--text-2);margin-top:12px;max-width:620px}
+
+/* cta final */
+.final{background:var(--ink);color:#fff;border-radius:40px;padding:96px 48px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:24px}
+.final h2{font-size:clamp(40px,6vw,84px);max-width:900px}
+.final p{color:var(--ink-muted);font-size:19px;max-width:560px}
+
+/* rodapé (porte do KilnWordmarkFooter, tinta do FlowHub) */
+.kwf{--kwf-surface:#8cf23c;--kwf-deep:#66c41c;--kwf-ink:#0b0b0b;--kwf-paper:#8cf23c;position:relative;isolation:isolate;overflow:hidden;container-type:inline-size;margin:0 16px 16px;border-radius:28px;color:var(--kwf-ink);background:var(--kwf-deep);-webkit-font-smoothing:antialiased;text-transform:uppercase}
+.kwf ul{list-style:none}
+.kwf-tile{position:absolute;inset:0;width:100%;height:100%;z-index:-1;pointer-events:none}
+.kwf-tile ellipse,.kwf-tile rect{fill:var(--kwf-surface)}
+.kwf-in-wrap{position:relative;padding:1.5cqw}
+.kwf-top{display:flex;justify-content:space-between;align-items:flex-start;gap:2cqw;min-height:26cqw}
+.kwf-motto{font-size:clamp(20px,3.15cqw,52px);line-height:.94;font-weight:500;letter-spacing:-.012em}
+.kwf-motto span{display:block}
+.kwf-key{position:relative;flex:none;width:clamp(28px,3.15cqw,46px);height:clamp(54px,6.3cqw,92px);border:0;border-radius:clamp(6px,.8cqw,12px);background:var(--kwf-ink);color:var(--kwf-paper);overflow:hidden;display:grid;place-items:center;cursor:pointer;transition:transform .35s cubic-bezier(.2,.8,.2,1),border-radius .35s}
+.kwf-key:hover{transform:translateY(-3px);border-radius:999px}
+.kwf-key:active{transform:translateY(1px) scale(.96)}
+.kwf-key svg{width:62%;height:auto;overflow:visible}
+.kwf-key:hover svg,.kwf-key:focus-visible svg{animation:kwf-shoot .7s cubic-bezier(.6,0,.2,1)}
+.kwf-key:focus-visible,.kwf-link:focus-visible{outline:2px solid var(--kwf-ink);outline-offset:3px}
+@keyframes kwf-shoot{0%{transform:none}45%{transform:translateY(-160%)}46%{transform:translateY(160%)}100%{transform:none}}
+.kwf-row{display:grid;grid-template-columns:29.8fr 50.2fr 18fr;gap:1.2cqw;font-size:clamp(10px,1.32cqw,16px);line-height:1.17;letter-spacing:-.005em}
+.kwf-col h3{font-size:inherit;font-weight:700;letter-spacing:inherit;line-height:inherit;margin-bottom:1.55em}
+.kwf-cols{display:flex;gap:.55em 1.1em;flex-wrap:wrap}
+.kwf-cols ul{display:flex;flex-direction:column}
+.kwf-link{position:relative;display:inline-block;padding:0 .14em;margin:0 -.14em;transition:color .25s}
+.kwf-link::before{content:"";position:absolute;inset:-.06em 0;background:var(--kwf-ink);transform:scaleX(0);transform-origin:right;transition:transform .35s cubic-bezier(.7,0,.2,1);z-index:-1}
+.kwf-link:hover,.kwf-link:focus-visible{color:var(--kwf-surface)}
+.kwf-link:hover::before,.kwf-link:focus-visible::before{transform:scaleX(1);transform-origin:left}
+.kwf-word{display:block;width:100%;height:auto;margin-top:2.3cqw;overflow:hidden;touch-action:pan-y}
+.kwf-word path{fill:var(--kwf-ink);transform-box:fill-box;transform-origin:50% 100%;cursor:pointer}
+.kwf-l{transform:translateY(118%);transform-box:fill-box;transition:transform 1s cubic-bezier(.16,.9,.18,1);transition-delay:var(--kwf-d,0ms)}
+.kwf-shown .kwf-l{transform:none}
+.kwf-fade{opacity:0;transform:translateY(10px);transition:opacity .8s ease,transform .8s cubic-bezier(.2,.8,.2,1);transition-delay:var(--kwf-d,0ms)}
+.kwf-shown .kwf-fade{opacity:1;transform:none}
+.kwf-bar{margin-top:1.45cqw;border:1px solid var(--kwf-ink);border-radius:clamp(8px,1.05cqw,16px);padding:.35cqw 1.15cqw;display:flex;align-items:center;gap:1.5cqw;font-size:clamp(9px,1.02cqw,13px)}
+.kwf-copy{font-size:clamp(14px,1.95cqw,28px);letter-spacing:-.01em;white-space:nowrap}
+.kwf-reg{flex:1;min-width:0}
+.kwf-legal{white-space:nowrap}
+@container (max-width: 720px){
+  .kwf-in-wrap{padding:16px}
+  .kwf-top{min-height:44cqw}
+  .kwf-motto{font-size:clamp(22px,7cqw,40px)}
+  .kwf-row{grid-template-columns:1fr 1fr;gap:28px 16px;font-size:12px}
+  .kwf-nav{grid-column:1 / -1;grid-row:2}
+  .kwf-col h3{margin-bottom:.9em}
+  .kwf-cols{gap:.4em 1.4em}
+  .kwf-word{margin-top:28px}
+  .kwf-bar{flex-wrap:wrap;gap:4px 14px;padding:10px 14px;margin-top:12px;font-size:10px}
+  .kwf-reg{flex-basis:100%;order:3}
+}
+
+
+/* desfoque progressivo na borda de baixo da tela */
+.pblur{position:fixed;left:0;right:0;bottom:0;height:72px;z-index:40;pointer-events:none;transition:opacity .4s}
+.pblur.off{opacity:0}
+.pblur i,.pblur b{position:absolute;inset:0}
+.pblur i{backdrop-filter:blur(var(--b));-webkit-backdrop-filter:blur(var(--b));-webkit-mask-image:var(--m);mask-image:var(--m)}
+.pblur i:nth-child(1){--b:0.5px;--m:linear-gradient(to bottom,transparent 0%,#000 12.5%,#000 25%,transparent 37.5%)}
+.pblur i:nth-child(2){--b:1px;--m:linear-gradient(to bottom,transparent 12.5%,#000 25.0%,#000 37.5%,transparent 50.0%)}
+.pblur i:nth-child(3){--b:2px;--m:linear-gradient(to bottom,transparent 25%,#000 37.5%,#000 50%,transparent 62.5%)}
+.pblur i:nth-child(4){--b:4px;--m:linear-gradient(to bottom,transparent 37.5%,#000 50.0%,#000 62.5%,transparent 75.0%)}
+.pblur i:nth-child(5){--b:8px;--m:linear-gradient(to bottom,transparent 50%,#000 62.5%,#000 75%,transparent 87.5%)}
+.pblur i:nth-child(6){--b:16px;--m:linear-gradient(to bottom,transparent 62.5%,#000 75.0%)}
+.pblur b{background:var(--pb-tint,#eff1eb);-webkit-mask-image:linear-gradient(to bottom,transparent,rgb(0 0 0 / .55) 60%,#000);mask-image:linear-gradient(to bottom,transparent,rgb(0 0 0 / .55) 60%,#000);opacity:.85;transition:background-color .35s}
+@media (max-width:640px){.pblur{height:52px}}
+
+/* animação de entrada */
+.rv{opacity:0;transform:translateY(24px);transition:opacity .8s var(--ease),transform .8s var(--ease)}
+.rv.in{opacity:1;transform:none}
+@media (prefers-reduced-motion:reduce){
+  .rv,.pr-rv{opacity:1;transform:none;translate:none;filter:none;transition:none}
+  .nf .d,.pr-pill{transition:none}
+  .track{animation:none;flex-wrap:wrap;width:auto;justify-content:center;row-gap:16px}
+  .track .dup{display:none}
+  .src,.hx-card,.hx-badge .spin{animation:none}
+  .kwf-l,.kwf-fade{transform:none;opacity:1;transition:none}
+  .kwf-key:hover svg{animation:none}
+  .stage .pkt{display:none}
+}
+
+/* responsivo */
+@media (max-width:1024px){
+  .pr-grid{grid-template-columns:1fr;max-width:520px;margin:0 auto}
+  .links{display:none}
+  .nav-cta{margin-left:auto}
+  .problem,.ai,.faq{grid-template-columns:1fr}
+  .c-wide,.c-mid{grid-column:span 6}
+  .c-sm{grid-column:span 3}
+  .sec,.platforms{grid-template-columns:repeat(2,1fr)}
+  .cats{grid-template-columns:repeat(2,1fr)}
+  .ai{padding:56px 32px}
+}
+@media (max-width:1100px){
+  .hx-card.c1{left:0;bottom:-22%}
+  .hx-card.c2{right:0}
+  .hx-arrow.ar{right:1%}
+}
+@media (max-width:768px){
+  .hx-main{padding:170px 16px 112px}
+  .hx h1{gap:10px}
+  .hx h1 span{text-shadow:1px 1px 0 var(--ex),2px 2px 0 var(--ex),3px 3px 0 var(--ex),4px 4px 0 var(--ex),5px 5px 0 var(--ex),6px 6px 0 var(--ex)}
+  .hx .l1{font-size:15vw;padding-left:8%}
+  .hx .l2{font-size:17vw}
+  .hx .l3{font-size:15vw;padding-left:22%}
+  .hx-card.c1{left:0;bottom:-72%}
+  .hx-card.c2{right:0;top:-60%}
+  .hx-card > div{width:7.5rem;padding:10px}
+  .hx-card .av{width:2.75rem;height:2.75rem;margin-bottom:6px;border-width:2px}
+  .hx-card strong{font-size:12px}
+  .hx-card small{font-size:9px}
+  .hx-arrow{width:3.5rem;height:3.5rem}
+  .hx-arrow.al{left:auto;right:34%;bottom:-56%}
+  .hx-arrow.ar{top:-40%;bottom:auto;right:auto;left:8%}
+  .hx-badge{width:5.75rem;height:5.75rem;top:auto;left:auto;right:4%;bottom:-62%}
+  .hx-sub{margin-top:190px;font-size:16px}
+  .hx-panel{border-radius:40px 40px 0 0;padding:48px 16px}
+  .hx-steps{grid-template-columns:1fr;gap:24px}
+  .hx-step .to{display:none}
+}
+@media (max-width:640px){
+  .pr-switch button{height:40px;padding:0 14px;font-size:14px}
+  .pr-head p{max-width:none}
+  .plan{padding:22px}
+  .wrap{padding:0 16px}
+  section{padding:80px 0}
+  .hero-stats{gap:24px}
+  .stat strong{font-size:44px}
+  .shot{border-width:3px;border-radius:var(--r-lg)}
+  .c-sm{grid-column:span 6}
+  .card{padding:24px}
+  .card .peek{margin:12px -24px -24px 24px}
+  .cats,.sec,.platforms{grid-template-columns:1fr}
+  .ai{padding:40px 20px;border-radius:28px}
+  .final{padding:64px 20px;border-radius:28px}
+  .big{font-size:64px}
+}
+</style>
+</head>
+<body>
+
+<nav id="nav">
+  <div class="wrap nav-in">
+    <a class="logo" href="#top" aria-label="FlowHub, início"><span class="a">FLOW</span><span class="b">HUB</span></a>
+    <div class="links">
+      <a href="#recursos">Recursos</a>
+      <a href="#ia">IA</a>
+      <a href="#integracoes">Integrações</a>
+      <a href="#seguranca">Segurança</a>
+      <a href="#precos">Preços</a>
+      <a href="#faq">Dúvidas</a>
+    </div>
+    <a class="nav-cta wa" href="#" data-msg="Olá! Quero conhecer o FlowHub.">Agendar demo</a>
+  </div>
+</nav>
+
+<header class="hx" id="top">
+  <div class="hx-grid" aria-hidden="true"></div>
+  <div class="hx-main">
+    <div class="hx-stage">
+      <h1><span class="l1">#Todo</span><span class="l2">trabalho</span><span class="l3">num hub</span></h1>
+      <div class="hx-over">
+        <div class="hx-card c1" aria-hidden="true"><div><span class="av"><img src="img/logos/whatsapp.svg" alt=""></span><strong>WhatsApp</strong><small>12 conversas novas</small></div></div>
+        <div class="hx-card c2" aria-hidden="true"><div><span class="av"><img src="icon.png" alt=""></span><strong>IA do FlowHub</strong><small>6 itens para hoje</small></div></div>
+        <div class="hx-arrow al" aria-hidden="true"><svg viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"><path d="M10,90 C 10,40 40,20 60,50 C 70,65 80,75 95,70"/><path d="M80,55 L95,70 L85,85"/></svg></div>
+        <div class="hx-arrow ar" aria-hidden="true"><svg viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"><path d="M90,10 C 80,60 60,80 40,60 C 20,40 40,20 60,30 C 80,40 70,70 50,80"/><path d="M65,75 L50,80 L55,65"/></svg></div>
+        <a class="hx-badge wa" href="#" data-msg="Olá! Quero agendar uma demonstração do FlowHub." aria-label="Agendar demonstração">
+          <span class="spin" aria-hidden="true"><svg viewBox="0 0 100 100"><path id="badgePath" d="M 50, 50 m -36, 0 a 36,36 0 1,1 72,0 a 36,36 0 1,1 -72,0" fill="none"/><text fill="currentColor"><textPath href="#badgePath" textLength="224" lengthAdjust="spacing">Agende uma demo • Fale com a gente •</textPath></text></svg></span>
+          <svg viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20,80 Q 40,50 30,30 T 80,20"/><path d="M60,10 L80,20 L70,40"/></svg>
+        </a>
+      </div>
+    </div>
+    <p class="hx-sub">Tarefas, mensagens, agenda, documentos e CRM das ferramentas que vocês já usam, numa central só. Com uma IA que mostra a fonte e nunca age sem o seu “Confirmar”.</p>
+    <div class="hx-ctas">
+      <a class="btn btn-lime wa" href="#" data-msg="Olá! Quero agendar uma demonstração do FlowHub.">Agendar demonstração<span class="dot" aria-hidden="true">↗</span></a>
+    </div>
+  </div>
+
+  <div class="hx-panel">
+    <div class="hx-steps">
+      <div class="hx-step">
+        <h3>Conecte suas<br>ferramentas</h3>
+        <p>80 integrações oficiais, em poucos cliques</p>
+        <div class="g1"><div class="p"><i><img src="img/logos/gmail.svg" alt=""></i><span><b>Gmail</b><small>conectado agora</small></span></div><span class="tag">+79</span></div>
+        <div class="to" aria-hidden="true"><svg viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"><path d="M20,80 Q 40,20 80,40"/><path d="M60,20 L80,40 L50,60"/></svg></div>
+      </div>
+      <div class="hx-step">
+        <h3>Pergunte<br>à IA</h3>
+        <p>a resposta vem com a fonte de cada item</p>
+        <div class="g2"><div class="p"><span>O que está atrasado?</span><b>IA</b></div><span class="go" aria-hidden="true"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M17 7H7M17 7V17"/></svg></span></div>
+        <div class="to" aria-hidden="true"><svg viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"><path d="M20,80 Q 40,20 80,40"/><path d="M60,20 L80,40 L50,60"/></svg></div>
+      </div>
+      <div class="hx-step">
+        <h3>Confirme<br>e pronto</h3>
+        <p>nada é executado sem o seu clique</p>
+        <div class="g3"><small>1 ação aguardando</small><b>Confirmar ✓</b></div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="marquee" id="integracoes-faixa" aria-label="Algumas integrações">
+  <p>Conecta com as ferramentas que a sua equipe já usa</p>
+  <div class="mask"><div class="track" id="track"></div></div>
+</div>
+
+<section id="produto" style="padding-top:96px">
+  <div class="wrap">
+    <div class="head rv">
+      <div>
+        <span class="eyebrow"><i></i>Por dentro</span>
+        <h2 style="margin-top:20px;max-width:760px">Tudo o que importa hoje, numa tela.</h2>
+      </div>
+      <div class="hero-stats">
+        <div class="stat"><strong>80</strong><span>integrações oficiais</span></div>
+        <div class="stat"><strong>4</strong><span>visões de tarefas</span></div>
+        <div class="stat"><strong>0</strong><span>ações da IA sem confirmação</span></div>
+      </div>
+    </div>
+    <div class="shot rv"><img src="img/dash.jpg" width="1440" height="900" alt="Dashboard do FlowHub com resumo do dia, progresso de projetos, próximo evento e prioridades atrasadas" loading="lazy"></div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap problem">
+    <div class="rv">
+      <span class="eyebrow"><i></i>O problema</span>
+      <h2 style="margin:20px 0 24px">Sua equipe trabalha em dez abas. A informação fica em nenhuma.</h2>
+      <p class="lead">A tarefa está no Trello, o pedido do cliente chegou no WhatsApp, a proposta está no HubSpot e a reunião mudou no Google Agenda. Ninguém sabe o que está atrasado até alguém perguntar. O FlowHub junta tudo e mostra o que precisa da sua atenção hoje.</p>
+    </div>
+    <div class="hubviz rv" id="hubviz" aria-hidden="true">
+      <div class="stage">
+        <svg viewBox="0 0 640 560"><circle class="ring" cx="320" cy="280" r="190"/><circle class="ring" cx="320" cy="280" r="268"/><g id="wires"></g></svg>
+        <div id="srcs"></div>
+        <div class="hubcard">
+          <div class="hh"><b>F</b>FlowHub<span>Hoje</span></div>
+          <div class="n"><strong>6</strong><span>itens pedem a sua<br>atenção agora</span></div>
+          <ul>
+            <li><img src="img/logos/gmail.svg" alt="">Enviar proposta<i>Urgente</i></li>
+            <li><img src="img/logos/trello.svg" alt="">3 tarefas atrasadas<i>Site</i></li>
+            <li><img src="img/logos/hubspot.svg" alt="">Negócio parado<i>CRM</i></li>
+          </ul>
+          <div class="hf"><span>✦</span> Resumo do dia pronto às 07:30</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="recursos" style="padding-top:0">
+  <div class="wrap">
+    <div class="head rv">
+      <div>
+        <span class="eyebrow"><i></i>Recursos</span>
+        <h2 style="margin-top:20px;max-width:760px">Uma central para enxergar, organizar e agir.</h2>
+      </div>
+      <p class="lead" style="max-width:380px">Tudo o que vem das integrações aparece com a origem marcada. O que você cria no FlowHub fica no FlowHub.</p>
+    </div>
+    <div class="bento">
+      <article class="card c-wide rv">
+        <h3>Tarefas e projetos</h3>
+        <p>Lista, tabela, kanban e calendário. Checklist, comentários, prioridade, responsável e a linha do tempo de tudo o que aconteceu.</p>
+        <div class="peek"><img src="img/tarefas.jpg" width="1440" height="900" alt="Kanban de tarefas do FlowHub com colunas A fazer, Em andamento e Concluído" loading="lazy"></div>
+      </article>
+      <article class="card c-sm dark rv">
+        <h3>Uma caixa de entrada</h3>
+        <p>Mensagens e emails de todas as contas conectadas, num só lugar, com busca global.</p>
+        <div class="pills"><span>Gmail</span><span>Outlook</span><span>Slack</span><span>Teams</span><span>WhatsApp Business</span></div>
+      </article>
+      <article class="card c-sm rv">
+        <h3>Resumos do dia</h3>
+        <p>Calculados a partir dos dados reais do workspace e entregues como notificação.</p>
+        <div class="times"><span>07:30</span><span>12:00</span><span>18:00</span></div>
+      </article>
+      <article class="card c-sm limeb rv">
+        <h3>CRM unificado</h3>
+        <p>Pipeline, contatos, empresas, leads, negócios e tickets, vindos do HubSpot, Salesforce, Pipedrive, RD Station e outros.</p>
+      </article>
+      <article class="card c-sm rv">
+        <h3>Agenda e documentos</h3>
+        <p>Eventos do Google e do Microsoft 365 e arquivos do Drive, OneDrive, Dropbox e Notion lado a lado.</p>
+        <div class="pills"><span>Calendário</span><span>Documentos</span><span>Busca</span></div>
+      </article>
+      <article class="card c-mid dark rv">
+        <h3>Vários workspaces</h3>
+        <p>Uma conta para várias empresas ou equipes, cada uma com os seus dados, membros e permissões separados.</p>
+        <div class="big">∞</div>
+      </article>
+      <article class="card c-mid rv">
+        <h3>Automações e histórico</h3>
+        <p>Rotinas agendadas, notificações e um histórico de auditoria com tudo o que foi conectado, sincronizado, executado ou cancelado.</p>
+        <div class="pills"><span>Automações</span><span>Notificações</span><span>Auditoria</span></div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section id="ia" style="padding-top:0">
+  <div class="wrap">
+    <div class="ai rv">
+      <div>
+        <span class="eyebrow"><i></i>Assistente</span>
+        <h2>Pergunte. A IA responde com a fonte.</h2>
+        <p class="lead">“O que está atrasado?”, “o que aconteceu enquanto eu estava fora?”, “quais clientes precisam de atenção?”. A resposta vem dos seus dados, com link para a origem de cada item.</p>
+        <ul>
+          <li><b>✓</b><div><strong>Nunca inventa</strong><span>Sem dado, ela diz: “Não encontrei essa informação nos dados disponíveis.”</span></div></li>
+          <li><b>✓</b><div><strong>Só propõe, você decide</strong><span>Criar tarefa, marcar evento ou rascunhar email só acontece depois do seu clique.</span></div></li>
+          <li><b>✓</b><div><strong>Respeita permissões</strong><span>Ela só lê o que você pode ver. Ações financeiras nunca são propostas.</span></div></li>
+        </ul>
+      </div>
+      <div>
+        <div class="shot"><img src="img/ia.jpg" width="1440" height="900" alt="Conversa com a IA do FlowHub listando tarefas atrasadas com as fontes e uma ação sugerida aguardando confirmação" loading="lazy"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="integracoes" style="padding-top:0">
+  <div class="wrap">
+    <div class="head rv">
+      <div>
+        <span class="eyebrow"><i></i>Integrações</span>
+        <h2 style="margin-top:20px">80 integrações oficiais.</h2>
+      </div>
+      <p class="lead" style="max-width:420px">Conexões pelas APIs oficiais de cada ferramenta. Uma integração só aparece como conectada depois de uma chamada real dar certo.</p>
+    </div>
+    <div class="cats" id="cats"></div>
+  </div>
+</section>
+
+<section id="seguranca" style="padding-top:0">
+  <div class="wrap">
+    <div class="head rv">
+      <div>
+        <span class="eyebrow"><i></i>Segurança</span>
+        <h2 style="margin-top:20px;max-width:720px">Os dados da empresa tratados como dados da empresa.</h2>
+      </div>
+    </div>
+    <div class="sec">
+      <article class="card dark rv"><span class="k">AES-256</span><h3>Credenciais cifradas</h3><p>Tokens e chaves das integrações são cifrados e nunca voltam ao navegador.</p></article>
+      <article class="card rv"><span class="k">19</span><h3>Permissões por perfil</h3><p>Administrador, Gestor, Membro, Financeiro, RH e Leitor prontos. Financeiro e RH só para quem pode.</p></article>
+      <article class="card rv"><span class="k">100%</span><h3>Isolamento por workspace</h3><p>Toda consulta é filtrada pela organização. Um workspace nunca enxerga o outro.</p></article>
+      <article class="card limeb rv"><span class="k">Log</span><h3>Auditoria completa</h3><p>Logins, conexões, ações executadas e membros alterados ficam registrados.</p></article>
+    </div>
+  </div>
+</section>
+
+<section style="padding-top:0">
+  <div class="wrap">
+    <div class="head rv">
+      <div>
+        <span class="eyebrow"><i></i>Onde usar</span>
+        <h2 style="margin-top:20px">No navegador, no computador e no celular.</h2>
+      </div>
+    </div>
+    <div class="platforms">
+      <div class="pf rv"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 3 2.5 15 0 18M12 3c-2.5 3-2.5 15 0 18"/></svg><div><strong>Web</strong><span>Qualquer navegador</span></div></div>
+      <div class="pf rv"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/></svg><div><strong>Mac</strong><span>Apple Silicon e Intel</span></div></div>
+      <div class="pf rv"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 5l8-1v8H3zM13 4l8-1v9h-8zM3 13h8v8l-8-1zM13 13h8v8l-8-1z"/></svg><div><strong>Windows</strong><span>Instalador para PC</span></div></div>
+      <div class="pf rv"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="6" y="2" width="12" height="20" rx="3"/><path d="M11 18h2"/></svg><div><strong>Android</strong><span>App para celular</span></div></div>
+    </div>
+  </div>
+</section>
+
+<section id="precos" class="pricing" style="padding-top:0">
+  <div class="wrap">
+    <div class="pr-head">
+      <span class="eyebrow pr-rv" style="--i:0"><i></i>Preços</span>
+      <h2 class="pr-rv" style="--i:1;margin-top:20px">Planos do tamanho da sua <em>equipe</em></h2>
+      <p class="pr-rv" style="--i:2">Comece com o que a sua equipe precisa hoje. Todos os planos têm a IA que mostra a fonte e só age com o seu “Confirmar”.</p>
+    </div>
+    <div class="pr-rv" style="--i:3">
+      <div class="pr-switch" role="group" aria-label="Período de cobrança">
+        <span class="pr-pill" aria-hidden="true"></span>
+        <button type="button" aria-pressed="true">Mensal</button>
+        <button type="button" aria-pressed="false">Anual <small>Economize 20%</small></button>
+      </div>
+    </div>
+    <div class="pr-grid" id="pr-grid"></div>
+  </div>
+</section>
+
+<section id="faq" style="padding-top:0">
+  <div class="wrap faq">
+    <div class="rv">
+      <span class="eyebrow"><i></i>Dúvidas</span>
+      <h2 style="margin-top:20px">Perguntas frequentes.</h2>
+    </div>
+    <div class="rv">
+      <details open><summary>O FlowHub substitui as ferramentas que já usamos?</summary><p>Não precisa. Ele se conecta a elas e reúne as informações num painel só. Quem quiser pode criar tarefas e projetos direto no FlowHub.</p></details>
+      <details><summary>A IA pode fazer algo sem eu saber?</summary><p>Não. A IA lê os dados que você tem permissão para ver e, quando sugere criar uma tarefa, marcar um evento ou rascunhar um email, a ação fica pendente até você clicar em Confirmar. Ações financeiras nunca são sugeridas.</p></details>
+      <details><summary>Preciso conectar todas as integrações?</summary><p>Não. Conecte só as que fazem sentido. As outras ficam como “não configuradas” e não aparecem no seu dia a dia.</p></details>
+      <details><summary>Dá para separar empresas ou equipes diferentes?</summary><p>Sim. Cada workspace tem os seus dados, membros e permissões. Você troca de um para o outro sem sair da conta.</p></details>
+      <details><summary>Funciona no celular?</summary><p>Sim. Além do navegador, há aplicativo para Android e para computadores Mac e Windows.</p></details>
+    </div>
+  </div>
+</section>
+
+<section style="padding-top:0">
+  <div class="wrap">
+    <div class="final rv">
+      <h2>Pare de procurar. Comece a ver tudo.</h2>
+      <p>Mostramos o FlowHub funcionando com as ferramentas da sua empresa numa conversa rápida.</p>
+      <a class="btn btn-lime wa" href="#" data-msg="Olá! Quero agendar uma demonstração do FlowHub.">Agendar demonstração<span class="dot" aria-hidden="true">↗</span></a>
+    </div>
+  </div>
+</section>
+
+<footer class="kwf" id="kwf">
+  <svg class="kwf-tile" preserveAspectRatio="none" aria-hidden="true"><ellipse/><rect y="0"/></svg>
+  <div class="kwf-in-wrap">
+    <div class="kwf-top">
+      <h2 class="kwf-motto kwf-fade"><span>Todo o trabalho</span><span>num lugar só</span></h2>
+      <button type="button" class="kwf-key kwf-fade" aria-label="Voltar ao topo"><svg viewBox="0 0 24 34" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M12 33V2M2 12 12 2l10 10"/></svg></button>
+    </div>
+    <div class="kwf-row">
+      <div class="kwf-col kwf-fade"><h3>FlowHub</h3><p>Um produto Stack Solution</p><p>↳ Central de trabalho com IA</p></div>
+      <div class="kwf-col kwf-nav kwf-fade" role="navigation" aria-label="Navegação"><h3>Navegação</h3>
+        <div class="kwf-cols">
+          <ul><li><a class="kwf-link" href="#recursos">Recursos</a></li><li><a class="kwf-link" href="#ia">IA</a></li><li><a class="kwf-link" href="#integracoes">Integrações</a></li></ul>
+          <ul><li><a class="kwf-link" href="#seguranca">Segurança</a></li><li><a class="kwf-link" href="#precos">Preços</a></li><li><a class="kwf-link" href="#faq">Dúvidas</a></li><li><a class="kwf-link" href="#produto">Por dentro</a></li></ul>
+        </div>
+      </div>
+      <div class="kwf-col kwf-fade"><h3>Contato</h3>
+        <div class="kwf-cols"><ul>
+          <li><a class="kwf-link wa" href="#" data-msg="Olá! Quero conhecer o FlowHub.">WhatsApp</a></li>
+          <li><a class="kwf-link" href="mailto:stacksolutionscorp@gmail.com">E-mail</a></li>
+          <li><a class="kwf-link" href="https://instagram.com/stack_solution" target="_blank" rel="noopener">Instagram</a></li>
+        </ul></div>
+      </div>
+    </div>
+    <p class="sr-only">FlowHub</p>
+    <svg class="kwf-word" aria-hidden="true"></svg>
+    <div class="kwf-bar kwf-fade">
+      <p class="kwf-copy">©2026 FlowHub</p>
+      <p class="kwf-reg">80 integrações oficiais — IA que só age com o seu “Confirmar”</p>
+      <p class="kwf-legal"><a class="kwf-link" href="../../index.html">Stack Solution</a></p>
+    </div>
+  </div>
+</footer>
+
+<div class="pblur" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><b></b></div>
+
+<script>
+const WHATSAPP = "551151043609";
+document.querySelectorAll(".wa").forEach(a => {
+  a.href = "https://wa.me/" + WHATSAPP + "?text=" + encodeURIComponent(a.dataset.msg);
+  a.target = "_blank"; a.rel = "noopener";
+});
+
+const CATS = {
+  "Google": ["Gmail", "Calendar", "Drive", "Meet", "Forms", "Analytics", "Ads", "Chat"],
+  "Microsoft": ["Outlook", "Microsoft 365", "Teams", "OneDrive", "SharePoint", "Dynamics 365", "Business Central", "Azure DevOps", "Forms"],
+  "Comunicação e reuniões": ["Slack", "Discord", "Zoom", "Zoom Chat", "Calendly", "WhatsApp Business"],
+  "Projetos e tarefas": ["Trello", "Asana", "ClickUp", "Monday", "Linear", "Basecamp", "Todoist", "Wrike", "Smartsheet"],
+  "Desenvolvimento": ["GitHub", "GitHub Projects", "GitLab", "Bitbucket", "Jira", "Jira Service Management", "Confluence"],
+  "Documentos": ["Notion", "Dropbox", "Box"],
+  "CRM e marketing": ["HubSpot CRM", "HubSpot Marketing", "Salesforce", "Pipedrive", "RD Station CRM", "RD Station Marketing", "Zoho CRM", "Mailchimp", "Meta Ads"],
+  "Atendimento": ["Zendesk", "Freshdesk", "Intercom", "ServiceNow"],
+  "ERP e financeiro": ["SAP", "NetSuite", "TOTVS", "Omie", "Conta Azul", "QuickBooks", "Xero", "Stripe", "Mercado Pago", "PayPal"],
+  "RH": ["Gupy", "Factorial", "BambooHR", "Workday", "Deel", "ADP"],
+  "E-commerce e formulários": ["Shopify", "WooCommerce", "VTEX", "Magento", "Typeform", "Jotform"],
+  "Automação": ["Zapier", "Make", "n8n"],
+};
+document.getElementById("cats").innerHTML = Object.entries(CATS).map(([k, v]) =>
+  `<div class="cat rv"><h4>${k}<small>${v.length}</small></h4><p>${v.join(" · ")}</p></div>`).join("");
+// Logos reais (Simple Icons; os que não existem lá vieram do favicon oficial)
+const LOGOS = [
+  ["gmail.svg", "Gmail"], ["googlecalendar.svg", "Google Agenda"], ["googledrive.svg", "Google Drive"],
+  ["googlemeet.svg", "Google Meet"], ["microsoftoutlook.png", "Outlook"], ["microsoftteams.png", "Teams"],
+  ["slack.png", "Slack"], ["whatsapp.svg", "WhatsApp"], ["zoom.svg", "Zoom"], ["notion.svg", "Notion"],
+  ["trello.svg", "Trello"], ["asana.svg", "Asana"], ["clickup.svg", "ClickUp"], ["jira.svg", "Jira"],
+  ["github.svg", "GitHub"], ["linear.svg", "Linear"], ["hubspot.svg", "HubSpot"], ["salesforce.png", "Salesforce"],
+  ["pipedrive.png", "Pipedrive"], ["rdstation.png", "RD Station"], ["zendesk.svg", "Zendesk"],
+  ["shopify.svg", "Shopify"], ["stripe.svg", "Stripe"], ["mercadopago.svg", "Mercado Pago"],
+  ["dropbox.svg", "Dropbox"], ["discord.svg", "Discord"], ["mailchimp.svg", "Mailchimp"], ["zapier.svg", "Zapier"],
+];
+const logo = ([f, n], dup) => `<span${dup ? ' class="dup" aria-hidden="true"' : ""}><img src="img/logos/${f}" alt="" width="28" height="28">${n}</span>`;
+document.getElementById("track").innerHTML =
+  LOGOS.map(l => logo(l)).join("") + LOGOS.map(l => logo(l, true)).join("");
+
+
+// Hub do "problema": cada ferramenta solta um fio até o FlowHub, com um pacote correndo nele.
+const SOURCES = [
+  ["trello.svg", "Trello", "3 cartões atrasados", "3", 10, 28, -4],
+  ["whatsapp.svg", "WhatsApp", "12 conversas novas", "12", 420, 8, 3],
+  ["gmail.svg", "Gmail", "Nova proposta", "1", 4, 238, 2],
+  ["slack.png", "Slack", "4 menções", "4", 474, 228, -3],
+  ["googlecalendar.svg", "Google Agenda", "Reunião remarcada", "", 22, 456, 3],
+  ["hubspot.svg", "HubSpot", "Negócio parado há 20 dias", "", 392, 470, -2],
+];
+document.getElementById("srcs").innerHTML = SOURCES.map(([f, n, m, b, x, y, r], i) =>
+  `<div class="src" style="left:${x}px;top:${y}px;--r:${r}deg;--d:${-i * .8}s;--i:${i};--fx:${(x + 95 - 320) * .35}px;--fy:${(y + 32 - 280) * .35}px">` +
+  `<span class="lg"><img src="img/logos/${f}" alt=""></span><span><strong>${n}</strong><small>${m}</small></span>${b ? `<em>${b}</em>` : ""}</div>`).join("");
+document.getElementById("wires").innerHTML = SOURCES.map(([, , , , x, y], i) => {
+  const d = `M${x + 95} ${y + 32} Q320 ${y + 32} 320 280`;
+  return `<path class="wire" d="${d}"/><circle class="pkt" r="4.5"><animateMotion dur="2.8s" begin="${-i * .45}s" repeatCount="indefinite" path="${d}"/></circle>`;
+}).join("");
+const viz = document.getElementById("hubviz");
+new ResizeObserver(() => viz.style.setProperty("--k", Math.min(1, viz.clientWidth / 640))).observe(viz);
+
+const nav = document.getElementById("nav");
+addEventListener("scroll", () => {
+  nav.classList.toggle("scrolled", scrollY > 10);
+}, { passive: true });
+
+// Rodapé (porte do KilnWordmarkFooter): a marca não é fonte, é desenhada por um alfabeto
+// geométrico, então o peso de cada letra é um número que incha sob o cursor.
+const XH = 100, ASC = 36, SQUARE = 2.4, TAU = Math.PI * 2, B = 112;
+const clamp = (v, lo, hi) => (v < lo ? lo : v > hi ? hi : v);
+const signedArea = p => {
+  let a = 0;
+  for (let i = 0; i < p.length; i++) { const j = (i + 1) % p.length; a += p[i][0] * p[j][1] - p[j][0] * p[i][1]; }
+  return a / 2;
+};
+// Contornos no sentido horário, furos no anti-horário: um path "nonzero" guarda a letra inteira.
+const orient = (p, sign) => (signedArea(p) * sign >= 0 ? p : p.slice().reverse());
+const sePt = (cx, cy, rx, ry, t) => {
+  const c = Math.cos(t), s = Math.sin(t);
+  return [cx + rx * Math.sign(c) * Math.abs(c) ** (2 / SQUARE), cy + ry * Math.sign(s) * Math.abs(s) ** (2 / SQUARE)];
+};
+const ring = (x0, y0, x1, y1, V, h) => {
+  const cx = (x0 + x1) / 2, cy = (y0 + y1) / 2, rx = (x1 - x0) / 2, ry = (y1 - y0) / 2;
+  const irx = Math.max(1, rx - V), iry = Math.max(1, ry - h), outer = [], inner = [];
+  for (let i = 0; i < 96; i++) {
+    const t = (i / 96) * TAU;
+    outer.push(sePt(cx, cy, rx, ry, t));
+    inner.push(sePt(cx, cy, irx, iry, t));
+  }
+  return [orient(outer, 1), orient(inner, -1)];
+};
+const clipHalf = (poly, [axis, at, side]) => {
+  const out = [], inside = p => (p[axis] - at) * side <= 0;
+  for (let i = 0; i < poly.length; i++) {
+    const a = poly[i], b = poly[(i + 1) % poly.length], ia = inside(a), ib = inside(b);
+    if (ia) out.push(a);
+    if (ia !== ib) { const u = (at - a[axis]) / (b[axis] - a[axis]); out.push([a[0] + (b[0] - a[0]) * u, a[1] + (b[1] - a[1]) * u]); }
+  }
+  return out;
+};
+const keep = (shape, ...halves) =>
+  shape.map(poly => halves.reduce(clipHalf, poly)).filter(poly => poly.length >= 3 && Math.abs(signedArea(poly)) > 1e-6);
+const rect = (x0, y0, x1, y1) => orient([[x0, y0], [x1, y0], [x1, y1], [x0, y1]], 1);
+const diag = (xa, ya, xb, yb, t) => orient([[xa, ya], [xa + t, ya], [xb + t, yb], [xb, yb]], 1);
+// ponytail: só as letras de "flowhub"; se a marca mudar, o alfabeto a–z completo está no componente original
+const GLYPHS = {
+  b: [B, (V, h) => [rect(0, -ASC, V, XH), ...ring(0, 0, B, XH, V, h)]],
+  f: [78, (V, h) => [rect(10, 26, 10 + V, XH), ...keep(ring(10, -ASC, 110, 88, V, h), [1, 26, 1], [0, 78, 1]), rect(0, 0, 74, h)]],
+  h: [B, (V, h) => [rect(0, -ASC, V, XH), ...keep(ring(0, 0, B, XH, V, h), [1, XH / 2, 1]), rect(B - V, XH / 2, B, XH)]],
+  l: [30, V => [rect(15 - V / 2, -ASC, 15 + V / 2, XH)]],
+  o: [B, (V, h) => ring(0, 0, B, XH, V, h)],
+  u: [B, (V, h) => [...keep(ring(0, 0, B, XH, V, h), [1, XH / 2, -1]), rect(0, 0, V, XH / 2), rect(B - V, 0, B, XH)]],
+  w: [176, V => [diag(0, 0, 44 - V / 2, XH, V), diag(88 - V / 2, 0, 44 - V / 2, XH, V), diag(88 - V / 2, 0, 132 - V / 2, XH, V), diag(176 - V, 0, 132 - V / 2, XH, V)]],
+};
+const n1 = v => String(Math.round(v * 10) / 10);
+const glyphPath = (ch, k, dx) => {
+  const w = clamp(k, .4, 1.6), V = 30 * w, h = 19 * (.55 + .45 * w);
+  return GLYPHS[ch][1](V, h).map(poly => "M" + poly.map(p => n1(p[0] + dx) + " " + n1(p[1])).join("L") + "Z").join("");
+};
+// Aproximação independente da taxa de quadros: k é a fração fechada a cada 1/60 s.
+const approach = (from, to, k, dt) => to + (from - to) * (1 - k) ** (clamp(dt, 0, .1) * 60);
+// Composições do "azulejo": disco (cx, cy, r em frações da largura) e faixa (x, largura). Clique troca.
+const TILES = [
+  { cx: .385, cy: .5, r: .415, sx: .755, sw: .245 },
+  { cx: .615, cy: .5, r: .415, sx: 0, sw: .245 },
+  { cx: .5, cy: 1.04, r: .5, sx: .5, sw: 0 },
+  { cx: 1, cy: 0, r: .6, sx: 0, sw: .3 },
+];
+console.assert([..."flowhub"].every(c => /^(M[-\d. L]+Z)+$/.test(glyphPath(c, 1, 0))), "kiln: glifo inválido");
+
+(() => {
+  const kwf = document.getElementById("kwf");
+  const wordSvg = kwf.querySelector(".kwf-word"), tileSvg = kwf.querySelector(".kwf-tile");
+  const disc = tileSvg.querySelector("ellipse"), slab = tileSvg.querySelector("rect");
+  let x = 0;
+  const letters = [..."flowhub"].map(ch => { const l = { ch, x, w: GLYPHS[ch][0] }; x += l.w + 10; return l; });
+  const width = x - 10, centres = letters.map(l => l.x + l.w / 2);
+  wordSvg.setAttribute("viewBox", `0 ${-ASC} ${width} ${XH + ASC}`);
+  wordSvg.innerHTML = letters.map((l, i) => `<g class="kwf-l" style="--kwf-d:${140 + i * 70}ms"><path d="${glyphPath(l.ch, 1, l.x)}"/></g>`).join("");
+  const paths = [...wordSvg.querySelectorAll("path")];
+
+  const A = {
+    k: letters.map(() => 1), kT: letters.map(() => 1), tile: 0,
+    cur: { ...TILES[0] }, target: { ...TILES[0] }, lean: [0, 0], w: 960, h: 540,
+    reduced: matchMedia("(prefers-reduced-motion: reduce)").matches, raf: 0, last: 0,
+  };
+  const paint = () => {
+    disc.setAttribute("cx", n1(A.cur.cx * A.w));
+    disc.setAttribute("cy", n1(A.cur.cy * A.h));
+    disc.setAttribute("rx", n1(A.cur.r * A.w));
+    disc.setAttribute("ry", n1(A.cur.r * A.w));
+    slab.setAttribute("x", n1(A.cur.sx * A.w));
+    slab.setAttribute("width", n1(Math.max(0, A.cur.sw * A.w)));
+    slab.setAttribute("height", A.h);
+    letters.forEach((l, i) => paths[i].setAttribute("d", glyphPath(l.ch, A.k[i], l.x)));
+  };
+  // Um laço só, escrevendo direto no DOM, e que para sozinho quando tudo assenta.
+  const kick = () => {
+    if (A.raf) return;
+    A.last = 0;
+    const step = now => {
+      const dt = A.last ? (now - A.last) / 1000 : 1 / 60;
+      A.last = now;
+      let busy = false;
+      const goal = { ...A.target, cx: A.target.cx + .035 * A.lean[0], cy: A.target.cy + .056 * A.lean[1] };
+      for (const key of ["cx", "cy", "r", "sx", "sw"]) {
+        const next = A.reduced ? goal[key] : approach(A.cur[key], goal[key], .075, dt);
+        A.cur[key] = Math.abs(next - goal[key]) < 1e-4 ? goal[key] : next;
+        if (A.cur[key] !== goal[key]) busy = true;
+      }
+      for (let i = 0; i < A.k.length; i++) {
+        const next = A.reduced ? A.kT[i] : approach(A.k[i], A.kT[i], .16, dt);
+        A.k[i] = Math.abs(next - A.kT[i]) < 1e-3 ? A.kT[i] : next;
+        if (A.k[i] !== A.kT[i]) busy = true;
+      }
+      paint();
+      A.raf = busy ? requestAnimationFrame(step) : 0;
+    };
+    A.raf = requestAnimationFrame(step);
+  };
+
+  new ResizeObserver(([e]) => {
+    A.w = Math.max(1, Math.round(e.contentRect.width));
+    A.h = Math.max(1, Math.round(e.contentRect.height));
+    tileSvg.setAttribute("viewBox", `0 0 ${A.w} ${A.h}`);
+    paint();
+  }).observe(kwf);
+  const seen = new IntersectionObserver(es => {
+    if (es.some(e => e.isIntersecting)) { kwf.classList.add("kwf-shown"); seen.disconnect(); }
+  }, { threshold: .15 });
+  seen.observe(kwf);
+  kwf.querySelectorAll(".kwf-fade").forEach((el, i) => el.style.setProperty("--kwf-d", (i + 1) * 45 + "ms"));
+
+  // O disco se inclina para o cursor; clique em área vazia troca a composição.
+  kwf.addEventListener("pointermove", e => {
+    if (e.pointerType === "touch") return;
+    const r = kwf.getBoundingClientRect();
+    A.lean = [((e.clientX - r.left) / r.width) * 2 - 1, ((e.clientY - r.top) / r.height) * 2 - 1];
+    kick();
+  });
+  kwf.addEventListener("pointerleave", () => { A.lean = [0, 0]; kick(); });
+  kwf.addEventListener("click", e => {
+    if (e.target.closest("a,button,.kwf-word") || getSelection().toString()) return;
+    A.tile = (A.tile + 1) % TILES.length;
+    A.target = { ...TILES[A.tile] };
+    kick();
+  });
+  // Lente de peso: as letras perto do cursor engrossam; clique "carimba" a letra.
+  wordSvg.addEventListener("pointermove", e => {
+    const r = wordSvg.getBoundingClientRect(), px = ((e.clientX - r.left) / r.width) * width;
+    A.kT = centres.map(c => { const d = (c - px) / 150; return 1 + .42 * Math.exp(-d * d); });
+    kick();
+  });
+  wordSvg.addEventListener("pointerleave", () => { A.kT = centres.map(() => 1); kick(); });
+  paths.forEach((p, i) => p.addEventListener("click", () => {
+    A.k[i] = Math.min(1.6, A.k[i] + .55);
+    kick();
+    if (!A.reduced) p.animate([
+      { transform: "none" },
+      { transform: "scale(1.05, .8)", offset: .25 },
+      { transform: "scale(.98, 1.05)", offset: .6 },
+      { transform: "none" },
+    ], { duration: 620, easing: "cubic-bezier(.3,.7,.3,1)" });
+  }));
+  kwf.querySelector(".kwf-key").addEventListener("click", () => scrollTo({ top: 0, behavior: A.reduced ? "auto" : "smooth" }));
+  paint();
+})();
+
+// Desfoque da borda: o esmaecimento pega a cor da seção que está passando embaixo
+// e some no fim da página para não cobrir o rodapé.
+const pb = document.querySelector(".pblur");
+let pbQueued = false;
+const pbUpdate = () => {
+  pbQueued = false;
+  let bg = "rgb(239, 241, 235)";
+  for (let el = document.elementFromPoint(innerWidth / 2, innerHeight - 4); el; el = el.parentElement) {
+    if (el.offsetWidth < innerWidth * .6) continue; // botões e cards não contam, só a seção
+    const c = getComputedStyle(el).backgroundColor;
+    if (c !== "rgba(0, 0, 0, 0)" && c !== "transparent") { bg = c; break; }
+  }
+  pb.style.setProperty("--pb-tint", bg);
+  pb.classList.toggle("off", innerHeight + scrollY >= document.documentElement.scrollHeight - 60);
+};
+const pbQueue = () => { if (!pbQueued) { pbQueued = true; requestAnimationFrame(pbUpdate); } };
+addEventListener("scroll", pbQueue, { passive: true });
+addEventListener("resize", pbQueue);
+pbUpdate();
+
+const io = new IntersectionObserver(es => es.forEach(e => {
+  if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); }
+}), { threshold: .12 });
+document.querySelectorAll(".rv").forEach(el => io.observe(el));
+
+// Preços (porte do PricingSection).
+// ponytail: valores e limites provisórios, definidos sem o dono do produto; trocar pelos reais aqui
+const ICON = {
+  users: '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>',
+  plug: '<path d="M12 22v-5"/><path d="M9 8V2"/><path d="M15 8V2"/><path d="M18 8v5a4 4 0 0 1-4 4h-4a4 4 0 0 1-4-4V8Z"/>',
+  layers: '<path d="M12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83Z"/><path d="m22 17.65-9.17 4.16a2 2 0 0 1-1.66 0L2 17.65"/><path d="m22 12.65-9.17 4.16a2 2 0 0 1-1.66 0L2 12.65"/>',
+  check: '<path d="M18 6 7 17l-5-5"/><path d="m22 10-7.5 7.5L13 16"/>',
+};
+const svg = d => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
+const PLANS = [
+  { name: "Essencial", price: 97, desc: "Para quem quer tirar a equipe das dez abas e organizar o dia.",
+    feats: [["users", "Até 5 usuários"], ["plug", "Até 10 integrações conectadas"], ["layers", "1 workspace"]],
+    inc: ["Inclui:", "Tarefas, projetos e agenda", "Caixa de entrada unificada", "Resumos do dia"] },
+  { name: "Equipe", price: 297, pop: true, desc: "O melhor custo para equipes que vivem entre ferramentas e clientes.",
+    feats: [["users", "Até 20 usuários"], ["plug", "Todas as 80 integrações"], ["layers", "Até 3 workspaces"]],
+    inc: ["Tudo do Essencial, mais:", "CRM unificado", "Automações", "Perfis de acesso prontos"] },
+  { name: "Empresa", price: 697, desc: "Para operações maiores, com mais controle, segurança e auditoria.",
+    feats: [["users", "Usuários ilimitados"], ["plug", "80 integrações e webhooks"], ["layers", "Workspaces ilimitados"]],
+    inc: ["Tudo do Equipe, mais:", "Permissões por perfil (19)", "Histórico de auditoria", "Implantação acompanhada"] },
+];
+const yearly = p => Math.round(p * 12 * .8);
+document.getElementById("pr-grid").innerHTML = PLANS.map((p, i) => `
+  <div class="pr-rv" style="--i:${4 + i}">
+    <article class="plan${p.pop ? " pop" : ""}">
+      <div class="top"><h3>${p.name}</h3>${p.pop ? '<span class="badge">Mais escolhido</span>' : ""}</div>
+      <p class="desc">${p.desc}</p>
+      <div class="price"><strong>R$&nbsp;<span class="nf" aria-hidden="true"></span></strong><span class="per"></span><span class="sr-only"></span></div>
+      <a class="cta" href="https://wa.me/${WHATSAPP}?text=${encodeURIComponent(`Olá! Quero contratar o plano ${p.name} do FlowHub.`)}" target="_blank" rel="noopener">Começar com o ${p.name}</a>
+      <ul class="feats">${p.feats.map(([ic, t]) => `<li>${svg(ICON[ic])}${t}</li>`).join("")}</ul>
+      <div class="inc"><h4>${p.inc[0]}</h4><ul>${p.inc.slice(1).map(t => `<li><i>${svg(ICON.check)}</i>${t}</li>`).join("")}</ul></div>
+    </article>
+  </div>`).join("");
+
+// Cada dígito é uma coluna 0–9; trocar o valor só desliza as colunas. Se o tamanho muda
+// (97 → 931), recria as colunas no 0 e elas rolam até o número novo.
+const setNum = (el, n) => {
+  const str = n.toLocaleString("pt-BR");
+  if ((el.dataset.v || "").length !== str.length) {
+    el.innerHTML = [...str].map(c => /\d/.test(c) ? `<span class="d">${[..."0123456789"].map(x => `<span>${x}</span>`).join("")}</span>` : `<span>${c}</span>`).join("");
+    el.offsetWidth; // força o layout para a transição partir do 0
+  }
+  el.dataset.v = str;
+  [...el.children].forEach((c, i) => { if (c.classList.contains("d")) c.style.translate = `0 ${-str[i] * 1.1}em`; });
+};
+const sw = document.querySelector(".pr-switch"), pill = sw.querySelector(".pr-pill"), swBtns = [...sw.querySelectorAll("button")];
+const renderPrices = () => {
+  const anual = swBtns[1].getAttribute("aria-pressed") === "true";
+  document.querySelectorAll("#pr-grid .plan").forEach((card, i) => {
+    const v = anual ? yearly(PLANS[i].price) : PLANS[i].price;
+    setNum(card.querySelector(".nf"), v);
+    card.querySelector(".per").textContent = anual ? "/ano" : "/mês";
+    card.querySelector(".price .sr-only").textContent = `R$ ${v.toLocaleString("pt-BR")} por ${anual ? "ano" : "mês"}`;
+  });
+};
+const movePill = () => {
+  const b = swBtns.find(x => x.getAttribute("aria-pressed") === "true");
+  pill.style.width = b.offsetWidth + "px";
+  pill.style.translate = b.offsetLeft + "px 0";
+};
+swBtns.forEach((b, i) => b.addEventListener("click", () => {
+  swBtns.forEach((x, j) => x.setAttribute("aria-pressed", String(i === j)));
+  movePill();
+  renderPrices();
+}));
+addEventListener("resize", movePill);
+document.fonts.ready.then(movePill);
+movePill();
+renderPrices();
+io.observe(document.getElementById("precos"));
+</script>
+<a id="stack-credit" href="../../index.html" style="position:relative;z-index:60;display:flex;align-items:center;justify-content:center;gap:12px;padding:28px 16px 88px;background:#0a0a0a;color:rgba(255,255,255,.7);font:500 14px/1 system-ui,-apple-system,sans-serif;text-decoration:none;letter-spacing:.02em">Desenvolvido por <img src="../../logo-stack-white.svg" alt="Stack" style="height:22px;width:auto;display:block"></a>
+<div id="stack-demo-bar" style="position:fixed;left:50%;bottom:16px;transform:translateX(-50%);z-index:2147483000;display:flex;align-items:center;gap:14px;padding:8px 8px 8px 18px;border-radius:999px;background:#0a0a0a;color:#fff;font:500 13px/1.3 system-ui,-apple-system,sans-serif;box-shadow:0 12px 32px -12px rgba(0,0,0,.5);white-space:nowrap;max-width:calc(100vw - 24px)"><span><b>Sistema Stack Solution</b><span class="sdb-x" style="opacity:.65"> · FlowHub</span></span><a href="../../index.html#sistemas" style="padding:8px 14px;border-radius:999px;background:#1800ad;color:#fff;text-decoration:none;font-weight:600">Voltar ao site</a></div>
+<style>@media (max-width:480px){#stack-demo-bar{gap:10px!important;padding:6px 6px 6px 14px!important;font-size:12px!important;bottom:12px!important;left:12px!important;transform:none!important}#stack-demo-bar .sdb-x{display:none}}</style>
+</body>
+</html>

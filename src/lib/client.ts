@@ -1,5 +1,7 @@
 'use client';
 
+import { withBase } from './base-path';
+
 // Cliente HTTP da UI → API /api/v1 (a interface consome a mesma API pública documentada).
 export class ApiError extends Error {
   constructor(public status: number, message: string, public details?: unknown) {
@@ -8,7 +10,7 @@ export class ApiError extends Error {
 }
 
 export async function api<T = unknown>(path: string, opts: { method?: string; body?: unknown; form?: FormData } = {}): Promise<T> {
-  const res = await fetch(`/api/v1${path}`, {
+  const res = await fetch(withBase(`/api/v1${path}`), {
     method: opts.method ?? (opts.body || opts.form ? 'POST' : 'GET'),
     headers: opts.form ? undefined : { 'content-type': 'application/json' },
     body: opts.form ?? (opts.body !== undefined ? JSON.stringify(opts.body) : undefined),
