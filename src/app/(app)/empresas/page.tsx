@@ -3,13 +3,21 @@ import { can } from '@/modules/auth/context';
 import { listProspects, prospectQuality, qualityLevel, trialSearchesLeft } from '@/modules/business-prospecting/prospecting.service';
 import { Badge, Card, Empty, Notice, PageHeader, Table, Td, Th } from '@/components/ui';
 import { ActionButton, FilterBar, Pagination } from '@/components/client';
-import { formatCnpj, formatPhone } from '@/lib/normalize';
+import { formatCnpj, formatPhone, isLandlineBR } from '@/lib/normalize';
 import { date } from '@/lib/format';
 import { SearchCompanies } from './search';
 import { CnpjLookup } from './cnpj-lookup';
 import Link from 'next/link';
+import { WhatsAppContactButton } from '@/components/whatsapp-contact';
+import { buttonClass } from '@/components/ui';
 import { env } from '@/lib/env';
 import { googleRequestsLeft } from '@/modules/integrations/maps/maps.provider';
+
+/** Número para abrir no WhatsApp do próprio consultor (o contato frio é humano, nunca pelo bot). */
+const waLink = (phone: string) => {
+  const d = phone.replace(/\D/g, '');
+  return `https://wa.me/${d.length <= 11 ? `55${d}` : d}`;
+};
 
 /** Selo de qualidade do contato (celular, avaliações, nota e site). */
 function Quality({ p }: { p: { phone: string | null; website: string | null; rating: number | null; reviews: number | null } }) {
@@ -130,6 +138,16 @@ export default async function EmpresasPage({ searchParams }: { searchParams: Pro
                     <Td className="text-right whitespace-nowrap">
                       {p.status === 'NEW' && can(ctx, 'prospecting.convert') && (
                         <span className="inline-flex gap-1.5">
+                          {p.phone && (
+                            <a href={`tel:${p.phone.replace(/\D/g, '')}`} className={buttonClass('secondary', 'sm')}>
+                              Ligar
+                            </a>
+                          )}
+                          {p.phone && !isLandlineBR(p.phone) && (
+                            <WhatsAppContactButton url={waLink(p.phone)} prospectId={p.id} className={buttonClass('secondary', 'sm')}>
+                              WhatsApp
+                            </WhatsAppContactButton>
+                          )}
                           <ActionButton size="sm" variant="primary" path={`/prospecting/${p.id}`} body={{ action: 'convert' }} success="Empresa convertida em lead (sem mensagens automáticas).">
                             Converter
                           </ActionButton>

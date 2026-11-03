@@ -60,17 +60,59 @@ function Box({ id, title, aside, children }: { id: string; title: string; aside?
   );
 }
 
-/** Detalhe de um registro público: só os campos preenchidos, sem identificadores internos. */
+// Campos que importam em cada fonte (o resto é código interno da base). Rótulo em português.
+const KEY_FIELDS: Record<string, string> = {
+  objeto: 'Objeto',
+  nome_orgao: 'Órgão',
+  orgao: 'Órgão',
+  categoria: 'Categoria',
+  receita_principal: 'Receita',
+  situacao_inscricao: 'Situação',
+  situacao: 'Situação',
+  situacao_rntrc: 'Situação',
+  modalidade_habilitacao: 'Modalidade',
+  descricao_infracao: 'Infração',
+  empregador: 'Empregador',
+  trabalhadores_envolvidos: 'Trabalhadores',
+  valor_consolidado: 'Valor',
+  valor_global: 'Valor',
+  valor_multa: 'Multa',
+  data_inscricao: 'Data',
+  data_assinatura: 'Assinatura',
+  data_auto: 'Data',
+  data_inicio: 'Início',
+  data_fim: 'Fim',
+  data_decisao: 'Decisão',
+  processo: 'Processo',
+};
+const SHOWN = 5;
+const firstDate = (it: Record<string, unknown>) => String(Object.entries(it).find(([k, v]) => /^data_/.test(k) && v)?.[1] ?? '').replace(/-/g, '');
+
+/** Resumo de um registro público: até 6 campos principais e o link oficial, quando houver. */
 function Item({ item }: { item: Record<string, unknown> }) {
-  const fields = Object.entries(item).filter(([k, v]) => v !== null && v !== '' && typeof v !== 'object' && !/^(cnpj|id)_|^cnpj_basico$/.test(k));
+  const seen = new Set<string>();
+  let fields = Object.entries(KEY_FIELDS)
+    .filter(([k, label]) => item[k] != null && item[k] !== '' && !seen.has(label) && seen.add(label))
+    .slice(0, 6);
+  // Fonte com campos que não estão na lista: mostra os primeiros preenchidos.
+  if (!fields.length) fields = Object.entries(item).filter(([k, v]) => v != null && v !== '' && typeof v !== 'object' && !/^(cnpj|id)_|^cnpj_basico$/.test(k)).slice(0, 4).map(([k]) => [k, k.replaceAll('_', ' ')]);
+  const url = [item.url_pncp, item.url].find((u): u is string => typeof u === 'string' && u.startsWith('https://'));
   return (
     <dl className="grid sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-2 rounded-2xl bg-slate-50 px-4 py-3 text-sm">
-      {fields.map(([k, v]) => (
-        <div key={k} className="min-w-0">
-          <dt className="text-[11px] uppercase tracking-[0.06em] text-faint">{k.replaceAll('_', ' ')}</dt>
-          <dd className="text-ink-2 break-words">{typeof v === 'number' && /^(valor|limite)/.test(k) ? brl(v) : typeof v === 'boolean' ? (v ? 'Sim' : 'Não') : /^data_/.test(k) ? date(String(v)) : String(v)}</dd>
-        </div>
-      ))}
+      {fields.map(([k, label]) => {
+        const v = item[k];
+        return (
+          <div key={k} className={cx('min-w-0', k === 'objeto' && 'sm:col-span-2 lg:col-span-3')}>
+            <dt className="text-[11px] uppercase tracking-[0.06em] text-faint">{label}</dt>
+            <dd className={cx('text-ink-2 break-words', k === 'objeto' && 'line-clamp-2')}>{typeof v === 'number' && /^valor/.test(k) ? brl(v) : /^data_/.test(k) ? date(String(v)) : String(v)}</dd>
+          </div>
+        );
+      })}
+      {url && (
+        <a href={url} target="_blank" rel="noreferrer" className="text-brand-600 hover:underline text-[13px] self-end">
+          Ver no site oficial ↗
+        </a>
+      )}
     </dl>
   );
 }
@@ -325,7 +367,7 @@ export function CompanyReportPanel({ company }: { company: Company }) {
         </p>
         <div className="divide-y divide-line rounded-2xl border border-line">
           {r.sources.map((s) => (
-            <details key={s.group + s.name} className="group px-4 py-3" open={s.status === 'encontrado' && s.items.length > 0}>
+            <details key={s.group + s.name} className="group px-4 py-3">
               <summary className={cx('grid grid-cols-[1fr_auto] sm:grid-cols-[1fr_180px_120px] items-center gap-3 list-none', s.items.length ? 'cursor-pointer' : 'cursor-default')}>
                 <div className="min-w-0">
                   <div className="font-semibold text-ink">{s.name}</div>
@@ -335,14 +377,21 @@ export function CompanyReportPanel({ company }: { company: Company }) {
                   </div>
                 </div>
                 <Badge tone={STATUS[s.status].tone} className="justify-self-start">{s.status === 'encontrado' ? `${s.total} registro${s.total === 1 ? '' : 's'}` : STATUS[s.status].label}</Badge>
-                <span className="hidden sm:block text-sm text-muted tabular">{date(s.date)}</span>
+                <span className="hidden sm:flex items-center justify-between text-sm text-muted tabular">
+                  {date(s.date)}
+                  {s.items.length > 0 && <span className="text-brand-600 transition-transform group-open:rotate-180" aria-hidden>▾</span>}
+                </span>
               </summary>
               {s.items.length > 0 && (
                 <div className="mt-3 space-y-2">
-                  {s.items.map((it, i) => (
-                    <Item key={i} item={it} />
-                  ))}
-                  {s.total > s.items.length && <p className="text-xs text-muted">Mostrando {s.items.length} de {s.total} registros.</p>}
+                  {/* Os mais recentes primeiro. */}
+                  {[...s.items]
+                    .sort((a, b) => firstDate(b).localeCompare(firstDate(a)))
+                    .slice(0, SHOWN)
+                    .map((it, i) => (
+                      <Item key={i} item={it} />
+                    ))}
+                  {s.total > SHOWN && <p className="text-xs text-muted">Mostrando os {SHOWN} mais recentes de {s.total} registros.</p>}
                 </div>
               )}
             </details>

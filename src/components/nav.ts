@@ -10,6 +10,8 @@ export interface NavItem {
 export interface NavGroup {
   label: string | null;
   items: NavItem[];
+  /** Grupo fechado por padrão (abre sozinho quando a tela atual está nele). */
+  collapsed?: boolean;
 }
 
 export const NAV: NavGroup[] = [
@@ -170,19 +172,25 @@ export const ADMIN_NAV: NavGroup[] = [
   },
 ];
 
-/** Menu do CONSULTOR: o dia a dia de atendimento e vendas. */
+/** Menu do CONSULTOR: só o dia a dia à vista; o que se usa de vez em quando fica em "Mais", fechado. */
 export const CONSULTANT_NAV: NavGroup[] = [
   {
     label: 'Meu trabalho',
     items: [
       { label: 'Meu painel', href: '/meu-painel', icon: 'grid' },
-      { label: 'Divulgação', href: '/divulgacao', icon: 'send' },
       { label: 'Inbox', href: '/conversas', permission: 'conversation.read', icon: 'inbox' },
       { label: 'Meus leads', href: '/leads', permission: 'lead.read', icon: 'user' },
       { label: 'Minhas vendas', href: '/pipeline', permission: 'opportunity.read', icon: 'kanban' },
-      { label: 'Tarefas', href: '/tarefas', permission: 'task.read', icon: 'check' },
       { label: 'Prospectar no Google', href: '/empresas', permission: 'prospecting.read', icon: 'building' },
       { label: 'Treinamento', href: '/treinamento', icon: 'cap' },
+    ],
+  },
+  {
+    label: 'Mais',
+    collapsed: true,
+    items: [
+      { label: 'Tarefas', href: '/tarefas', permission: 'task.read', icon: 'check' },
+      { label: 'Divulgação', href: '/divulgacao', icon: 'send' },
       { label: 'Vídeos do Instagram', href: '/instagram-videos', icon: 'megaphone' },
       { label: 'Configurar IA', href: '/configurar-ia', icon: 'bot' },
       { label: 'Meu perfil', href: '/perfil', icon: 'user' },

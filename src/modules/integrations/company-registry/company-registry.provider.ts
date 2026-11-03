@@ -131,7 +131,7 @@ export class CnpjAiProvider implements CompanyRegistryProvider {
       phone,
       email: est.correio_eletronico?.toLowerCase() || undefined,
       partners: (emp.socios?.itens ?? []).filter((s) => s.nome_socio_razao_social).map((s) => ({ name: s.nome_socio_razao_social!, role: s.descricoes?.qualificacao_socio || undefined })),
-      report: cnpjAiReport(b),
+      report: await withCnaeNames(cnpjAiReport(b)),
     };
   }
 
@@ -248,6 +248,27 @@ const SOURCE_GROUPS: Record<string, string> = {
 // Códigos de faixa etária do quadro societário da Receita.
 const AGE = ['', '0 a 12 anos', '13 a 20 anos', '21 a 30 anos', '31 a 40 anos', '41 a 50 anos', '51 a 60 anos', '61 a 70 anos', '71 a 80 anos', 'mais de 80 anos'];
 const phoneOf = (ddd?: Str, n?: Str) => (ddd && n ? `(${ddd}) ${n}` : undefined);
+
+// Nome das atividades pela tabela oficial do IBGE (pública, sem chave). Os códigos se repetem muito: cache em memória.
+const cnaeCache = new Map<string, string | null>();
+async function cnaeName(code: string) {
+  if (!cnaeCache.has(code)) {
+    const r = await fetch(`https://servicodados.ibge.gov.br/api/v2/cnae/subclasses/${code}`, { signal: AbortSignal.timeout(5_000) })
+      .then((res) => (res.ok ? res.json() : null))
+      .catch(() => undefined);
+    if (r === undefined) return undefined; // IBGE fora do ar: tenta de novo na próxima consulta
+    const desc = (r as { descricao?: string } | null)?.descricao?.toLowerCase();
+    cnaeCache.set(code, desc ? desc[0].toUpperCase() + desc.slice(1) : null);
+  }
+  return cnaeCache.get(code) ?? undefined;
+}
+
+/** O cnpj.ai não manda o nome das atividades secundárias: completa pelo IBGE. */
+export async function withCnaeNames(report?: CompanyReport) {
+  if (!report) return report;
+  report.otherActivities = await Promise.all(report.otherActivities.map(async (a) => ({ ...a, desc: a.desc ?? (await cnaeName(a.code)) })));
+  return report;
+}
 
 /** Resposta /full do cnpj.ai → ficha do painel de Empresas. */
 export function cnpjAiReport(b: CnpjAiBody): CompanyReport | undefined {

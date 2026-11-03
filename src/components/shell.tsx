@@ -45,14 +45,13 @@ export function Shell({ nav, user, appName, actions, children }: { nav: NavGroup
           </button>
         </div>
         <nav className="flex-1 overflow-y-auto scroll-thin px-3.5 pb-3 space-y-5">
-          {nav.map((g, gi) => (
-            <div key={gi}>
-              {g.label && <div className="px-2.5 pt-1 pb-2 text-[11px] font-medium uppercase tracking-[0.08em] text-faint">{g.label}</div>}
+          {nav.map((g, gi) => {
+            const under = (b: string) => pathname === b || (b !== '/dashboard' && pathname.startsWith(b + '/'));
+            const list = (
               <ul className="space-y-0.5">
                 {g.items.map((item) => {
                   const base = item.href.split('?')[0];
                   // Item mais específico vence: em /gestao/divulgacao só "Divulgação" acende, não "Painel" (/gestao).
-                  const under = (b: string) => pathname === b || (b !== '/dashboard' && pathname.startsWith(b + '/'));
                   const moreSpecific = nav.some((ng) => ng.items.some((o) => o.href.split('?')[0].length > base.length && under(o.href.split('?')[0])));
                   const active = under(base) && !moreSpecific;
                   return (
@@ -70,8 +69,27 @@ export function Shell({ nav, user, appName, actions, children }: { nav: NavGroup
                   );
                 })}
               </ul>
-            </div>
-          ))}
+            );
+            if (g.collapsed)
+              return (
+                <details key={gi} className="group" open={g.items.some((i) => under(i.href.split('?')[0])) || undefined}>
+                  <summary className="flex items-center gap-3 rounded-xl px-3 h-10 text-[14.5px] cursor-pointer list-none hover:bg-slate-100 hover:text-ink [&::-webkit-details-marker]:hidden">
+                    <Icon name="list" className="size-[17px] opacity-70" />
+                    {g.label}
+                    <span className="ml-auto text-xs opacity-60 transition-transform group-open:rotate-180" aria-hidden>
+                      ▾
+                    </span>
+                  </summary>
+                  <div className="mt-0.5">{list}</div>
+                </details>
+              );
+            return (
+              <div key={gi}>
+                {g.label && <div className="px-2.5 pt-1 pb-2 text-[11px] font-medium uppercase tracking-[0.08em] text-faint">{g.label}</div>}
+                {list}
+              </div>
+            );
+          })}
         </nav>
         <div className="border-t border-line p-3.5 shrink-0">
           <div className="rounded-2xl bg-slate-100 p-3">
