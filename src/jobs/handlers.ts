@@ -82,10 +82,6 @@ async function execute(name: JobName, data: Record<string, unknown>) {
         staleClosed: await closeStaleConversations(orgId), // 7 dias sem mensagem
       }));
     }
-    case 'prospecting.daily': {
-      const { runDailyListIfDue } = await import('@/modules/business-prospecting/daily-list.service');
-      return forEachOrg((orgId) => runDailyListIfDue(orgId));
-    }
     case 'duplicates.scan': {
       const { scanDuplicates } = await import('@/modules/leads/duplicates.service');
       return forEachOrg((orgId) => scanDuplicates(orgId));

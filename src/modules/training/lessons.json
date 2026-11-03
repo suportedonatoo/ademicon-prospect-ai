@@ -2645,25 +2645,29 @@
   "slug": "g10",
   "code": "G10",
   "trail": "Trilha do gestor",
-  "title": "Publicar materiais de treinamento (Super Admin)",
-  "subtitle": "Subir estes PDFs e acompanhar quem concluiu.",
+  "title": "Gerenciar o treinamento (Super Admin)",
+  "subtitle": "Adicionar vídeos, organizar as aulas e acompanhar quem concluiu.",
   "minutes": 5,
   "blocks": [
    {
     "t": "callout",
     "kind": "objetivo",
     "label": "Objetivo",
-    "text": "Publicar o treinamento na plataforma."
+    "text": "Manter o treinamento da equipe atualizado e acompanhar quem já concluiu."
+   },
+   {
+    "t": "p",
+    "text": "As aulas das duas trilhas (consultor e gestor) já estão **dentro da plataforma**, como telas com fotos e passo a passo. Ninguém precisa baixar PDF: cada consultor abre a aula em **Treinamento → Abrir aula** e marca como concluída no fim."
+   },
+   {
+    "t": "p",
+    "text": "Quem cuida da área de Treinamento é o **Super Admin**. Ele pode acrescentar vídeos e links, mudar a ordem, esconder um conteúdo e ver o progresso de cada pessoa."
    },
    {
     "t": "callout",
     "kind": "dica",
     "label": "Como ler as fotos",
     "text": "os quadros **vermelhos numerados** mostram onde clicar; a explicação de cada número está logo abaixo da foto."
-   },
-   {
-    "t": "p",
-    "text": "Quem publica os materiais é a **equipe da plataforma (Super Admin)**. A equipe vê os materiais em **Treinamento** e marca o que concluiu."
    },
    {
     "t": "figure",
@@ -2675,10 +2679,23 @@
      {
       "t": "legend",
       "items": [
-       "**+ Adicionar conteúdo**.",
-       "**Progresso da equipe**: quem concluiu cada material."
+       "**+ Adicionar conteúdo**: acrescenta um vídeo ou link à trilha.",
+       "**Progresso da equipe**: quantos conteúdos cada pessoa concluiu."
       ]
      }
+    ]
+   },
+   {
+    "t": "h2",
+    "text": "Adicionar um vídeo"
+   },
+   {
+    "t": "steps",
+    "items": [
+     "Suba o vídeo no **YouTube** (pode ser como \"Não listado\") ou no **Vimeo** e copie o link.",
+     "Em Treinamento, clique em **+ Adicionar conteúdo** e cole o link. O vídeo passa a tocar dentro da plataforma.",
+     "Em **Módulo / categoria**, use **Trilha do consultor** ou **Trilha do gestor** para o vídeo aparecer junto das aulas. Em **Ordem**, informe a posição (o C05 é 5, por exemplo).",
+     "Deixe marcado **Publicado para a equipe** e salve."
     ]
    },
    {
@@ -2691,24 +2708,47 @@
      {
       "t": "legend",
       "items": [
-       "Título, descrição, **link** (vídeo do YouTube/Vimeo ou link do PDF), módulo/categoria e ordem."
+       "Título, **link** (vídeo do YouTube/Vimeo ou link de outro site), descrição, módulo/categoria e ordem."
       ]
      }
     ]
    },
    {
-    "t": "steps",
+    "t": "p",
+    "text": "Um link que não é de vídeo (um material em outro site, por exemplo) aparece como cartão e abre em uma nova aba."
+   },
+   {
+    "t": "h2",
+    "text": "Editar, esconder ou remover"
+   },
+   {
+    "t": "list",
     "items": [
-     "Suba o PDF num local com link (por exemplo Google Drive, com acesso \"qualquer pessoa com o link\").",
-     "Em Treinamento → **+ Adicionar conteúdo**, cole o link.",
-     "Use a categoria **Trilha do consultor** ou **Trilha do gestor** e a ordem do módulo (C01 = 1, C02 = 2…)."
+     "**Editar**: muda título, descrição, link, categoria ou ordem.",
+     "**Esconder sem apagar**: em Editar, desmarque **Publicado para a equipe**. O conteúdo some para a equipe, mas o progresso de quem já concluiu fica guardado.",
+     "**Remover**: apaga o conteúdo e o progresso ligado a ele."
     ]
+   },
+   {
+    "t": "callout",
+    "kind": "atencao",
+    "label": "Atenção",
+    "text": "as aulas da plataforma (Comece aqui, C01 a C27 e G01 a G11) **não devem ser removidas**: o progresso da equipe se perde. Para mudar o texto ou as fotos de uma delas, fale com a **equipe da plataforma**."
+   },
+   {
+    "t": "h2",
+    "text": "Acompanhar a equipe"
+   },
+   {
+    "t": "p",
+    "text": "Em **Progresso da equipe**, cada consultor aparece com quantos conteúdos publicados já concluiu. Use isso para cobrar quem está atrasado, principalmente nas primeiras semanas."
    }
   ],
   "learned": [
-   "Super Admin publica.",
-   "Link do PDF ou vídeo.",
-   "Progresso da equipe."
+   "As aulas já são telas da plataforma; não há PDF para subir.",
+   "Vídeo novo: link do YouTube/Vimeo em + Adicionar conteúdo.",
+   "Esconder em vez de remover para não perder o progresso.",
+   "Progresso da equipe mostra quem concluiu."
   ]
  },
  {

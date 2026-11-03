@@ -3,23 +3,13 @@ import { can } from '@/modules/auth/context';
 import { listProspects, prospectQuality, qualityLevel, trialSearchesLeft } from '@/modules/business-prospecting/prospecting.service';
 import { Badge, Card, Empty, Notice, PageHeader, Table, Td, Th } from '@/components/ui';
 import { ActionButton, FilterBar, Pagination } from '@/components/client';
-import { formatCnpj, formatPhone, isLandlineBR } from '@/lib/normalize';
+import { formatCnpj, formatPhone } from '@/lib/normalize';
 import { date } from '@/lib/format';
 import { SearchCompanies } from './search';
 import { CnpjLookup } from './cnpj-lookup';
 import Link from 'next/link';
-import { WhatsAppContactButton } from '@/components/whatsapp-contact';
-import { db } from '@/lib/db';
 import { env } from '@/lib/env';
-import { buttonClass } from '@/components/ui';
-import { DAILY_TARGET, localDay } from '@/modules/business-prospecting/daily-list.service';
 import { googleRequestsLeft } from '@/modules/integrations/maps/maps.provider';
-
-/** Número para abrir no WhatsApp do próprio consultor (o contato frio é humano, nunca pelo bot). */
-const waLink = (phone: string) => {
-  const d = phone.replace(/\D/g, '');
-  return `https://wa.me/${d.length <= 11 ? `55${d}` : d}`;
-};
 
 /** Selo de qualidade do contato (celular, avaliações, nota e site). */
 function Quality({ p }: { p: { phone: string | null; website: string | null; rating: number | null; reviews: number | null } }) {
@@ -47,10 +37,7 @@ export default async function EmpresasPage({ searchParams }: { searchParams: Pro
   const ctx = await requireCtx('prospecting.read');
   const sp = await searchParams;
   const { items, total, page } = await listProspects(ctx, { status: sp.status, city: sp.city, q: sp.q, page: Number(sp.page ?? 1) });
-  // Lista diária do consultor (montada toda manhã) e, para a gestão, o uso do teto de buscas do Google.
-  const org = await db.organization.findUnique({ where: { id: ctx.orgId }, select: { timezone: true } });
-  const today = ctx.consultantId ? (await listProspects(ctx, { day: localDay(new Date(), org?.timezone ?? 'America/Sao_Paulo').day })).items : [];
-  const pending = today.filter((p) => p.status === 'NEW');
+  // Para a gestão: uso do teto diário de buscas no Google.
   const googleLeft = ctx.scope === 'ORG' ? await googleRequestsLeft() : null;
 
   return (
@@ -63,71 +50,6 @@ export default async function EmpresasPage({ searchParams }: { searchParams: Pro
         <p className="text-xs text-muted mt-3">
           Buscas no Google hoje: <b className="tabular">{env.GOOGLE_MAPS_DAILY_REQUESTS - googleLeft}</b> de {env.GOOGLE_MAPS_DAILY_REQUESTS} (teto diário para ficar na faixa gratuita).
         </p>
-      )}
-      {ctx.consultantId && (
-        <Card pad={false} className="mt-4" title={`Sua lista de hoje (${pending.length} de ${today.length} por contatar)`} subtitle={`Toda manhã você recebe até ${DAILY_TARGET} contatos: seus leads novos e empresas para prospectar. Ligue ou chame pelo seu WhatsApp e registre o resultado.`}>
-          {today.length ? (
-            <ul className="divide-y divide-line">
-              {today.map((p) => (
-                <li key={p.id} className="px-5 py-3 flex flex-wrap items-center gap-x-4 gap-y-2">
-                  <span className="min-w-0 flex-1">
-                    <span className="flex items-center gap-2 min-w-0">
-                      <b className="font-medium truncate">{p.name}</b>
-                      <Quality p={p} />
-                    </span>
-                    <span className="text-xs text-muted block truncate">
-                      {p.category} · {p.neighborhood ? `${p.neighborhood} · ` : ''}
-                      {p.city}/{p.uf} · <span className="tabular">{formatPhone(p.phone)}</span>
-                    </span>
-                    <span className="text-xs flex gap-3 mt-0.5">
-                      {p.sourceRef?.startsWith('google_places:') && (
-                        <a className="text-brand-600 hover:underline" target="_blank" rel="noreferrer" href={`https://www.google.com/maps/place/?q=place_id:${encodeURIComponent(p.sourceRef.slice('google_places:'.length))}`}>
-                          Ver no Google Maps
-                        </a>
-                      )}
-                      {p.website && (
-                        <a className="text-brand-600 hover:underline" target="_blank" rel="noreferrer" href={p.website}>
-                          Site da empresa
-                        </a>
-                      )}
-                    </span>
-                  </span>
-                  {p.status === 'NEW' && p.phone ? (
-                    <span className="inline-flex flex-wrap gap-1.5">
-                      <a href={`tel:${p.phone.replace(/\D/g, '')}`} className={buttonClass('secondary', 'sm')}>
-                        Ligar
-                      </a>
-                      {isLandlineBR(p.phone) ? (
-                        <span className="text-xs text-muted px-1" title="Telefone fixo não tem WhatsApp">fixo · só ligação</span>
-                      ) : (
-                        <WhatsAppContactButton url={waLink(p.phone)} prospectId={p.id} className={buttonClass('secondary', 'sm')}>
-                          WhatsApp
-                        </WhatsAppContactButton>
-                      )}
-                      <a href={cnpjSearch(p)} target="_blank" rel="noreferrer" className={buttonClass('ghost', 'sm')}>
-                        Achar CNPJ
-                      </a>
-                      <ActionButton size="sm" variant="primary" path={`/prospecting/${p.id}`} body={{ action: 'convert' }} success="Virou lead seu (sem mensagens automáticas).">
-                        Tem interesse
-                      </ActionButton>
-                      <ActionButton size="sm" variant="ghost" path={`/prospecting/${p.id}`} body={{ action: 'discard' }}>
-                        Sem interesse
-                      </ActionButton>
-                    </span>
-                  ) : p.status === 'CONVERTED' ? (
-                    <Link href={`/leads/${p.leadId}`}>
-                      <Badge tone="green">Lead criado</Badge>
-                    </Link>
-                  ) : (
-                    <Badge>Sem interesse</Badge>
-                  )}
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <Empty title="A lista de hoje ainda não chegou">Ela é montada todos os dias às 7h. Enquanto isso, você pode fazer uma busca abaixo.</Empty>
-          )}
-        </Card>
       )}
       {can(ctx, 'prospecting.search') && (
         <Card title="Nova busca" className="mt-4">

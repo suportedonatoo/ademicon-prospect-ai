@@ -11,7 +11,6 @@ if ((process.env.QUEUE_DRIVER ?? 'inline') === 'inline' && process.env.APP_ENV !
   };
   every('followup.scan', 15 * 60_000, 60_000);
   every('operations.scan', 5 * 60_000);
-  every('prospecting.daily', 15 * 60_000, 45_000);
   every('notifications.release', 60_000);
   every('outbox.dispatch', 30_000);
   every('intelligence.batch', 60 * 60_000, 90_000);

@@ -17,7 +17,6 @@ export type JobName =
   | 'whatsapp.reset_counters'
   | 'intelligence.refresh' // sub-scores + NBA de um lead
   | 'intelligence.batch' // decaimento / reativação / expiração de NBA
-  | 'prospecting.daily' // lista diária de empresas por consultor (manhã)
   | 'operations.scan' // saúde de oportunidades, SLA, playbooks, knowledge vencida
   | 'duplicates.scan'
   | 'insights.generate'

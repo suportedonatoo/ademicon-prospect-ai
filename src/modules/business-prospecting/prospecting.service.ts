@@ -8,7 +8,7 @@ import { acquire } from '../leads/acquisition-engine';
 import { isLandlineBR, normalizeCnpj, normalizePhone } from '@/lib/normalize';
 import type { BusinessResult } from '../integrations/types';
 
-/** Consultor vê as empresas das buscas que ele fez e as que recebeu na lista diária. */
+/** Consultor vê as empresas das buscas que ele fez e as que já foram entregues a ele. */
 const ownProspects = (ctx: Ctx) => (ctx.scope === 'OWN' ? { OR: [{ search: { createdById: ctx.userId ?? '__none__' } }, { assignedConsultantId: ctx.consultantId ?? '__none__' }] } : {});
 
 // Business Prospecting — somente fontes autorizadas (APIs oficiais/licenciadas). Sem scraping.
@@ -34,7 +34,7 @@ export const searchInput = z.object({
 
 /**
  * Qualidade do contato (0–100): dá para chamar no WhatsApp (celular), empresa estabelecida (muitas
- * avaliações no Google), bem avaliada e com site. Ordena a lista do dia e aparece como Alta/Média/Baixa.
+ * avaliações no Google), bem avaliada e com site. Aparece como Alta/Média/Baixa.
  */
 export function prospectQuality(p: { phone?: string | null; website?: string | null; rating?: number | null; reviews?: number | null }) {
   const reviews = p.reviews ?? 0;
@@ -108,14 +108,12 @@ export async function searchBusinesses(ctx: Ctx, raw: unknown) {
   return { search, total: results.length, added, filteredOut: found.length - results.length, mode: provider.mode };
 }
 
-export async function listProspects(ctx: Ctx, opts: { status?: string; city?: string; q?: string; page?: number; day?: Date } = {}) {
+export async function listProspects(ctx: Ctx, opts: { status?: string; city?: string; q?: string; page?: number } = {}) {
   assertCan(ctx, 'prospecting.read');
   const page = opts.page ?? 1;
   const where = {
     organizationId: ctx.orgId,
     ...ownProspects(ctx),
-    // Lista diária: só o que foi entregue a este consultor naquele dia.
-    ...(opts.day ? { assignedConsultantId: ctx.consultantId ?? '__none__', assignedDay: opts.day } : {}),
     ...(opts.status ? { status: opts.status } : {}),
     ...(opts.city ? { city: opts.city } : {}),
     ...(opts.q ? { name: { contains: opts.q, mode: 'insensitive' as const } } : {}),
