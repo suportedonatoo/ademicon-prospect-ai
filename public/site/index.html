@@ -207,8 +207,6 @@ h2{font-size:clamp(2.2rem,4.6vw,3.6rem)}
 .eco-bar.stack i{background:var(--blue-2)}
 .eco-card.dark .btn{width:100%;justify-content:center}
 .eco-note{margin-top:16px;font-size:.8rem;color:var(--ink-2);text-align:center}
-/* Landing pages group: three equal cards */
-.pf-group{margin:48px 0 20px;font-size:1.35rem;letter-spacing:-.02em;text-align:center}
 /* Own products ("Sistemas desenvolvidos e promovidos por nós") */
 .sistemas{padding:0 0 120px}
 .sys{display:grid;grid-template-columns:1fr 1.15fr;align-items:center;gap:48px;padding:48px;border-radius:32px;background:var(--night);color:var(--white)}
@@ -224,11 +222,9 @@ h2{font-size:clamp(2.2rem,4.6vw,3.6rem)}
 .sys-shot{display:block;border-radius:20px;overflow:hidden;border:1px solid rgba(255,255,255,.1);transition:transform .4s var(--ease)}
 .sys-shot:hover{transform:translateY(-4px)}
 .sys-shot img{display:block;width:100%;height:auto}
-.pf.pf-lp{grid-template-columns:repeat(3,1fr);grid-template-rows:auto}
-.pf-lp .pf-item:first-child{grid-row:auto}
-.pf-lp .pf-item .shot,.pf-lp .pf-item:first-child .shot{min-height:320px;height:auto;flex:none}
-.pf-lp .shot img{object-position:center top!important}
-.pf-lp .frost-title{font-size:clamp(1.5rem,2.1vw,2rem)}
+.pf-item.pf-wide{grid-column:1/-1}
+.pf-wide .shot{min-height:440px}
+.pf-demo.pf-wide .shot img{object-position:left top}
 .pf-meta{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;gap:4px 10px}
 .pf-meta h3{font-size:1.15rem;letter-spacing:-.01em}
 .pf-meta span{color:var(--ink-2);font-size:.88rem}
@@ -321,7 +317,6 @@ footer ul a:hover{color:#fff}
   .sys{grid-template-columns:1fr;gap:28px;padding:28px 20px;border-radius:24px}
   .sys-shot{order:-1}
   .sistemas{padding-bottom:80px}
-  .pf.pf-lp{grid-template-columns:1fr}
   .hero{min-height:auto;padding:104px 0 96px}
   .hero-grid{grid-template-columns:1fr;gap:22px;text-align:center}
   .hero h1{order:1;font-size:clamp(2.1rem,8.6vw,3rem);line-height:1.05}
@@ -387,12 +382,10 @@ footer ul a:hover{color:#fff}
   .pf-item:first-child .shot{min-height:240px}
   .shot{min-height:130px;border-radius:18px;font-size:.75rem}
   .pf-meta{gap:2px}
-  .pf-group{margin:32px 0 14px;font-size:1.1rem}
   .eco{padding-bottom:64px}
   .eco-box{grid-template-columns:1fr}
   .eco-card{padding:22px 18px}
   .eco-money{font-size:2rem}
-  .pf-lp .pf-item .shot,.pf-lp .pf-item:first-child .shot{min-height:220px}
   .pf-meta h3{font-size:.95rem}
   .pf-meta span{font-size:.78rem}
   .frost{gap:14px}
@@ -619,7 +612,7 @@ footer ul a:hover{color:#fff}
   <div class="wrap">
     <div class="sec-head rv">
       <h2>Alguns de nossos trabalhos realizados</h2>
-      <p class="lead">Sistemas, aplicativos e landing pages que desenvolvemos. Teste as demonstrações e navegue pelos sites direto no navegador.</p>
+      <p class="lead">Sistemas e aplicativos que desenvolvemos. Teste as demonstrações direto no navegador.</p>
     </div>
     <div class="pf">
       <a class="pf-item pf-demo rv" href="demo/flowhub/index.html?v=2">
@@ -643,29 +636,12 @@ footer ul a:hover{color:#fff}
         </div>
         <div class="pf-meta"><h3>Plataforma web</h3><span>Estoque, balcão e assistência técnica</span></div>
       </a>
-    </div>
-    <h3 class="pf-group rv">Landing pages</h3>
-    <div class="pf pf-lp">
-      <a class="pf-item pf-demo rv" href="demo/lp-roseli/index.html">
+      <a class="pf-item pf-demo pf-wide rv" href="demo/prospect-ai/index.html">
         <div class="shot">
-          <img src="demo/lp-roseli-preview.jpg" alt="Landing page da Roseli Bido Advocacia" loading="lazy" width="1200" height="750">
-          <div class="frost"><span class="frost-title">Ver landing page</span><span class="frost-btn">Abrir site <i class="ph ph-arrow-right"></i></span></div>
+          <img src="demo/prospect-ai-preview.jpg" alt="Painel do Prospect AI, sistema de prospecção com IA" loading="lazy" width="1440" height="800">
+          <div class="frost"><span class="frost-title">Testar demonstração</span><span class="frost-btn">Abrir demo <i class="ph ph-arrow-right"></i></span></div>
         </div>
-        <div class="pf-meta"><h3>Roseli Bido Advocacia</h3><span>Planejamento patrimonial, inventário e família</span></div>
-      </a>
-      <a class="pf-item pf-demo rv" style="--d:1" href="demo/lp-movemos/index.html">
-        <div class="shot">
-          <img src="demo/lp-movemos-preview.jpg" alt="Landing page da Movemos, agência de marketing" loading="lazy" width="1200" height="733">
-          <div class="frost"><span class="frost-title">Ver landing page</span><span class="frost-btn">Abrir site <i class="ph ph-arrow-right"></i></span></div>
-        </div>
-        <div class="pf-meta"><h3>Movemos</h3><span>Agência de marketing focada em resultado</span></div>
-      </a>
-      <a class="pf-item pf-demo rv" style="--d:2" href="demo/lp-pulse/index.html">
-        <div class="shot">
-          <img src="demo/lp-pulse-preview.jpg" alt="Landing page da Pulse Store" loading="lazy" width="1200" height="733">
-          <div class="frost"><span class="frost-title">Ver landing page</span><span class="frost-btn">Abrir site <i class="ph ph-arrow-right"></i></span></div>
-        </div>
-        <div class="pf-meta"><h3>Pulse Store</h3><span>Pré-lançamento de celulares no boleto</span></div>
+        <div class="pf-meta"><h3>Prospect AI</h3><span>Prospecção, leads, WhatsApp e IA para equipes comerciais</span></div>
       </a>
     </div>
   </div>

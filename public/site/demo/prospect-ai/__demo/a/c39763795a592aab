@@ -1,0 +1,1 @@
+{"data":{"checks":{"token":false,"waba":false,"appSecret":false,"verifyToken":false,"subscribed":false},"numbers":[],"error":null,"webhookUrl":"http://localhost:3510/demo/prospect-ai/api/v1/webhooks/inbound/whatsapp"}}
