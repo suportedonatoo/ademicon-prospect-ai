@@ -3,6 +3,7 @@ import { db } from '@/lib/db';
 import { env } from '@/lib/env';
 import { encryptSecret } from '@/lib/secrets';
 import { createOrg, resetDb } from '../helpers';
+import { BASE_PATH } from '@/lib/base-path';
 import { receiveInstagram } from '@/modules/instagram/instagram.service';
 import { getAutoDm, matchKeyword, parseCommentsWebhook, readAutoDmImagePublic, receiveInstagramComments, saveAutoDm, setAutoDmImage } from '@/modules/instagram/comment-dm.service';
 
@@ -129,7 +130,7 @@ describe('Comentário → Direct', () => {
     expect(foto).toHaveLength(1);
     expect(foto[0].body.recipient).toEqual({ id: 'IGSID-MARIA' });
     const url = new URL(((foto[0].body.message as { attachment: { payload: { url: string } } }).attachment.payload.url));
-    expect(url.pathname).toBe(`/api/v1/public/instagram-image/${A.consultants[0].id}`);
+    expect(url.pathname).toBe(`${BASE_PATH}/api/v1/public/instagram-image/${A.consultants[0].id}`);
     // O endereço público só abre com a assinatura certa.
     const img = await readAutoDmImagePublic(A.consultants[0].id, url.searchParams.get('k')!, url.searchParams.get('s')!);
     expect(img.mime).toBe('image/png');

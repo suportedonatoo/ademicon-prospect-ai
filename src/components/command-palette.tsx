@@ -160,7 +160,7 @@ export function CommandPalette({ actions }: { actions: PaletteAction[] }) {
               <button type="button" onClick={askMaestro} disabled={maestro.busy} className="w-full flex items-center gap-3 text-left">
                 <span className="size-8 rounded-lg bg-ink grid place-items-center shrink-0"><Icon name="spark" className="size-4 text-lime" /></span>
                 <span className="min-w-0">
-                  <b className="block text-sm font-medium text-ink">{maestro.busy ? 'Maestro trabalhando…' : 'Pedir ao Maestro'}</b>
+                  <b className="block text-sm font-medium text-ink">{maestro.busy ? 'Marcando…' : 'Marcar reunião'}</b>
                   <small className="block text-xs text-muted truncate">“{q.trim()}” · Enter</small>
                 </span>
               </button>

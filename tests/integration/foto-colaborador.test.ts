@@ -1,6 +1,7 @@
 import { beforeAll, describe, expect, it } from 'vitest';
 import { db } from '@/lib/db';
 import { createOrg, resetDb } from '../helpers';
+import { BASE_PATH } from '@/lib/base-path';
 import { photoUrlFor, readConsultantPhoto, removeConsultantPhoto, setConsultantPhoto } from '@/modules/consultants/photo.service';
 import { getStorageProvider } from '@/modules/storage/storage.provider';
 import type { Ctx } from '@/modules/auth/context';
@@ -24,7 +25,7 @@ describe('Foto do colaborador', () => {
   it('Super Admin envia a foto; qualquer pessoa da organização vê', async () => {
     const c = A.consultants[1];
     const r = await setConsultantPhoto(su, c.id, PNG);
-    expect(r.photoUrl).toMatch(new RegExp(`^/api/v1/team/${c.id}/photo\\?v=`));
+    expect(r.photoUrl).toMatch(new RegExp(`^${BASE_PATH}/api/v1/team/${c.id}/photo\\?v=`));
     const back = await readConsultantPhoto(await A.ctx(A.users.manager), c.id);
     expect(back.mime).toBe('image/png');
     expect(back.data.equals(PNG)).toBe(true);

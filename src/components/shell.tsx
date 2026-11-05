@@ -94,19 +94,22 @@ export function Shell({ nav, user, appName, actions, children }: { nav: NavGroup
         <div className="border-t border-line p-3.5 shrink-0">
           <div className="rounded-2xl bg-slate-100 p-3">
             <div className="flex items-center gap-2 px-1 text-[14.5px] font-medium text-ink">
-              <Icon name="spark" className="size-4 text-brand-500" /> Maestro <span className="size-1.5 rounded-full bg-brand-500" aria-label="ativo" />
+              <Icon name="calendar" className="size-4 text-brand-500" /> Marcar reunião
             </div>
             <form
               className="relative mt-2.5"
               onSubmit={(e) => {
                 e.preventDefault();
                 const input = e.currentTarget.elements.namedItem('q') as HTMLInputElement;
-                window.dispatchEvent(new CustomEvent('app:palette', { detail: input.value }));
+                const v = input.value.trim();
+                if (!v) return;
+                // "Maria amanhã 15h" já vira pedido de reunião, sem precisar escrever "agenda com".
+                window.dispatchEvent(new CustomEvent('app:palette', { detail: /agend|marc|reuni/i.test(v) ? v : `agenda com ${v}` }));
                 input.value = '';
               }}
             >
-              <input name="q" aria-label="Pergunte sobre seus leads" placeholder="Busque ou peça: agenda com Maria amanhã 15h" className="w-full h-9 rounded-xl border border-line bg-white pl-3 pr-8 text-[13px] placeholder:text-faint focus:outline-none focus:border-brand-500" />
-              <button className="absolute right-2 top-1/2 -translate-y-1/2 text-brand-500" aria-label="Perguntar">
+              <input name="q" aria-label="Marcar reunião com um lead" placeholder="Ex.: Maria amanhã 15h" className="w-full h-9 rounded-xl border border-line bg-white pl-3 pr-8 text-[13px] placeholder:text-faint focus:outline-none focus:border-brand-500" />
+              <button className="absolute right-2 top-1/2 -translate-y-1/2 text-brand-500" aria-label="Marcar">
                 <Icon name="send" className="size-3.5" />
               </button>
             </form>

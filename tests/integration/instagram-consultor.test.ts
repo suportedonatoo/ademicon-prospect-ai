@@ -1,6 +1,6 @@
 import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
 import { db } from '@/lib/db';
-import { env } from '@/lib/env';
+import { appOrigin, env } from '@/lib/env';
 import { decryptSecret } from '@/lib/secrets';
 import { createOrg, resetDb } from '../helpers';
 import { completeInstagramConnect, connectInstagramWithToken, disconnectInstagram, instagramAuthorizeUrl, readConnectState, receiveInstagram, sendInstagram } from '@/modules/instagram/instagram.service';
@@ -22,7 +22,7 @@ afterEach(() => vi.unstubAllGlobals());
 describe('Instagram por consultor', () => {
   it('state assinado: só vale para quem iniciou e não aceita adulteração', () => {
     const url = new URL(instagramAuthorizeUrl(A.consultants[0].id));
-    expect(url.searchParams.get('redirect_uri')).toBe(`${env.APP_URL}/api/v1/instagram/callback`);
+    expect(url.searchParams.get('redirect_uri')).toBe(`${appOrigin}/api/v1/instagram/callback`);
     const state = url.searchParams.get('state')!;
     expect(readConnectState(state)).toBe(A.consultants[0].id);
     expect(readConnectState(state.replace(A.consultants[0].id, A.consultants[1].id))).toBeNull();
