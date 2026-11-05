@@ -12,7 +12,7 @@ export function SearchCompanies({ left }: { left: number | null }) {
   const [f, setF] = useState({ provider: 'google_maps', category: 'Construtoras', city: 'Jundiaí', uf: 'SP', neighborhood: '', radiusKm: '5', cnae: '', size: '', situation: 'ATIVA', limit: '20', minRating: '', minReviews: '', onlyMobile: true, onlyWebsite: false });
   const set = (k: string, v: string | boolean) => setF((x) => ({ ...x, [k]: v }));
   const google = f.provider === 'google_maps';
-  if (left === 0) return <p className="text-sm font-medium text-bad">Período de teste atingido: você já usou as 2 buscas disponíveis.</p>;
+  if (left === 0) return <p className="text-sm font-medium text-bad">Você já usou as 2 buscas de hoje. Amanhã você pode buscar de novo.</p>;
   return (
     <form
       className="grid sm:grid-cols-3 lg:grid-cols-6 gap-3 items-end"
@@ -121,7 +121,7 @@ export function SearchCompanies({ left }: { left: number | null }) {
       <button className={buttonClass('primary') + ' h-9'} disabled={busy}>
         {busy ? 'Buscando…' : 'Buscar empresas'}
       </button>
-      {left !== null && <p className="text-xs text-muted sm:col-span-3 lg:col-span-6">Período de teste: {left} de 2 buscas restantes.</p>}
+      {left !== null && <p className="text-xs text-muted sm:col-span-3 lg:col-span-6">Hoje: {left} de 2 buscas restantes.</p>}
     </form>
   );
 }

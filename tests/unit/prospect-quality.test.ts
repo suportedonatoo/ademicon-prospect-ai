@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { passesQuality, prospectQuality, qualityLevel } from '@/modules/business-prospecting/prospecting.service';
+import { passesQuality, prospectQuality, qualityLevel, startOfDayBrasilia } from '@/modules/business-prospecting/prospecting.service';
 
 const base = { name: 'X', category: 'Construtoras', city: 'Jundiaí', uf: 'SP', sourceRef: 'google_places:1' };
 
@@ -19,5 +19,14 @@ describe('Qualidade do contato na prospecção', () => {
     expect(passesQuality(cel, { minReviews: 50 })).toBe(false);
     expect(passesQuality(cel, { minRating: 4.6 })).toBe(false);
     expect(passesQuality({ ...base }, {})).toBe(true);
+  });
+});
+
+describe('startOfDayBrasilia', () => {
+  it('vira o dia à meia-noite de Brasília, não à meia-noite UTC', () => {
+    // 05/11 às 23h em Brasília = 06/11 02:00 UTC → ainda é dia 05 em Brasília
+    expect(startOfDayBrasilia(new Date('2026-11-06T02:00:00Z')).toISOString()).toBe('2026-11-05T03:00:00.000Z');
+    // 06/11 às 00h30 em Brasília = 06/11 03:30 UTC → já é dia 06
+    expect(startOfDayBrasilia(new Date('2026-11-06T03:30:00Z')).toISOString()).toBe('2026-11-06T03:00:00.000Z');
   });
 });

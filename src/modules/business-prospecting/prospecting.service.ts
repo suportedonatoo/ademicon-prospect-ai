@@ -87,14 +87,21 @@ export async function saveSearchResults(orgId: string, provider: { key: string; 
   return { search, added: fresh.length };
 }
 
-/** Período de teste: cada pessoa faz no máximo estas buscas manuais (o Super Admin não tem limite). */
+/** Cada pessoa faz no máximo estas buscas manuais por dia (o Super Admin não tem limite). */
 export const TRIAL_SEARCHES = 2;
-export const TRIAL_OVER = 'Período de teste atingido: você já usou as 2 buscas disponíveis.';
+export const TRIAL_OVER = 'Você já usou as 2 buscas de hoje. Amanhã você pode buscar de novo.';
 
-/** Buscas manuais que o usuário ainda pode fazer (null = sem limite). */
+/** Meia-noite de hoje no horário de Brasília (UTC-3, sem horário de verão desde 2019). */
+export function startOfDayBrasilia(now = new Date()) {
+  const d = new Date(now.getTime() - 3 * 3600_000);
+  d.setUTCHours(0, 0, 0, 0);
+  return new Date(d.getTime() + 3 * 3600_000);
+}
+
+/** Buscas manuais que o usuário ainda pode fazer hoje (null = sem limite). */
 export async function trialSearchesLeft(ctx: Ctx) {
   if (ctx.roleKey === 'SUPER_ADMIN') return null;
-  return Math.max(0, TRIAL_SEARCHES - (await db.prospectSearch.count({ where: { organizationId: ctx.orgId, createdById: ctx.userId ?? '__none__' } })));
+  return Math.max(0, TRIAL_SEARCHES - (await db.prospectSearch.count({ where: { organizationId: ctx.orgId, createdById: ctx.userId ?? '__none__', createdAt: { gte: startOfDayBrasilia() } } })));
 }
 
 export async function searchBusinesses(ctx: Ctx, raw: unknown) {
