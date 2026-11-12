@@ -13,7 +13,7 @@
 <meta name="theme-color" content="#ffffff">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/regular/style.css">
 <script>document.documentElement.classList.add("loading");setTimeout(()=>document.documentElement.classList.remove("loading"),8000)</script>
 <style>
@@ -423,6 +423,99 @@ footer ul a:hover{color:#fff}
   .hero h1 .w,.fade,.rv{opacity:1;transform:none;filter:none}
   html{scroll-behavior:auto}
 }
+
+/* Toques premium: eyebrow mono numerado, título em dois tons, grade sutil no hero */
+.eyebrow{display:flex;justify-content:center;align-items:center;gap:12px;font:500 .74rem/1 "Geist Mono",ui-monospace,monospace;letter-spacing:.08em;text-transform:uppercase;color:#8b8b95;margin-bottom:18px}
+.eyebrow b{color:var(--blue);font-weight:500}
+.eyebrow::before,.eyebrow::after{content:"";flex:0 0 48px;height:1px;background:currentColor;opacity:.4}
+h2 .mute{color:#8b8b95}
+.hero::before{content:"";position:absolute;inset:0;pointer-events:none;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64'%3E%3Cpath d='M64 0H0v64' fill='none' stroke='%230a0a0a' stroke-opacity='.06'/%3E%3C/svg%3E");-webkit-mask:radial-gradient(ellipse at 50% 40%,#000 30%,transparent 75%);mask:radial-gradient(ellipse at 50% 40%,#000 30%,transparent 75%)}
+
+/* Sistemas da Stack: três cards lado a lado */
+.sistemas{padding:96px 0 120px}
+.sys-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;text-align:left}
+.sys-card{display:flex;flex-direction:column;padding:20px 20px 26px;border-radius:28px;background:var(--night);color:var(--white)}
+.sys-card .sys-shot{aspect-ratio:16/10;margin-bottom:22px}
+.sys-card .sys-shot img{width:100%;height:100%;object-fit:cover;object-position:left top}
+.sys-card .sys-name{padding:0 6px;margin-bottom:12px}
+.sys-card .sys-name img,.sys-ico{flex:none;width:44px;height:44px;border-radius:12px}
+.sys-ico{display:grid;place-items:center;background:var(--blue);color:#fff;font-size:1.3rem}
+.sys-card .sys-name h3{font-size:1.45rem}
+.sys-card p{padding:0 6px;font-size:.95rem;color:rgba(255,255,255,.75)}
+.sys-card .sys-shot{display:block;border-radius:18px;overflow:hidden;border:1px solid rgba(255,255,255,.1);transition:transform .4s var(--ease)}
+.sys-card .sys-shot:hover{transform:translateY(-4px)}
+.sys-card .sys-name{display:flex;align-items:center;gap:14px}
+.sys-card .sys-name small{display:block;font-size:.82rem;font-weight:500;color:rgba(255,255,255,.6)}
+.sys-card ul{list-style:none;display:grid;padding:0 6px;margin:20px 0 26px;gap:10px}
+.sys-card li{display:flex;align-items:center;gap:12px;font-size:.88rem;line-height:1.35}
+.sys-card li i{flex:none;display:grid;place-items:center;width:30px;height:30px;border-radius:9px;background:rgba(255,255,255,.08);font-size:1rem}
+.sys-card .sys-cta{margin-top:auto;padding:0 6px;gap:10px}
+.sys-card .sys-cta .btn{flex:1;justify-content:center;padding:12px 16px;font-size:.88rem}
+/* Portfólio por setores */
+.pf-group{display:flex;align-items:center;gap:14px;margin:56px 0 18px;font:500 .78rem/1 "Geist Mono",ui-monospace,monospace;letter-spacing:.08em;text-transform:uppercase;color:var(--ink)}
+.pf-group::before{content:"";width:8px;height:8px;border-radius:2px;background:var(--blue)}
+.pf-group::after{content:"";flex:1;height:1px;background:var(--line)}
+.portfolio .sec-head+.pf-group{margin-top:8px}
+.pfg{display:grid;grid-template-columns:repeat(6,1fr);gap:20px;text-align:left}
+.pfg .pf-item{grid-column:span 2;grid-row:auto}
+.pfg .pf-item.s3{grid-column:span 3}
+.pfg .pf-item.s6{grid-column:1/-1}
+.pfg .pf-item .shot{min-height:0;height:auto;flex:none;aspect-ratio:16/10}
+.pfg .pf-demo .shot img{object-position:left top}
+.pfg [href*="stack-app"] .shot img{object-position:70% 20%}
+.pfg .frost-title{font-size:clamp(1.3rem,1.9vw,1.8rem)}
+.pfg .s3 .frost-title{font-size:clamp(1.6rem,2.4vw,2.2rem)}
+.pf-duo{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+@media (max-width:960px){
+  .sistemas{padding:72px 0 88px}
+  .sys-grid{grid-template-columns:1fr;max-width:560px;margin:0 auto}
+  .pfg{grid-template-columns:1fr 1fr;gap:14px}
+  .pfg .pf-item,.pfg .pf-item.s3{grid-column:auto}
+  .pfg .pf-item.s3:first-child{grid-column:1/-1}
+  .pf-duo{grid-template-columns:1fr;gap:0}
+}
+@media (max-width:560px){
+  .pfg{grid-template-columns:1fr}
+  .pfg .pf-item,.pfg .pf-item.s3{grid-column:1/-1}
+  .pf-group{margin-top:40px}
+}
+
+/* Portfólio: 4 categorias, cada uma abre um seletor */
+.pf-sectors{display:grid;grid-template-columns:1fr 1fr;gap:28px 20px;text-align:left}
+.pf-sector{all:unset;box-sizing:border-box;display:flex;flex-direction:column;gap:14px;cursor:pointer;font-family:inherit}
+.pf-sectors .pf-sector{grid-row:auto;grid-column:auto}
+.pf-sector:focus-visible .shot{outline:3px solid var(--blue);outline-offset:3px}
+.pf-sectors .pf-sector .shot{min-height:0;height:auto;aspect-ratio:16/10;flex:none}
+.pf-sectors .pf-sector .shot img{object-position:left top}
+.pf-sectors .pf-sector[data-open="pf-app"] .shot img{object-position:70% 20%}
+.pf-sectors .pf-sector .frost-title{font-size:clamp(1.6rem,2.6vw,2.4rem)}
+.pf-count{position:absolute;top:16px;left:16px;z-index:2;font:500 .72rem/1 "Geist Mono",ui-monospace,monospace;letter-spacing:.06em;text-transform:uppercase;color:#fff;background:rgba(10,10,10,.55);border:1px solid rgba(255,255,255,.18);padding:8px 12px;border-radius:999px}
+.pf-dlg{width:min(1080px,calc(100% - 32px));max-height:calc(100dvh - 48px);margin:auto;padding:28px;border:0;border-radius:28px;background:var(--white);color:var(--ink);text-align:left;box-shadow:0 40px 120px -30px rgba(10,10,10,.5)}
+html:has(.pf-dlg[open]){overflow:hidden}
+.pf-dlg::backdrop{background:rgba(10,10,10,.55);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+.pf-dlg[open]{animation:dlg .35s var(--ease)}
+@keyframes dlg{from{opacity:0;transform:translateY(16px) scale(.98)}}
+.pf-dlg-head{display:flex;justify-content:space-between;align-items:flex-start;gap:16px}
+.pf-dlg-eyebrow{font:500 .72rem/1 "Geist Mono",ui-monospace,monospace;letter-spacing:.08em;text-transform:uppercase;color:var(--blue)}
+.pf-dlg h3{font-size:clamp(1.6rem,3vw,2.2rem);margin-top:8px}
+.pf-dlg>p{color:var(--ink-2);margin:4px 0 22px}
+.pf-close{flex:none;display:grid;place-items:center;width:44px;height:44px;border-radius:999px;border:1px solid var(--line);background:var(--white);font-size:1.2rem;cursor:pointer;color:var(--ink)}
+.pf-close:hover{border-color:var(--ink)}
+.pf-picks{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:22px 18px}
+.pf-pick{display:flex;flex-direction:column;gap:4px}
+.pf-pick-img{position:relative;display:block;aspect-ratio:16/10;border-radius:18px;overflow:hidden;background:var(--night);margin-bottom:10px;border:1px solid var(--line)}
+.pf-pick-img img{width:100%;height:100%;object-fit:cover;object-position:left top;transition:transform .6s var(--ease)}
+.pf-pick-img span{position:absolute;right:12px;bottom:12px;display:inline-flex;align-items:center;gap:6px;padding:9px 14px;border-radius:999px;background:var(--blue);color:#fff;font-size:.82rem;font-weight:600;opacity:0;transform:translateY(6px);transition:.3s var(--ease)}
+.pf-pick:hover .pf-pick-img img{transform:scale(1.04)}
+.pf-pick:hover .pf-pick-img span,.pf-pick:focus-visible .pf-pick-img span{opacity:1;transform:none}
+.pf-pick b{font-size:1.02rem;letter-spacing:-.01em}
+.pf-pick small{color:var(--ink-2);font-size:.85rem}
+@media (hover:none){.pf-pick-img span{opacity:1;transform:none}}
+@media (max-width:760px){
+  .pf-sectors{grid-template-columns:1fr;gap:24px}
+  .pf-dlg{padding:20px;border-radius:22px;width:calc(100% - 24px)}
+  .pf-picks{grid-template-columns:1fr}
+}
 </style>
 </head>
 <body>
@@ -510,12 +603,46 @@ footer ul a:hover{color:#fff}
   </div>
 </section>
 
+<section class="sistemas" id="sistemas">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <span class="eyebrow"><b>01</b> Sistemas</span>
+<h2>Sistemas criados <span class="mute">pela Stack</span></h2>
+      <p class="lead">Produtos próprios, prontos pra usar na sua empresa. Teste a demonstração de cada um direto no navegador.</p>
+    </div>
+    <div class="sys-grid">
+      <article class="sys-card rv">
+        <a class="sys-shot" href="demo/flowhub/index.html?v=2" aria-label="Abrir demonstração do FlowHub"><img src="sistemas/flowhub-preview.jpg" alt="Página do FlowHub" loading="lazy" width="1424" height="900"></a>
+        <div class="sys-name"><img src="sistemas/flowhub/icon.png" alt=""><div><h3>FlowHub</h3><small>Central de trabalho com IA</small></div></div>
+        <p>Tarefas, mensagens, agenda, documentos e CRM das ferramentas que sua equipe já usa, numa central só.</p>
+        <ul><li><i class="ph ph-plugs-connected"></i>80 integrações oficiais</li><li><i class="ph ph-sparkle"></i>IA que mostra a fonte e só age com o seu “Confirmar”</li><li><i class="ph ph-devices"></i>No navegador, no computador e no celular</li></ul>
+        <div class="sys-cta"><a class="btn btn-white" href="sistemas/flowhub/index.html">Conhecer <i class="ph ph-arrow-right"></i></a><a class="btn btn-ghost" href="demo/flowhub/index.html?v=2">Testar demonstração</a></div>
+      </article>
+      <article class="sys-card rv">
+        <a class="sys-shot" href="demo/prospect-ai/index.html" aria-label="Abrir demonstração do Prospect AI"><img src="demo/prospect-ai-preview.jpg" alt="Painel do Prospect AI" loading="lazy" width="1440" height="800"></a>
+        <div class="sys-name"><span class="sys-ico"><i class="ph ph-target"></i></span><div><h3>Prospect AI</h3><small>Prospecção comercial com IA</small></div></div>
+        <p>Encontra empresas, organiza os leads e acompanha a equipe comercial do primeiro contato ao fechamento.</p>
+        <ul><li><i class="ph ph-magnifying-glass"></i>Busca de empresas por região e segmento</li><li><i class="ph ph-whatsapp-logo"></i>Leads e conversas do WhatsApp num lugar só</li><li><i class="ph ph-sparkle"></i>IA que ajuda a qualificar e priorizar</li></ul>
+        <div class="sys-cta"><a class="btn btn-white" href="demo/prospect-ai/index.html">Testar demonstração <i class="ph ph-arrow-right"></i></a></div>
+      </article>
+      <article class="sys-card rv">
+        <a class="sys-shot" href="demo/avaliaja/index.html" aria-label="Abrir demonstração do AvaliaJá"><img src="demo/avaliaja-preview.jpg" alt="Painel do AvaliaJá" loading="lazy" width="1440" height="900"></a>
+        <div class="sys-name"><span class="sys-ico"><i class="ph ph-seal-check"></i></span><div><h3>AvaliaJá</h3><small>Satisfação e reputação</small></div></div>
+        <p>Mede a satisfação de cada atendimento, avisa quando um cliente sai insatisfeito e mostra quem da equipe faz a diferença.</p>
+        <ul><li><i class="ph ph-qr-code"></i>Pesquisa NPS por link e QR code</li><li><i class="ph ph-star"></i>Reputação no Google, Reclame Aqui e Instagram</li><li><i class="ph ph-trophy"></i>Ranking, premiação e feedback da equipe</li></ul>
+        <div class="sys-cta"><a class="btn btn-white" href="demo/avaliaja/index.html">Testar demonstração <i class="ph ph-arrow-right"></i></a></div>
+      </article>
+    </div>
+  </div>
+</section>
+
 <section class="about" id="sobre">
   <div class="wrap">
     <div class="about-grid">
       <div class="rv">
-        <span class="tag"><i class="ph ph-users-three"></i> Quem somos</span>
-        <h2>Tecnologia sob medida, sem enrolação.</h2>
+        
+        <span class="eyebrow"><b>02</b> Quem somos</span>
+<h2>Tecnologia sob medida, <span class="mute">sem enrolação.</span></h2>
         <p class="lead">Somos uma software house focada em pequenos e médios negócios. Em vez de sistemas genéricos, construímos exatamente o que a sua operação precisa, e ficamos junto até sua equipe dominar a ferramenta.</p>
       </div>
       <div class="pillars">
@@ -531,7 +658,8 @@ footer ul a:hover{color:#fff}
   <div class="wrap">
     <div class="svc-box rv">
       <div class="svc-head">
-        <h2>O que nós entregamos</h2>
+        <span class="eyebrow"><b>03</b> Serviços</span>
+<h2>O que nós <span class="mute">entregamos</span></h2>
         <p>Do zero à entrega, e do treinamento ao suporte, sem deixar sua equipe na mão.</p>
       </div>
       <div class="svc-list">
@@ -547,10 +675,89 @@ footer ul a:hover{color:#fff}
   </div>
 </section>
 
+
+
+
+<section class="portfolio" id="portfolio">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <span class="eyebrow"><b>04</b> Portfólio</span>
+<h2>Alguns de nossos <span class="mute">trabalhos realizados</span></h2>
+      <p class="lead">Escolha uma categoria e veja os projetos. As demonstrações abrem direto no navegador.</p>
+    </div>
+    <div class="pf-sectors">
+      <button type="button" class="pf-item pf-demo pf-sector rv" style="--d:0" data-open="pf-lp" aria-haspopup="dialog">
+        <div class="shot">
+          <img src="demo/lp-casa-norte-preview.jpg" alt="" loading="lazy">
+          <span class="pf-count">2 projetos</span>
+          <div class="frost"><span class="frost-title">Landing pages</span><span class="frost-btn">Escolher site <i class="ph ph-arrow-right"></i></span></div>
+        </div>
+        <div class="pf-meta"><h3>Landing pages</h3><span>Sites de uma página feitos pra converter</span></div>
+      </button>
+      <button type="button" class="pf-item pf-demo pf-sector rv" style="--d:1" data-open="pf-sw" aria-haspopup="dialog">
+        <div class="shot">
+          <img src="demo/flowhub-preview.jpg" alt="" loading="lazy">
+          <span class="pf-count">3 projetos</span>
+          <div class="frost"><span class="frost-title">Softwares prontos Stack</span><span class="frost-btn">Escolher sistema <i class="ph ph-arrow-right"></i></span></div>
+        </div>
+        <div class="pf-meta"><h3>Softwares prontos Stack</h3><span>Produtos próprios pra usar na sua empresa</span></div>
+      </button>
+      <button type="button" class="pf-item pf-demo pf-sector rv" style="--d:0" data-open="pf-app" aria-haspopup="dialog">
+        <div class="shot">
+          <img src="demo/stack-app-preview.jpg" alt="" loading="lazy">
+          <span class="pf-count">1 projeto</span>
+          <div class="frost"><span class="frost-title">Aplicativo mobile</span><span class="frost-btn">Escolher app <i class="ph ph-arrow-right"></i></span></div>
+        </div>
+        <div class="pf-meta"><h3>Aplicativo mobile</h3><span>Apps Android e iOS</span></div>
+      </button>
+      <button type="button" class="pf-item pf-demo pf-sector rv" style="--d:1" data-open="pf-sd" aria-haspopup="dialog">
+        <div class="shot">
+          <img src="demo/gestao-preview.jpg" alt="" loading="lazy">
+          <span class="pf-count">1 projeto</span>
+          <div class="frost"><span class="frost-title">Sistemas sob demanda</span><span class="frost-btn">Escolher sistema <i class="ph ph-arrow-right"></i></span></div>
+        </div>
+        <div class="pf-meta"><h3>Sistemas sob demanda</h3><span>Feitos do zero pra rotina de cada cliente</span></div>
+      </button>
+    </div>
+  </div>
+  <dialog class="pf-dlg" id="pf-lp" aria-labelledby="pf-lp-t">
+    <div class="pf-dlg-head"><div><span class="pf-dlg-eyebrow">2 projetos</span><h3 id="pf-lp-t">Landing pages</h3></div><button type="button" class="pf-close" aria-label="Fechar"><i class="ph ph-x"></i></button></div>
+    <p>Escolha qual você quer ver.</p>
+    <div class="pf-picks">
+        <a class="pf-pick" href="demo/lp-casa-norte/index.html"><span class="pf-pick-img"><img src="demo/lp-casa-norte-preview.jpg" alt="" loading="lazy"><span>Abrir site <i class="ph ph-arrow-up-right"></i></span></span><b>Casa Norte Imóveis</b><small>Imobiliária com busca de imóveis</small></a>
+        <a class="pf-pick" href="demo/lp-alvea/index.html"><span class="pf-pick-img"><img src="demo/lp-alvea-preview.jpg" alt="" loading="lazy"><span>Abrir site <i class="ph ph-arrow-up-right"></i></span></span><b>Alvéa Odontologia</b><small>Clínica odontológica premium</small></a>
+    </div>
+  </dialog>
+  <dialog class="pf-dlg" id="pf-sw" aria-labelledby="pf-sw-t">
+    <div class="pf-dlg-head"><div><span class="pf-dlg-eyebrow">3 projetos</span><h3 id="pf-sw-t">Softwares prontos Stack</h3></div><button type="button" class="pf-close" aria-label="Fechar"><i class="ph ph-x"></i></button></div>
+    <p>Escolha qual você quer ver.</p>
+    <div class="pf-picks">
+        <a class="pf-pick" href="demo/flowhub/index.html?v=2"><span class="pf-pick-img"><img src="demo/flowhub-preview.jpg" alt="" loading="lazy"><span>Abrir demo <i class="ph ph-arrow-up-right"></i></span></span><b>FlowHub</b><small>Tarefas, projetos, CRM e agenda</small></a>
+        <a class="pf-pick" href="demo/prospect-ai/index.html"><span class="pf-pick-img"><img src="demo/prospect-ai-preview.jpg" alt="" loading="lazy"><span>Abrir demo <i class="ph ph-arrow-up-right"></i></span></span><b>Prospect AI</b><small>Prospecção comercial com IA</small></a>
+        <a class="pf-pick" href="demo/avaliaja/index.html"><span class="pf-pick-img"><img src="demo/avaliaja-preview.jpg" alt="" loading="lazy"><span>Abrir demo <i class="ph ph-arrow-up-right"></i></span></span><b>AvaliaJá</b><small>Satisfação de clientes e reputação</small></a>
+    </div>
+  </dialog>
+  <dialog class="pf-dlg" id="pf-app" aria-labelledby="pf-app-t">
+    <div class="pf-dlg-head"><div><span class="pf-dlg-eyebrow">1 projeto</span><h3 id="pf-app-t">Aplicativo mobile</h3></div><button type="button" class="pf-close" aria-label="Fechar"><i class="ph ph-x"></i></button></div>
+    <p>Escolha qual você quer ver.</p>
+    <div class="pf-picks">
+        <a class="pf-pick" href="demo/stack-app/index.html?v=2"><span class="pf-pick-img"><img src="demo/stack-app-preview.jpg" alt="" loading="lazy"><span>Abrir app <i class="ph ph-arrow-up-right"></i></span></span><b>Stack App</b><small>Pet shops e serviços perto de você</small></a>
+    </div>
+  </dialog>
+  <dialog class="pf-dlg" id="pf-sd" aria-labelledby="pf-sd-t">
+    <div class="pf-dlg-head"><div><span class="pf-dlg-eyebrow">1 projeto</span><h3 id="pf-sd-t">Sistemas sob demanda</h3></div><button type="button" class="pf-close" aria-label="Fechar"><i class="ph ph-x"></i></button></div>
+    <p>Escolha qual você quer ver.</p>
+    <div class="pf-picks">
+        <a class="pf-pick" href="demo/gestao/index.html?v=2"><span class="pf-pick-img"><img src="demo/gestao-preview.jpg" alt="" loading="lazy"><span>Abrir demo <i class="ph ph-arrow-up-right"></i></span></span><b>Plataforma web</b><small>Estoque, balcão e assistência técnica</small></a>
+    </div>
+  </dialog>
+</section>
+
 <section class="eco" id="economia">
   <div class="wrap">
     <div class="sec-head rv">
-      <h2>Quanto sua empresa economiza com um sistema próprio</h2>
+      <span class="eyebrow"><b>05</b> Economia</span>
+<h2>Quanto sua empresa economiza <span class="mute">com um sistema próprio</span></h2>
       <p class="eco-stat" id="eco-stat" hidden></p>
       <p class="lead">Some as mensalidades que você paga hoje em sistemas e compare com ter um sistema feito pela Stack.</p>
     </div>
@@ -583,73 +790,10 @@ footer ul a:hover{color:#fff}
   </div>
 </section>
 
-<section class="sistemas" id="sistemas">
-  <div class="wrap">
-    <div class="sec-head rv">
-      <h2>Sistemas desenvolvidos e promovidos por nós</h2>
-      <p class="lead">Além dos projetos sob medida, criamos produtos próprios. Conheça os sistemas da Stack que você pode usar na sua empresa.</p>
-    </div>
-    <div class="sys rv">
-      <div>
-        <div class="sys-name"><img src="sistemas/flowhub/icon.png" alt=""><div><h3>FlowHub</h3><small>Central de trabalho com IA</small></div></div>
-        <p>Tarefas, mensagens, agenda, documentos e CRM das ferramentas que sua equipe já usa, numa central só.</p>
-        <ul>
-          <li><i class="ph ph-plugs-connected"></i>80 integrações oficiais</li>
-          <li><i class="ph ph-sparkle"></i>IA que mostra a fonte e só age com o seu “Confirmar”</li>
-          <li><i class="ph ph-devices"></i>No navegador, no computador e no celular</li>
-        </ul>
-        <div class="sys-cta">
-          <a class="btn btn-white" href="sistemas/flowhub/index.html">Conhecer o FlowHub <i class="ph ph-arrow-right"></i></a>
-          <a class="btn btn-ghost" href="demo/flowhub/index.html?v=2">Testar demonstração</a>
-        </div>
-      </div>
-      <a class="sys-shot" href="sistemas/flowhub/index.html" aria-label="Abrir a página do FlowHub"><img src="sistemas/flowhub-preview.jpg" alt="Página do FlowHub: todo trabalho num hub" loading="lazy" width="1424" height="900"></a>
-    </div>
-  </div>
-</section>
-
-<section class="portfolio" id="portfolio">
-  <div class="wrap">
-    <div class="sec-head rv">
-      <h2>Alguns de nossos trabalhos realizados</h2>
-      <p class="lead">Sistemas e aplicativos que desenvolvemos. Teste as demonstrações direto no navegador.</p>
-    </div>
-    <div class="pf">
-      <a class="pf-item pf-demo rv" href="demo/flowhub/index.html?v=2">
-        <div class="shot">
-          <img src="demo/flowhub-preview.jpg" alt="Painel do FlowHub, sistema de gestão" loading="lazy" width="1440" height="800">
-          <div class="frost"><span class="frost-title">Testar demonstração</span><span class="frost-btn">Abrir demo <i class="ph ph-arrow-right"></i></span></div>
-        </div>
-        <div class="pf-meta"><h3>Sistema de gestão</h3><span>FlowHub: tarefas, projetos, CRM e agenda</span></div>
-      </a>
-      <a class="pf-item pf-demo rv" style="--d:1" href="demo/stack-app/index.html?v=2">
-        <div class="shot">
-          <img src="demo/stack-app-preview.jpg" alt="Tela inicial do Stack App" loading="lazy" width="1000" height="640">
-          <div class="frost"><span class="frost-title">Testar demonstração</span><span class="frost-btn">Abrir app <i class="ph ph-arrow-right"></i></span></div>
-        </div>
-        <div class="pf-meta"><h3>Stack App, aplicativo mobile</h3><span>Pet shops e serviços perto de você</span></div>
-      </a>
-      <a class="pf-item pf-demo rv" style="--d:2" href="demo/gestao/index.html?v=2">
-        <div class="shot">
-          <img src="demo/gestao-preview.jpg" alt="Tela inicial da plataforma web de gestão" loading="lazy" width="1440" height="900">
-          <div class="frost"><span class="frost-title">Testar demonstração</span><span class="frost-btn">Abrir demo <i class="ph ph-arrow-right"></i></span></div>
-        </div>
-        <div class="pf-meta"><h3>Plataforma web</h3><span>Estoque, balcão e assistência técnica</span></div>
-      </a>
-      <a class="pf-item pf-demo pf-wide rv" href="demo/prospect-ai/index.html">
-        <div class="shot">
-          <img src="demo/prospect-ai-preview.jpg" alt="Painel do Prospect AI, sistema de prospecção com IA" loading="lazy" width="1440" height="800">
-          <div class="frost"><span class="frost-title">Testar demonstração</span><span class="frost-btn">Abrir demo <i class="ph ph-arrow-right"></i></span></div>
-        </div>
-        <div class="pf-meta"><h3>Prospect AI</h3><span>Prospecção, leads, WhatsApp e IA para equipes comerciais</span></div>
-      </a>
-    </div>
-  </div>
-</section>
-
 <section class="testi" id="depoimentos">
   <div class="wrap rv">
-    <h2>O que os clientes dizem</h2>
+    <span class="eyebrow"><b>06</b> Depoimentos</span>
+<h2>O que os clientes <span class="mute">dizem</span></h2>
     <div class="t-quote" role="tabpanel" aria-live="polite">
       <span class="mark l" aria-hidden="true">“</span>
       <p id="q">Chegamos com uma ideia meio confusa e saímos com um sistema que a equipe usa todo dia sem reclamar. Isso pra mim já vale o investimento.</p>
@@ -667,7 +811,8 @@ footer ul a:hover{color:#fff}
 <section class="faq" id="faq">
   <div class="wrap faq-grid">
     <div class="rv">
-      <h2>Perguntas frequentes</h2>
+      <span class="eyebrow"><b>07</b> FAQ</span>
+<h2>Perguntas <span class="mute">frequentes</span></h2>
       <p class="lead" >Não achou sua dúvida? Chama a gente no WhatsApp.</p>
     </div>
     <div class="faq-list rv" style="--d:1">
@@ -683,7 +828,8 @@ footer ul a:hover{color:#fff}
 <section class="contact" id="contato">
   <div class="wrap c-grid">
     <div class="rv">
-      <h2>Vamos construir o seu sistema.</h2>
+      <span class="eyebrow"><b>08</b> Contato</span>
+<h2>Vamos construir <span class="mute">o seu sistema.</span></h2>
       <p class="lead">Conta pra gente o que sua empresa precisa. A gente responde rápido, sem enrolação.</p>
       <div class="c-info">
         <a class="wa-link" href="https://wa.me/551151043609"><i class="ph ph-whatsapp-logo"></i>+55 11 5104-3609</a>
@@ -898,6 +1044,14 @@ form.addEventListener("submit", e => {
   // New tab on desktop; if the browser blocks it (common on phones), open in the same tab.
   const w = window.open(url, "_blank");
   if (w) w.opener = null; else location.href = url;
+});
+</script>
+<script>
+// Portfólio: cada categoria abre um seletor (<dialog>) com os projetos dela
+document.querySelectorAll("[data-open]").forEach(b=>b.addEventListener("click",()=>document.getElementById(b.dataset.open).showModal()));
+document.querySelectorAll(".pf-dlg").forEach(d=>{
+  d.querySelector(".pf-close").addEventListener("click",()=>d.close());
+  d.addEventListener("click",e=>{const r=d.getBoundingClientRect();if(e.target===d&&(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom))d.close()});
 });
 </script>
 </body>

@@ -1,0 +1,1301 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Alvéa Odontologia · Odontologia sem relógio</title>
+<meta name="description" content="Clínica odontológica no Jardim Europa, São Paulo. Um paciente por vez, avaliação de 90 minutos e valor fechado antes de começar.">
+<link rel="icon" href="img/alvea-simbolo.svg">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Alvéa Odontologia · Odontologia sem relógio">
+<meta property="og:description" content="Um paciente por vez, avaliação de 90 minutos e valor fechado antes de começar. Jardim Europa, São Paulo.">
+<meta property="og:image" content="https://images.unsplash.com/photo-1609207825181-52d3214556dd?w=1200&h=630&fit=crop&q=80">
+<meta name="theme-color" content="#F4F0E8">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&display=swap" rel="stylesheet">
+<style>
+/* Estilo "Premium" (referência: Casa Norte Premium) aplicado à identidade Alvéa:
+   foto grande de ponta a ponta, botões em pílula com seta, fios em vez de sombras, revelações ao rolar. */
+:root{
+  --marfim:#F7F3EC;--porcelana:#FFFDF9;--areia:#EDE6DB;--linha:#D8CFC2;
+  --ardosia:#1F3B3D;--ardosia-profunda:#16292B;--ardosia-nevoa:#DCE5E2;
+  --latao:#A9824F;--latao-texto:#7A5A2E;--latao-claro:#D4B27E;--argila:#C7A193;
+  --tinta:#1B2224;--tinta-suave:#596366;--sobre-profunda:#EFE9DF;
+  /* fonte única da versão Premium: Archivo (largura variável) */
+  --serif:'Archivo','Helvetica Neue',Arial,system-ui,sans-serif;
+  --sans:'Archivo','Helvetica Neue',Arial,system-ui,sans-serif;
+  --sombra:0 24px 48px -24px rgba(22,41,43,.28);
+  --ease:cubic-bezier(.2,.7,.2,1);
+  --sec:112px;--raio:24px;--raio-faixa:40px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;scroll-padding-top:80px}
+body{background:var(--marfim);color:var(--tinta);font:400 16px/1.65 var(--sans);-webkit-font-smoothing:antialiased}
+body::after{content:"";position:fixed;inset:0;z-index:60;pointer-events:none;opacity:.05;mix-blend-mode:multiply;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+.pular{position:absolute;left:16px;top:-64px;z-index:70;background:var(--tinta);color:#fff;padding:10px 16px;border-radius:10px;transition:top .2s}
+.pular:focus{top:12px}
+.numeros b,.dias b,.horas button,.nota strong,.kv b{font-variant-numeric:tabular-nums}
+img{display:block;max-width:100%}
+a{color:inherit;text-decoration:none}
+ul{list-style:none}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--latao);outline-offset:2px}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.wrap{max-width:1240px;margin:0 auto;padding:0 32px}
+.cover{width:100%;height:100%;object-fit:cover}
+.foto{filter:saturate(.8) sepia(.1)}
+.eyebrow{display:flex;align-items:center;gap:10px;font:500 13.5px/18px var(--sans);color:var(--tinta-suave)}
+h1,h2,h3{font-family:var(--serif);font-weight:300;font-stretch:104%;letter-spacing:-.035em;line-height:1.04;text-wrap:balance}
+h2{font-size:clamp(30px,4vw,52px)}
+h3{font-weight:400}
+h1 em,h2 em{font-style:normal;color:var(--tinta-suave)}
+.hero h1 em{color:rgba(255,255,255,.72)}
+.cta h2 em{color:rgba(247,243,236,.66)}
+.muted{color:var(--tinta-suave)}
+section{padding:var(--sec) 0}
+.alt{background:var(--areia);border-radius:var(--raio-faixa);margin:0 24px}
+
+/* botões em pílula com seta (p-btn) */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;height:50px;padding:0 26px;border-radius:999px;border:1px solid var(--ardosia);background:var(--ardosia);color:var(--marfim);font:500 14.5px var(--sans);letter-spacing:.01em;white-space:nowrap;cursor:pointer;transition:background .3s,color .3s,border-color .3s,transform .15s}
+.btn:hover{background:var(--tinta);border-color:var(--tinta)}
+.btn:active{transform:scale(.98)}
+.btn.linha{background:transparent;color:var(--tinta);border-color:var(--linha)}
+.btn.linha:hover{border-color:var(--tinta)}
+.btn.claro{background:var(--marfim);color:var(--ardosia);border-color:var(--marfim)}
+.btn.claro:hover{background:#fff;border-color:#fff}
+.btn.vazado{background:transparent;color:#fff;border-color:rgba(255,255,255,.4)}
+.btn.vazado:hover{border-color:#fff}
+.btn.sm{height:42px;padding:0 18px;font-size:13.5px}
+.seta{display:inline-block;transition:transform .3s var(--ease)}
+.btn:hover .seta,.lnk:hover .seta{transform:translateX(4px)}
+.lnk{display:inline-flex;gap:6px;align-items:center;color:var(--ardosia);font:500 14px var(--sans);background:none;border:0;cursor:pointer;padding:0}
+
+/* barra de contato */
+.ubar{background:var(--ardosia);color:rgba(247,243,236,.8);font-size:12.5px}
+.ubar .wrap{display:flex;align-items:center;gap:24px;min-height:38px}
+.ubar b{color:#fff;font-weight:500}
+.ubar .dir{margin-left:auto;display:flex;gap:20px}
+
+/* menu */
+/* iPhone: a faixa da barra de status é transparente; reservamos e pintamos essa área para o conteúdo não aparecer atrás do relógio */
+body{padding-top:env(safe-area-inset-top)}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top);z-index:45;background:var(--ardosia);transition:background .3s}
+html.rolou body::before{background:#F4F0E8}
+header{position:sticky;top:env(safe-area-inset-top);z-index:40;background:rgba(247,243,236,.94);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid var(--linha)}
+.nav{display:flex;align-items:center;gap:32px;min-height:74px}
+.nav .logo img{height:38px;width:auto}
+.nav ul{display:flex;gap:26px;margin-left:auto;font-size:14.5px}
+.nav ul a{position:relative;padding:4px 0}
+.nav ul a::after{content:"";position:absolute;left:0;right:0;bottom:0;height:1px;background:currentColor;transform:scaleX(0);transform-origin:right;transition:transform .4s var(--ease)}
+.nav ul a:hover::after,.nav ul a.ativo::after{transform:scaleX(1);transform-origin:left}
+.nav ul a.ativo{color:var(--tinta)}
+.nav ul a:not(.ativo){color:var(--tinta-suave)}
+
+/* hero de foto inteira */
+.hero{position:relative;min-height:min(800px,92svh);display:flex;align-items:flex-end;overflow:hidden;color:#fff;background:var(--ardosia-profunda);padding:0}
+.hero-bg{position:absolute;inset:0}
+.hero-bg img{scale:1.08;will-change:translate}
+.hero::after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(90deg,rgba(22,41,43,.78) 0%,rgba(22,41,43,.4) 52%,rgba(22,41,43,.1) 100%),linear-gradient(0deg,rgba(22,41,43,.6),rgba(22,41,43,0) 50%)}
+.hero-in{position:relative;z-index:2;width:100%;padding:104px 32px 48px}
+.hero .eyebrow{color:var(--latao-claro)}
+.hero h1{font-size:clamp(40px,5.6vw,80px);font-weight:250;color:#fff;max-width:14ch;margin-top:14px}
+.hero .lead{color:rgba(255,255,255,.86);max-width:48ch;margin-top:20px;font-size:17.5px}
+.agenda{margin-top:36px;max-width:1000px}
+/* botão segmentado em pílula: trilho translúcido, opção ativa em pílula branca */
+.seg{display:inline-flex;gap:4px;padding:4px;border-radius:999px;background:rgba(31,59,61,.08);max-width:100%;overflow-x:auto;scrollbar-width:none}
+.seg button{flex:none;border:0;background:none;color:var(--tinta-suave);padding:8px 18px;border-radius:999px;font:500 14px var(--sans);cursor:pointer;white-space:nowrap;transition:background .3s,color .3s,box-shadow .3s}
+.seg button:hover{color:var(--tinta)}
+.seg button[aria-pressed="true"]{background:#fff;color:var(--tinta);box-shadow:0 1px 3px rgba(22,41,43,.12)}
+
+/* escolha do tipo de consulta: linha de título dentro do cartão, opção ativa sublinhada em latão */
+.agenda-topo{grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;padding:8px 16px 12px;margin-bottom:6px;border-bottom:1px solid var(--linha)}
+.agenda-tit{font:500 11.5px var(--sans);font-stretch:80%;letter-spacing:.12em;text-transform:uppercase;color:var(--latao-texto)}
+.tipo{display:flex;gap:22px}
+.tipo button{position:relative;border:0;background:none;padding:4px 0;font:500 14px var(--sans);color:var(--tinta-suave);cursor:pointer;transition:color .3s}
+.tipo button::after{content:"";position:absolute;left:0;right:0;bottom:-2px;height:2px;border-radius:2px;background:var(--latao);transform:scaleX(0);transition:transform .4s var(--ease)}
+.tipo button:hover{color:var(--tinta)}
+.tipo button[aria-pressed="true"]{color:var(--tinta)}
+.tipo button[aria-pressed="true"]::after{transform:scaleX(1)}
+.agenda-box{background:rgba(250,248,243,.97);color:var(--tinta);border-radius:20px;padding:10px;display:grid;grid-template-columns:1.3fr 1fr 1fr auto;gap:2px;align-items:center;box-shadow:0 30px 60px -30px rgba(0,0,0,.6)}
+.agenda-box .f{display:grid;padding:6px 16px;border-right:1px solid var(--linha);min-width:0}
+.agenda-box .f:nth-child(4){border-right:0}
+.agenda-box label,.rotulo{text-transform:uppercase;font-stretch:80%;letter-spacing:.1em;font-size:10.5px;color:var(--tinta-suave);font-weight:500}
+.agenda-box select{border:0;background:transparent;font-size:15px;padding:3px 0;outline:none;width:100%;cursor:pointer}
+.confianca{display:flex;flex-wrap:wrap;gap:6px 18px;margin-top:16px;font-size:13.5px;color:rgba(255,255,255,.85)}
+.confianca b{color:#fff;font-weight:600}
+
+/* números */
+.numeros{padding:44px 0;border-bottom:1px solid var(--linha)}
+.numeros .wrap{display:grid;grid-template-columns:repeat(4,1fr)}
+.numeros div+div{border-left:1px solid var(--linha);padding-left:32px}
+.numeros b{display:block;font:250 52px/1.1 var(--serif);letter-spacing:-.04em;color:var(--ardosia)}
+.numeros span{font-size:13px;color:var(--tinta-suave)}
+
+/* cabeçalho de seção */
+.cab{display:flex;justify-content:space-between;align-items:end;gap:24px;flex-wrap:wrap;margin-bottom:40px}
+.cab h2{margin-top:12px;max-width:16ch}
+.cab>p{max-width:42ch;color:var(--tinta-suave)}
+
+/* especialidades em cards de foto (p-cats) */
+.cats{display:grid;grid-template-columns:repeat(3,1fr);grid-auto-rows:340px;gap:14px}
+.cat:nth-child(1),.cat:nth-child(4),.cat:nth-child(5){grid-column:span 2}
+.cat{position:relative;border-radius:var(--raio);overflow:hidden;border:0;padding:0;cursor:pointer;color:#fff;text-align:left;background:var(--areia)}
+.cat img{position:absolute;inset:0;transition:transform 1.2s var(--ease)}
+.cat:hover img{transform:scale(1.06)}
+.cat::after{content:"";position:absolute;inset:0;background:linear-gradient(0deg,rgba(16,30,31,.78),rgba(16,30,31,0) 58%)}
+.cat .txt{position:absolute;left:22px;right:22px;bottom:20px;z-index:1;display:grid;gap:6px}
+.cat b{font:400 clamp(19px,1.8vw,23px)/1.15 var(--serif);letter-spacing:-.02em}
+.cat small{font-size:13.5px;line-height:1.45;opacity:.85;max-width:34ch}
+.cat .mais{display:inline-flex;gap:6px;font-size:13px;font-weight:500;margin-top:4px}
+.cat:hover .seta{transform:translateX(4px)}
+
+/* quiz de tratamento */
+.quiz-sec{padding-top:0}
+.quiz{display:grid;grid-template-columns:.85fr 1.15fr;gap:56px;background:var(--porcelana);border:1px solid var(--linha);border-radius:var(--raio-faixa);padding:56px}
+.quiz>*{min-width:0}
+.quiz-intro h2{margin:12px 0 16px}
+.quiz-prog{height:3px;border-radius:3px;background:var(--linha);margin:32px 0 12px;overflow:hidden}
+.quiz-prog span{display:block;height:100%;width:0;background:var(--latao);transition:width .5s var(--ease)}
+.quiz-corpo{transition:opacity .3s var(--ease),transform .3s var(--ease)}
+.quiz-corpo.saindo{opacity:0;transform:translateY(8px)}
+.qz-perg{font:300 clamp(22px,2.4vw,30px)/1.15 var(--serif);font-stretch:104%;letter-spacing:-.03em;margin-bottom:20px}
+.qz-opcoes{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.qz-op{display:flex;justify-content:space-between;align-items:center;gap:12px;text-align:left;border:1px solid var(--linha);background:var(--marfim);border-radius:16px;padding:16px 18px;font:500 15px/1.35 var(--sans);color:var(--tinta);cursor:pointer;transition:border-color .25s,background .25s,transform .25s var(--ease)}
+.qz-op:hover{border-color:var(--tinta);background:#fff;transform:translateY(-2px)}
+.qz-op .seta{color:var(--ardosia)}
+.qz-op:hover .seta{transform:translateX(4px)}
+.qz-voltar{margin-top:18px}
+.qz-res{display:grid;grid-template-columns:200px 1fr;gap:24px;align-items:center}
+.qz-res .ft{aspect-ratio:4/5;border-radius:var(--raio);overflow:hidden;background:var(--areia)}
+.qz-res h3{font-size:clamp(26px,2.6vw,34px);font-weight:300;font-stretch:104%;letter-spacing:-.035em;margin:8px 0 10px}
+.qz-res .por{color:var(--tinta-suave);font-size:15px}
+.qz-alt{margin-top:12px;font-size:13.5px;color:var(--tinta-suave)}
+.qz-alt b{color:var(--tinta);font-weight:500}
+
+/* detalhe da especialidade em janela */
+.dlg{border:0;padding:0;margin:auto;width:min(1080px,calc(100vw - 32px));max-height:calc(100dvh - 32px);border-radius:var(--raio);background:var(--marfim);color:var(--tinta);overflow:hidden;box-shadow:0 40px 80px -30px rgba(12,22,23,.55)}
+.dlg::backdrop{background:rgba(16,30,31,.55);backdrop-filter:blur(4px)}
+.dlg[open]{animation:dlgEntra .45s var(--ease)}
+@keyframes dlgEntra{from{opacity:0;transform:translateY(16px) scale(.985)}}
+.dlg-grid{display:grid;grid-template-columns:1.1fr 1fr;max-height:calc(100dvh - 32px)}
+.dlg-gal{display:grid;grid-template-rows:1fr auto;gap:8px;padding:8px;background:var(--areia);min-height:0}
+.dlg-foto{position:relative;border-radius:calc(var(--raio) - 8px);overflow:hidden;min-height:360px}
+.dlg-foto img{position:absolute;inset:0}
+.dlg-mini{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.dlg-mini button{position:relative;aspect-ratio:16/10;border:0;padding:0;border-radius:10px;overflow:hidden;cursor:pointer;opacity:.6;transition:opacity .25s;outline-offset:2px}
+.dlg-mini button img{position:absolute;inset:0}
+.dlg-mini button[aria-pressed="true"],.dlg-mini button:hover{opacity:1}
+.dlg-mini button[aria-pressed="true"]{outline:2px solid var(--tinta)}
+.dlg-corpo{padding:40px 40px 32px;overflow-y:auto;min-height:0}
+.dlg-corpo h3{font-size:clamp(28px,3vw,40px);font-weight:300;font-stretch:104%;letter-spacing:-.035em;margin:10px 0 14px}
+.dlg-corpo .kv{margin-top:22px}
+.dlg-sub{margin-top:26px}
+.dlg-etapas{list-style:none;counter-reset:et;margin-top:10px;display:grid;gap:2px}
+.dlg-etapas li{counter-increment:et;display:grid;grid-template-columns:28px 1fr;gap:8px;padding:9px 0;border-bottom:1px solid var(--linha);font-size:15px}
+.dlg-etapas li::before{content:counter(et);font-variant-numeric:tabular-nums;color:var(--latao-texto);font-weight:500}
+.dlg-resp{display:flex;gap:14px;align-items:center;margin-top:24px;padding:14px;border:1px solid var(--linha);border-radius:16px;background:var(--porcelana)}
+.dlg-resp img{width:52px;height:52px;border-radius:14px;object-fit:cover;flex:none}
+.dlg-resp b{display:block;font-weight:500;margin-top:2px}
+.dlg-resp .cro{font-size:13px;color:var(--tinta-suave)}
+.dlg-x{position:absolute;top:14px;right:14px;width:42px;height:42px;border-radius:50%;border:1px solid var(--linha);background:rgba(247,243,236,.92);color:var(--tinta);font-size:15px;cursor:pointer;transition:background .2s}
+.dlg-x:hover{background:#fff}
+
+/* tour da clínica: mosaico + tela cheia */
+.tour{display:grid;grid-template-columns:repeat(4,1fr);grid-auto-rows:230px;gap:12px}
+.tour button{position:relative;border:0;padding:0;border-radius:var(--raio);overflow:hidden;cursor:zoom-in;background:var(--areia)}
+.tour button:first-child{grid-column:span 2;grid-row:span 2}
+.tour button:last-child{grid-column:span 2}
+.tour img{position:absolute;inset:0;transition:transform 1.2s var(--ease)}
+.tour button:hover img{transform:scale(1.05)}
+.tour button::after,.rc-card::after{content:"";position:absolute;inset:0;background:linear-gradient(0deg,rgba(16,30,31,.55),rgba(16,30,31,0) 42%);pointer-events:none}
+.tour span{position:absolute;left:16px;right:16px;bottom:14px;z-index:1;text-align:left;font:500 13.5px/1.3 var(--sans);color:#fff}
+.lb{border:0;padding:0;background:transparent;max-width:none;max-height:none;width:100vw;height:100dvh;color:#fff}
+.lb::backdrop{background:rgba(12,22,23,.92);backdrop-filter:blur(6px)}
+.lb figure{height:100%;display:grid;grid-template-rows:1fr auto;gap:14px;padding:64px 88px 28px}
+.lb img{width:100%;height:100%;object-fit:contain;min-height:0;border-radius:12px}
+.lb figcaption{display:flex;justify-content:space-between;gap:16px;font-size:15px}
+.lb figcaption .rotulo{color:rgba(255,255,255,.65)}
+.lb button{position:absolute;border:1px solid rgba(255,255,255,.3);background:rgba(255,255,255,.08);color:#fff;width:48px;height:48px;border-radius:50%;font-size:18px;cursor:pointer;transition:background .2s}
+.lb button:hover{background:rgba(255,255,255,.2)}
+.lb-x{top:calc(16px + env(safe-area-inset-top));right:16px}
+.lb-nav{top:50%;translate:0 -50%}
+.lb-nav.ant{left:20px}.lb-nav.prox{right:20px}
+
+/* antes e depois */
+.ad{margin-bottom:8px}
+.ad-topo{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:16px}
+.ad-box{position:relative;aspect-ratio:16/8;border-radius:var(--raio);overflow:hidden;background:var(--areia);user-select:none}
+.ad-box img{position:absolute;inset:0;pointer-events:none}
+.ad-antes{clip-path:inset(0 calc(100% - var(--x)) 0 0)}
+.ad-tag{position:absolute;top:16px;z-index:2;font:500 13px var(--sans);color:#fff;text-shadow:0 1px 10px rgba(0,0,0,.45);pointer-events:none}
+.ad-tag.a{left:18px}.ad-tag.d{right:18px}
+.ad-linha{position:absolute;top:0;bottom:0;left:var(--x);width:2px;translate:-1px 0;background:#fff;z-index:2;pointer-events:none}
+.ad-pega{position:absolute;top:50%;left:50%;translate:-50% -50%;width:46px;height:46px;border-radius:50%;background:#fff;color:var(--ardosia);display:grid;place-items:center;font-size:18px;box-shadow:0 6px 20px rgba(0,0,0,.25)}
+.ad-range{position:absolute;inset:0;width:100%;height:100%;margin:0;opacity:0;cursor:ew-resize;z-index:3}
+.ad-range:focus-visible+*,.ad-box:focus-within .ad-pega{outline:2px solid var(--latao);outline-offset:3px}
+
+/* selos de confiança */
+.selos-sec{padding:72px 0}
+.selos{display:grid;grid-template-columns:repeat(5,1fr);border-top:1px solid var(--tinta)}
+.selos li{display:grid;gap:6px;align-content:start;padding:22px 20px 0 0}
+.selos li+li{padding-left:20px;border-left:1px solid var(--linha)}
+.selos b{font-weight:500;font-size:16px}
+.selos span{font-size:13.5px;color:var(--tinta-suave);line-height:1.45}
+
+/* horários disponíveis */
+.dias{display:flex;gap:8px;overflow-x:auto;padding:2px 2px 6px;scrollbar-width:thin}
+.dias button{flex:none;display:grid;justify-items:center;gap:2px;width:64px;padding:10px 0;border:1px solid var(--linha);border-radius:16px;background:var(--marfim);cursor:pointer;transition:all .25s}
+.dias button small{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--tinta-suave)}
+.dias button b{font:300 22px/1 var(--sans);letter-spacing:-.02em}
+.dias button[aria-pressed="true"]{background:var(--ardosia);border-color:var(--ardosia);color:var(--marfim)}
+.dias button[aria-pressed="true"] small{color:rgba(247,243,236,.75)}
+.dias button:disabled{opacity:.4;cursor:not-allowed}
+.horas{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.horas button{border:1px solid var(--linha);background:transparent;border-radius:999px;padding:8px 16px;font:500 14px var(--sans);cursor:pointer;transition:all .25s}
+.horas button:hover:not(:disabled){border-color:var(--tinta)}
+.horas button[aria-pressed="true"]{background:var(--tinta);border-color:var(--tinta);color:var(--marfim)}
+.horas button:disabled{color:var(--linha);text-decoration:line-through;cursor:not-allowed}
+.hora-sel{font-size:13.5px;color:var(--tinta-suave);min-height:1.4em}
+.hora-sel b{color:var(--tinta);font-weight:500}
+
+/* idioma: pílula branca sobre a barra escura */
+.ubar .dir{align-items:center}
+.seg.sm{padding:3px;background:rgba(255,255,255,.12)}
+.seg.sm button{padding:3px 11px;font-size:11.5px;color:rgba(247,243,236,.8)}
+.seg.sm button:hover{color:#fff}
+.seg.sm button[aria-pressed="true"]{background:#fff;color:var(--tinta);box-shadow:none}
+
+/* tratamento em destaque (p-feat) */
+.feat{display:grid;grid-template-columns:1.2fr 1fr;gap:72px;align-items:center}
+.feat>*{min-width:0}
+.feat-media{position:relative;aspect-ratio:5/4;border-radius:var(--raio);overflow:hidden;--c:0;clip-path:inset(calc(var(--c)*7%) calc(var(--c)*7%) round var(--raio))}
+.feat-media img{transform:scale(calc(1 + var(--c)*.14))}
+.feat h2{margin-top:12px}
+.feat .desc{color:var(--tinta-suave);margin-top:16px;max-width:46ch}
+.kv{display:grid;grid-template-columns:1fr 1fr;border-top:1px solid var(--linha);margin-top:28px}
+.kv>div{padding:14px 0;border-bottom:1px solid var(--linha)}
+.kv>div:nth-child(odd){padding-right:16px}
+.kv b{display:block;font:400 20px/1.3 var(--serif);letter-spacing:-.02em;color:var(--tinta)}
+.acoes{display:flex;gap:10px;flex-wrap:wrap;margin-top:28px}
+.dq,#dq-img{transition:opacity .35s var(--ease),filter .35s}
+.trocando .dq{opacity:0}
+.trocando #dq-img{opacity:.4;filter:blur(2px)}
+
+/* método (p-svc) */
+.svc{display:grid;grid-template-columns:repeat(3,1fr);gap:40px}
+.svc>div{border-top:1px solid var(--tinta);padding-top:24px;display:grid;gap:10px;align-content:start}
+.svc .n{font:400 13px/1 var(--sans);font-stretch:80%;letter-spacing:.12em;color:var(--latao-texto)}
+.svc h3{font-size:20px;font-weight:400;font-stretch:100%;letter-spacing:-.02em;line-height:1.2}
+.svc p{color:var(--tinta-suave);font-size:15.5px}
+.tec{display:flex;flex-wrap:wrap;gap:12px 36px;align-items:center;margin-top:56px;padding-top:24px;border-top:1px solid var(--linha)}
+.tec li{font:400 16px var(--sans);font-stretch:110%;letter-spacing:.01em;color:var(--tinta-suave)}
+.tec li.rotulo{font:500 10.5px var(--sans);font-stretch:80%;letter-spacing:.1em}
+
+/* resultados (carrossel em cilindro, portado da Lavie) */
+.resultados{padding-bottom:64px}
+.rc{position:relative;overflow:hidden;padding:40px 0;perspective:1100px;-webkit-mask-image:linear-gradient(90deg,transparent,#000 64px,#000 calc(100% - 64px),transparent);mask-image:linear-gradient(90deg,transparent,#000 64px,#000 calc(100% - 64px),transparent)}
+.rc-trilho{display:flex;width:max-content;gap:40px;padding:0 16px;will-change:transform;transform-style:preserve-3d}
+.rc-card{position:relative;flex-shrink:0;width:280px;height:360px;border-radius:var(--raio);overflow:hidden;background:var(--areia)}
+.rc-card img{width:100%;height:100%;object-fit:cover;filter:saturate(.85) sepia(.08)}
+.rc-card span{position:absolute;left:16px;bottom:14px;z-index:1;font:500 13.5px/1.3 var(--sans);color:#fff}
+
+/* a clínica (p-cta dividido) */
+.cta{border-radius:var(--raio-faixa);overflow:hidden;color:#fff;background:var(--ardosia);display:grid;grid-template-columns:1.1fr 1fr;min-height:460px}
+.cta .txt{padding:64px 56px;display:grid;gap:16px;align-content:center}
+.cta .eyebrow{color:var(--latao-claro)}
+.cta h2{color:#fff}
+.cta p{color:rgba(247,243,236,.82);max-width:46ch}
+.cta .img{position:relative;min-height:280px}
+
+/* especialistas (team-01) */
+.team{display:grid;grid-template-columns:repeat(4,1fr);gap:24px}
+.membro{display:flex;flex-direction:column;gap:20px}
+.membro .ft{width:100%;aspect-ratio:4/5;border-radius:var(--raio);overflow:hidden;background:var(--areia)}
+.membro .ft img{transition:filter .3s,transform 1.2s var(--ease)}
+.membro:hover .ft img{filter:grayscale(1);transform:scale(1.04)}
+.membro .linha-nome{display:flex;align-items:center;gap:12px}
+.membro h3{font-size:21px;font-weight:400;font-stretch:100%;letter-spacing:-.02em;line-height:1.22}
+.membro .cargo{font-size:13.5px;color:var(--tinta-suave);margin-top:4px}
+.membro .rodape{display:flex;justify-content:space-between;align-items:baseline;border-top:1px solid var(--linha);padding-top:12px;margin-top:auto}
+.membro .desde{font-variant-numeric:tabular-nums;color:var(--tinta)}
+.avatar{position:relative;flex-shrink:0;width:42px;height:42px}
+.avatar .av{position:relative;width:42px;height:42px;border-radius:50%;overflow:hidden;background:var(--ardosia-nevoa);display:grid;place-items:center;font:600 12px var(--sans);color:var(--ardosia)}
+.avatar .av img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.avatar .selo{position:absolute;right:-4px;top:-4px;width:20px;height:20px}
+
+/* avaliações (unique-testimonial + nota, layout p-quotes) */
+.quotes{display:grid;grid-template-columns:1.5fr 1fr;gap:64px;align-items:end}
+.ut-quote p{font:300 clamp(24px,3vw,40px)/1.2 var(--serif);letter-spacing:-.03em;color:var(--tinta);min-height:3.7em;transition:opacity .4s ease-out,filter .4s ease-out,transform .4s ease-out}
+.ut-role{margin-top:20px;font-size:14px;color:var(--tinta-suave);transition:opacity .5s ease-out,transform .5s ease-out}
+.ut-role b{color:var(--tinta);font-weight:600}
+.ut.saindo .ut-quote p{opacity:0;filter:blur(4px);transform:scale(.98)}
+.ut.saindo .ut-role{opacity:0;transform:translateY(8px)}
+.ut-pessoas{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:28px}
+.ut-p{display:flex;align-items:center;border:0;background:transparent;border-radius:999px;padding:2px;cursor:pointer;transition:all .5s cubic-bezier(.4,0,.2,1)}
+.ut-p img{width:40px;height:40px;border-radius:50%;object-fit:cover;transition:transform .5s cubic-bezier(.4,0,.2,1)}
+.ut-p .nome{display:grid;grid-template-columns:0fr;opacity:0;transition:all .5s cubic-bezier(.4,0,.2,1)}
+.ut-p .nome span{overflow:hidden;white-space:nowrap;font:500 14px/20px var(--sans);color:var(--tinta)}
+.ut-p:hover:not(.ativo){background:rgba(31,59,61,.08)}
+.ut-p:hover:not(.ativo) img{transform:scale(1.05)}
+.ut-p.mostra{padding:6px 16px 6px 6px}
+.ut-p.mostra .nome{grid-template-columns:1fr;opacity:1;margin-left:10px}
+.ut-p.ativo{background:var(--ardosia)}
+.ut-p.ativo .nome span{color:var(--marfim)}
+.nota{display:grid;gap:8px;border-left:1px solid var(--linha);padding-left:32px}
+.nota strong{font:250 64px/1 var(--serif);letter-spacing:-.04em;color:var(--tinta)}
+.nota .estrelas{color:var(--latao);letter-spacing:.2em}
+
+/* dúvidas (linhas p-hood) */
+.faq{display:grid;grid-template-columns:.8fr 1.2fr;gap:72px}
+.faq>*,.feat>*{min-width:0}
+.faq-lista{border-top:1px solid var(--linha)}
+details{border-bottom:1px solid var(--linha);transition:background .3s,padding .45s var(--ease)}
+details:hover,details[open]{background:var(--porcelana);padding:0 16px;border-radius:12px}
+summary{list-style:none;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:24px;padding:24px 0;font:300 clamp(21px,2.3vw,28px)/1.2 var(--serif);font-stretch:104%;letter-spacing:-.035em}
+summary::-webkit-details-marker{display:none}
+summary::after{content:"→";font:400 20px var(--sans);color:var(--ardosia);transition:transform .4s var(--ease)}
+details:hover summary::after{transform:translateX(6px)}
+details[open] summary::after{transform:rotate(90deg)}
+details p{padding:0 0 24px;color:var(--tinta-suave);max-width:60ch}
+
+/* contato (p-contact) */
+.contato{display:grid;grid-template-columns:.9fr 1.1fr;gap:72px}
+.contato>*{min-width:0}
+.contato h2{margin-top:12px}
+.concierge{display:flex;gap:16px;align-items:center;margin-top:28px;padding:18px;border:1px solid var(--linha);border-radius:16px;background:var(--porcelana)}
+.concierge .ini{width:56px;height:56px;border-radius:50%;display:grid;place-items:center;background:var(--ardosia);color:var(--marfim);font-weight:500;flex:none}
+.concierge b{display:block;font-weight:500;font-size:17px}
+.concierge span{font-size:13.5px;color:var(--tinta-suave)}
+.linhas{margin-top:18px}
+.linhas>div{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;padding:14px 0;border-bottom:1px solid var(--linha);align-items:baseline}
+.linhas strong{font-weight:500}
+.copiar{border:0;background:none;color:var(--ardosia);font:600 12.5px var(--sans);cursor:pointer;margin-left:10px;padding:0}
+.form{display:grid;grid-template-columns:1fr 1fr;gap:16px;background:var(--porcelana);border:1px solid var(--linha);border-radius:var(--raio);padding:28px;align-content:start}
+.form .cheia{grid-column:1/-1}
+.campo{display:grid;gap:6px;min-width:0}
+.in{height:50px;border:1px solid var(--linha);border-radius:12px;background:var(--marfim);padding:0 14px;font-size:15px;width:100%;min-width:0;outline:none}
+textarea.in{height:auto;min-height:110px;padding:12px 14px;resize:vertical}
+.in:focus{border-color:var(--tinta)}
+.pref{display:flex;flex-wrap:wrap;gap:8px}
+.pref button{border:1px solid var(--linha);background:transparent;color:var(--tinta-suave);padding:8px 16px;border-radius:999px;font-size:14px;cursor:pointer}
+.pref button[aria-pressed="true"]{background:var(--tinta);border-color:var(--tinta);color:var(--marfim)}
+.aceite{font-size:13px;color:var(--tinta-suave);display:flex;gap:10px;align-items:flex-start}
+.aceite input{accent-color:var(--ardosia);margin-top:4px}
+.ok{grid-column:1/-1;border-radius:12px;background:var(--ardosia-nevoa);padding:16px;font-size:14.5px}
+.ok em{font-style:normal;font-weight:600;display:block;font-size:17px;margin-bottom:4px}
+.erro{grid-column:1/-1;color:#9B3B2E;font-size:13px}
+.mapa{display:block;width:100%;height:380px;margin-top:48px;border:1px solid var(--linha);border-radius:var(--raio);filter:grayscale(.6) sepia(.15)}
+
+/* rodapé (p-foot) */
+footer{background:var(--ardosia-profunda);color:#AEB9B7}
+.rod{display:grid;grid-template-columns:1.4fr 1fr 1fr 1.2fr;gap:40px;padding:72px 0 44px}
+.rod>*{min-width:0}
+.rod img{height:38px;width:auto}
+.rod h4{font:600 11px var(--sans);text-transform:uppercase;letter-spacing:.14em;color:#fff;margin-bottom:16px}
+.rod ul{display:grid;gap:9px;font-size:14px}
+.rod a:hover{color:#fff}
+.rod p{font-size:14px;margin-top:16px;max-width:32ch;color:#8FA09E}
+.creditos{padding-bottom:96px} /* respiro para o botão flutuante "Fale conosco" */
+.faixa{display:flex;align-items:center;gap:32px;background:var(--marfim);color:var(--tinta);border-radius:20px;padding:20px 32px}
+.faixa .marca{display:flex;align-items:center;gap:12px;flex-shrink:0}
+.faixa .marca img{height:36px;width:auto}
+.faixa .marca span{font:600 12px/14px var(--sans);letter-spacing:.12em;text-transform:uppercase;color:var(--ardosia)}
+.faixa .copy{flex:1;font-size:12px;line-height:18px}
+.faixa .dev{display:flex;align-items:center;gap:10px;font-size:12px;color:var(--tinta-suave);flex-shrink:0}
+.faixa .dev .ic{display:grid;place-items:center;width:24px;height:24px;border-radius:50%;background:var(--ardosia);color:var(--marfim)}
+.faixa .dev .ic svg{width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round}
+.faixa .dev img{height:16px;width:auto;margin-left:4px}
+
+/* botão flutuante */
+.fale{position:fixed;right:24px;bottom:calc(24px + env(safe-area-inset-bottom));z-index:30;display:inline-flex;align-items:center;gap:10px;height:52px;padding:0 20px 0 16px;border-radius:999px;background:var(--ardosia);color:var(--marfim);font:500 14.5px var(--sans);box-shadow:var(--sombra)}
+.fale svg{width:22px;height:22px;fill:currentColor}
+
+/* movimento */
+.split .w{display:inline-block;overflow:hidden;vertical-align:top;padding-bottom:.1em;margin-bottom:-.1em}
+.split .w>span{display:inline-block}
+@media (prefers-reduced-motion:no-preference){
+  .split.play .w>span{animation:sobe 1s var(--ease) both;animation-delay:calc(var(--i)*60ms + 150ms)}
+  @keyframes sobe{from{transform:translateY(108%)}}
+  .entra{animation:aparece 1s var(--ease) .55s both}
+  @keyframes aparece{from{opacity:0;transform:translateY(16px)}}
+  .hero-bg img{animation:kb 2.6s var(--ease) both}
+  @keyframes kb{from{scale:1.25}}
+  .rv{opacity:0;transform:translateY(28px);transition:opacity .9s var(--ease),transform .9s var(--ease)}
+  .rv.visto{opacity:1;transform:none}
+}
+
+@media (max-width:1020px){.nav ul{display:none}.nav .btn{margin-left:auto}}
+@media (max-width:900px){
+  :root{--sec:72px;--raio:20px;--raio-faixa:28px}
+  .wrap,.hero-in{padding-left:16px;padding-right:16px}
+  .alt{margin:0 8px}
+  .ubar .esconde{display:none}
+  .nav .logo img{height:30px}
+  .agenda-box{grid-template-columns:1fr 1fr;gap:4px}
+  .agenda-box .f{border-right:0;padding:8px}
+  .agenda-box .f:nth-child(2),.agenda-box .btn{grid-column:1/-1}
+  .agenda-topo{padding:6px 8px 10px}
+  .numeros .wrap{grid-template-columns:1fr 1fr;gap:28px 0}
+  .numeros div:nth-child(3){border-left:0;padding-left:0}
+  .numeros b{font-size:40px}
+  .cats{grid-template-columns:1fr 1fr}
+  .cats{grid-template-columns:1fr 1fr;grid-auto-rows:240px;gap:10px}
+  .cat:nth-child(n){grid-column:auto}
+  .cat:first-child,.cat:last-child{grid-column:span 2}
+  .cat small{display:none}
+  .feat,.cta,.quotes,.faq,.contato{grid-template-columns:1fr;gap:36px}
+  .svc{grid-template-columns:1fr;gap:28px}
+  .tour{grid-template-columns:1fr 1fr;grid-auto-rows:150px;gap:8px}
+  .lb figure{padding:calc(64px + env(safe-area-inset-top)) 12px calc(84px + env(safe-area-inset-bottom))}
+  .lb-nav{top:auto;bottom:16px;translate:none}
+  .ad-box{aspect-ratio:4/3}
+  .selos{grid-template-columns:1fr 1fr}
+  .selos li,.selos li+li{padding:18px 12px 18px 0;border-left:0;border-bottom:1px solid var(--linha)}
+  .selos li:nth-child(even){padding-left:12px;border-left:1px solid var(--linha)}
+  .selos li:last-child{grid-column:1/-1}
+  .dlg{width:100vw;max-height:100dvh;height:100dvh;max-width:none;border-radius:0}
+  .dlg-grid{grid-template-columns:1fr;max-height:100dvh;overflow-y:auto}
+  .dlg-foto{min-height:240px}
+  .dlg-corpo{padding:24px 20px calc(32px + env(safe-area-inset-bottom));overflow:visible}
+  .dlg-gal{padding-top:calc(8px + env(safe-area-inset-top))}
+  .dlg-x{top:calc(14px + env(safe-area-inset-top))}
+  .quiz{grid-template-columns:1fr;gap:28px;padding:28px 20px}
+  .quiz-prog{margin-top:20px}
+  .qz-opcoes{grid-template-columns:1fr}
+  .qz-res{grid-template-columns:1fr}
+  .qz-res .ft{aspect-ratio:16/10}
+  .cta .txt{padding:36px 24px}
+  .rc-card{width:230px;height:300px}
+  .team{grid-template-columns:1fr 1fr;gap:32px 16px}
+  .membro h3{font-size:20px}
+  .membro .linha-nome{flex-direction:column;align-items:flex-start;gap:8px}
+  .nota{border-left:0;padding-left:0;border-top:1px solid var(--linha);padding-top:24px}
+  .form{grid-template-columns:1fr;padding:20px}
+  .mapa{height:300px}
+  .rod{grid-template-columns:1fr 1fr;gap:32px;padding-top:56px}
+  .faixa{flex-direction:column;text-align:center;gap:16px;padding:24px 20px}
+  .creditos{padding-bottom:96px}
+  .fale{right:16px;bottom:calc(16px + env(safe-area-inset-bottom));height:48px;padding:0 16px}
+}
+@media (max-width:520px){.cats{grid-template-columns:1fr;grid-auto-rows:220px}.cat:nth-child(n){grid-column:auto}.rod{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<a class="pular" href="#conteudo">Pular para o conteúdo</a>
+
+<div class="ubar">
+  <div class="wrap">
+    <span>WhatsApp <b>(11) 90000-0000</b></span>
+    <span class="esconde">contato@alveaodontologia.com.br</span>
+    <div class="dir"><span class="esconde">Seg. a sex., 8h às 19h · Sáb., 8h às 13h</span><span class="esconde">CRO-SP 98.214</span>
+      <div class="seg sm" id="idioma" role="group" aria-label="Idioma / Language"><button type="button" data-l="pt" aria-pressed="true">PT</button><button type="button" data-l="en" aria-pressed="false">EN</button></div>
+    </div>
+  </div>
+</div>
+
+<header>
+  <div class="wrap nav">
+    <a class="logo" href="#" aria-label="Alvéa Odontologia, início"><img src="img/alvea-assinatura.svg" alt="Alvéa"></a>
+    <ul>
+      <li><a href="#especialidades">Especialidades</a></li>
+      <li><a href="#metodo">Método</a></li>
+      <li><a href="#resultados">Resultados</a></li>
+      <li><a href="#casa">A clínica</a></li>
+      <li><a href="#especialistas">Especialistas</a></li>
+      <li><a href="#contato">Contato</a></li>
+    </ul>
+    <a class="btn sm" href="#contato">Agendar avaliação <span class="seta">→</span></a>
+  </div>
+</header>
+
+<main id="conteudo">
+<section class="hero">
+  <div class="hero-bg" id="hero-bg"><img class="cover foto" src="https://images.unsplash.com/photo-1609207825181-52d3214556dd?w=2000&q=80&auto=format&fit=crop" alt="Consultório da Alvéa com parede de pedra, vidro e jardim ao fundo"></div>
+  <div class="wrap hero-in">
+    <p class="eyebrow entra">Jardim Europa · São Paulo</p>
+    <h1 class="split">O sorriso que <em>dura.</em></h1>
+    <p class="lead entra">Um paciente por vez, num andar inteiro reservado para você. A primeira consulta dura noventa minutos e termina com um plano em imagens e o valor fechado por escrito.</p>
+    <form class="agenda entra" id="agenda" autocomplete="off">
+      <div class="agenda-box">
+        <div class="agenda-topo">
+          <span class="agenda-tit">Agende sua avaliação</span>
+          <div class="tipo" role="group" aria-label="Tipo de consulta">
+            <button type="button" data-tipo="Primeira consulta" aria-pressed="true">Primeira vez</button>
+            <button type="button" data-tipo="Retorno" aria-pressed="false">Já sou paciente</button>
+          </div>
+        </div>
+        <div class="f"><label for="ag-esp">Especialidade</label><select id="ag-esp"></select></div>
+        <div class="f"><label for="ag-per">Melhor período</label><select id="ag-per"><option value="Manhã">Manhã</option><option value="Tarde">Tarde</option><option value="Sábado">Sábado</option></select></div>
+        <div class="f"><label for="ag-via">Contato por</label><select id="ag-via"><option value="WhatsApp">WhatsApp</option><option value="Ligação">Ligação</option><option value="E-mail">E-mail</option></select></div>
+        <button class="btn" type="submit">Agendar <span class="seta">→</span></button>
+      </div>
+      <p class="confianca"><span><b>4,9</b> no Google</span><span><b>4.817</b> pacientes acompanhados</span><span><b>5 anos</b> de garantia</span></p>
+    </form>
+  </div>
+</section>
+
+<div class="numeros">
+  <div class="wrap">
+    <div><b>2014</b><span>Uma clínica, um propósito</span></div>
+    <div><b>12</b><span>Especialistas sob o mesmo teto</span></div>
+    <div><b>90 min</b><span>De primeira consulta</span></div>
+    <div><b>1</b><span>Paciente por andar, sempre</span></div>
+  </div>
+</div>
+
+<section id="especialidades">
+  <div class="wrap">
+    <div class="cab rv">
+      <div><p class="eyebrow">Especialidades</p><h2>Feito uma vez, <em>bem feito</em></h2></div>
+      <p>Só indicamos o que é necessário. Toque em uma especialidade para começar o seu agendamento.<br><a class="lnk" href="#quiz" style="margin-top:10px">Não sabe qual escolher? Responda 3 perguntas <span class="seta">→</span></a></p>
+    </div>
+    <div class="cats" id="cats"></div>
+  </div>
+</section>
+
+<!-- Quiz: três perguntas indicam um ponto de partida e preenchem o agendamento -->
+<section class="quiz-sec" id="quiz">
+  <div class="wrap">
+    <div class="quiz rv">
+      <div class="quiz-intro">
+        <p class="eyebrow">Por onde começar</p>
+        <h2>Qual tratamento é <em>para você?</em></h2>
+        <p class="muted">Três perguntas rápidas para indicar um ponto de partida. A indicação final é sempre do especialista, na avaliação de 90 minutos.</p>
+        <div class="quiz-prog" aria-hidden="true"><span id="qz-barra"></span></div>
+        <p class="rotulo" id="qz-passo"></p>
+      </div>
+      <div class="quiz-corpo" id="qz-corpo" aria-live="polite"></div>
+    </div>
+  </div>
+</section>
+
+<section class="alt" id="destaque">
+  <div class="wrap feat">
+    <div class="feat-media" id="feat-media"><img class="cover foto" id="dq-img" src="https://images.unsplash.com/photo-1629909613654-28e377c37b09?w=1400&q=80&auto=format&fit=crop" alt="Consultório iluminado por luz natural" loading="lazy"></div>
+    <div class="rv">
+      <div class="seg" id="dq-seg" role="group" aria-label="Escolha o tratamento em destaque"></div>
+      <div class="dq" id="dq">
+        <p class="eyebrow" style="margin-top:28px">Tratamento em destaque</p>
+        <h2 id="dq-tit"></h2>
+        <p class="desc" id="dq-desc"></p>
+        <div class="kv" id="dq-kv"></div>
+      </div>
+      <div class="acoes">
+        <button type="button" class="btn" id="dq-btn" data-esp="Implantes guiados">Agendar avaliação <span class="seta">→</span></button>
+        <a class="btn linha" href="#resultados">Ver resultados</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="metodo">
+  <div class="wrap">
+    <div class="cab rv">
+      <div><p class="eyebrow">O Método Alvéa</p><h2>Odontologia <em>sem relógio</em></h2></div>
+      <p>Três passos, do primeiro café ao último retorno. Você entende cada etapa antes de ela acontecer.</p>
+    </div>
+    <div class="svc">
+      <div class="rv"><span class="n">i.</span><h3>Escuta</h3><p>Avaliação de 90 minutos com escaneamento 3D, fotografia clínica e tomografia quando necessário.</p></div>
+      <div class="rv"><span class="n">ii.</span><h3>Plano visível</h3><p>Você vê o resultado em simulação digital, com cronograma e valor fechado por escrito.</p></div>
+      <div class="rv"><span class="n">iii.</span><h3>Cuidado contínuo</h3><p>Um especialista de referência do início ao fim e o Rito Alvéa, a revisão anual completa.</p></div>
+    </div>
+    <ul class="tec rv"><li class="rotulo">Sob o mesmo teto</li><li>Tomógrafo</li><li>Scanner intraoral</li><li>Fresadora de cerâmica</li><li>Laboratório próprio</li></ul>
+  </div>
+</section>
+
+<section class="alt resultados" id="resultados">
+  <div class="wrap">
+    <div class="cab rv">
+      <div><p class="eyebrow">Resultados</p><h2>Naturais a ponto de <em>ninguém notar</em></h2></div>
+      <p>Tratamentos feitos na Alvéa, do clareamento aos implantes guiados.</p>
+    </div>
+  </div>
+  <!-- Antes e depois: arraste a linha (ou use as setas do teclado) para comparar -->
+  <div class="wrap">
+    <div class="ad rv">
+      <div class="ad-topo">
+        <div class="seg" id="ad-seg" role="group" aria-label="Escolha o caso">
+          <button type="button" data-caso="0" aria-pressed="true">Clareamento</button>
+          <button type="button" data-caso="1" aria-pressed="false">Lentes de cerâmica</button>
+        </div>
+        <p class="rotulo">Simulação ilustrativa · arraste para comparar</p>
+      </div>
+      <div class="ad-box" id="ad-box" style="--x:50%">
+        <img class="cover ad-depois" id="ad-depois" alt="Depois do tratamento">
+        <img class="cover ad-antes" id="ad-antes" alt="Antes do tratamento">
+        <span class="ad-tag a">Antes</span><span class="ad-tag d">Depois</span>
+        <span class="ad-linha" aria-hidden="true"><span class="ad-pega">↔</span></span>
+        <input class="ad-range" id="ad-range" type="range" min="0" max="100" value="50" aria-label="Comparar antes e depois">
+      </div>
+    </div>
+  </div>
+  <div class="rc" id="rc"><div class="rc-trilho" id="rc-trilho"></div></div>
+</section>
+
+<section id="casa">
+  <div class="wrap">
+    <div class="cta rv">
+      <div class="txt">
+        <p class="eyebrow">A clínica</p>
+        <h2>Um consultório para o seu <em>sorriso</em></h2>
+        <p>Em Braga, Joaquim Varela passou quarenta anos esculpindo dentes de porcelana numa oficina com uma janela em arco. Em 2014, a neta, Dra. Helena Varela, abriu a Alvéa no Jardim Europa: consultórios privativos, luz natural e, atrás das paredes, tomógrafo, scanner e um laboratório de cerâmica.</p>
+        <p>A regra é uma só: durante o seu horário, a clínica é sua.</p>
+        <div class="acoes"><a class="btn claro" href="#contato">Agendar uma visita <span class="seta">→</span></a><a class="btn vazado" href="#especialistas">Conhecer a equipe</a></div>
+      </div>
+      <div class="img"><img class="cover foto" src="https://images.unsplash.com/photo-1777331903190-341a3dd0441b?w=1200&q=80&auto=format&fit=crop" alt="Dentista conversando com a paciente no consultório" loading="lazy" style="position:absolute;inset:0"></div>
+    </div>
+  </div>
+</section>
+
+<!-- Tour da clínica: mosaico de fotos com visualização em tela cheia -->
+<section id="tour" style="padding-top:0">
+  <div class="wrap">
+    <div class="cab rv">
+      <div><p class="eyebrow">Tour da clínica</p><h2>Conheça cada <em>ambiente</em></h2></div>
+      <p>Da porta de entrada ao laboratório. Toque em uma foto para ver em tela cheia.</p>
+    </div>
+    <div class="tour" id="tour-grid"></div>
+  </div>
+</section>
+<dialog class="dlg" id="dlg" aria-labelledby="dlg-tit">
+  <div class="dlg-grid">
+    <div class="dlg-gal">
+      <div class="dlg-foto"><img class="cover foto" id="dlg-img" alt=""></div>
+      <div class="dlg-mini" id="dlg-mini" role="group" aria-label="Fotos"></div>
+    </div>
+    <div class="dlg-corpo">
+      <p class="eyebrow">Especialidade</p>
+      <h3 id="dlg-tit"></h3>
+      <p class="muted" id="dlg-desc"></p>
+      <div class="kv" id="dlg-kv"></div>
+      <p class="rotulo dlg-sub">Como funciona</p>
+      <ol class="dlg-etapas" id="dlg-etapas"></ol>
+      <div class="dlg-resp" id="dlg-resp"></div>
+      <div class="acoes"><button type="button" class="btn" id="dlg-agendar">Agendar avaliação <span class="seta">→</span></button><button type="button" class="btn linha" data-fecha>Fechar</button></div>
+    </div>
+  </div>
+  <button type="button" class="dlg-x" data-fecha aria-label="Fechar">✕</button>
+</dialog>
+
+<dialog class="lb" id="lb" aria-label="Tour da clínica">
+  <figure><img id="lb-img" alt=""><figcaption><span id="lb-cap"></span><span id="lb-n" class="rotulo"></span></figcaption></figure>
+  <button type="button" class="lb-x" id="lb-x" aria-label="Fechar">✕</button>
+  <button type="button" class="lb-nav ant" id="lb-ant" aria-label="Foto anterior">←</button>
+  <button type="button" class="lb-nav prox" id="lb-prox" aria-label="Próxima foto">→</button>
+</dialog>
+
+<section id="especialistas">
+  <div class="wrap">
+    <div class="cab rv">
+      <div><p class="eyebrow">Especialistas</p><h2>Doze especialistas, <em>um paciente por vez</em></h2></div>
+      <p>Cada tratamento tem um especialista de referência, do primeiro dia à última revisão.</p>
+    </div>
+    <div class="team" id="team"></div>
+  </div>
+</section>
+
+<section class="alt" id="avaliacoes">
+  <div class="wrap quotes">
+    <div class="ut rv">
+      <p class="eyebrow">Avaliações</p>
+      <div class="ut-quote" style="margin-top:20px"><p id="ut-texto" aria-live="polite"></p></div>
+      <p class="ut-role" id="ut-role"></p>
+      <div class="ut-pessoas" id="ut-pessoas" role="tablist" aria-label="Escolha um depoimento"></div>
+    </div>
+    <div class="nota rv">
+      <strong>4,9</strong>
+      <span class="estrelas" aria-hidden="true">★★★★★</span>
+      <span class="muted">de 5 no Google, com 318 avaliações de pacientes.</span>
+    </div>
+  </div>
+</section>
+
+<!-- Selos de confiança -->
+<section class="selos-sec" aria-label="Garantias">
+  <div class="wrap">
+    <ul class="selos">
+      <li class="rv"><b>Garantia de 5 anos</b><span>Por escrito, em implantes e cerâmicas</span></li>
+      <li class="rv"><b>Biossegurança rastreada</b><span>Cada instrumento com lote e data de esterilização</span></li>
+      <li class="rv"><b>Laboratório próprio</b><span>Cerâmica feita no nosso laboratório</span></li>
+      <li class="rv"><b>Valor fechado</b><span>Orçamento por escrito antes de começar</span></li>
+      <li class="rv"><b>Responsável técnica</b><span>Dra. Helena Varela · CRO-SP 98.214</span></li>
+    </ul>
+  </div>
+</section>
+
+<section id="duvidas">
+  <div class="wrap faq">
+    <div class="rv"><p class="eyebrow">Dúvidas</p><h2>Antes de <em>começar</em></h2></div>
+    <div class="rv">
+      <div class="seg" id="faq-seg" role="group" aria-label="Filtrar dúvidas" style="margin-bottom:24px">
+        <button type="button" data-cat="consulta" aria-pressed="true">Consulta</button>
+        <button type="button" data-cat="tratamento" aria-pressed="false">Tratamentos</button>
+        <button type="button" data-cat="pagamento" aria-pressed="false">Valores</button>
+      </div>
+      <div class="faq-lista">
+        <details data-cat="consulta"><summary>Como é a avaliação de 90 minutos?</summary><p>Conversamos sobre o seu histórico, fazemos escaneamento 3D, fotografias clínicas e, se necessário, tomografia. Você sai com um plano explicado em imagens.</p></details>
+        <details data-cat="consulta"><summary>Preciso levar algum exame?</summary><p>Se tiver radiografias ou tomografias recentes, traga. Se não, fazemos tudo aqui na clínica, no mesmo dia.</p></details>
+        <details data-cat="consulta"><summary>Como funciona a chegada?</summary><p>Há manobrista na porta e entrada privativa para os consultórios. Você é recebido pelo seu especialista, sem sala de espera cheia.</p></details>
+        <details data-cat="tratamento"><summary>Quanto tempo leva um implante?</summary><p>Depende do osso e do caso. Na avaliação você recebe o cronograma completo, com cada consulta marcada no calendário.</p></details>
+        <details data-cat="tratamento"><summary>As lentes de cerâmica parecem dentes naturais?</summary><p>Sim. Cor, textura e formato são desenhados para o seu rosto e feitos no nosso laboratório, com prova antes da cimentação.</p></details>
+        <details data-cat="tratamento"><summary>O que é o Rito Alvéa?</summary><p>A revisão anual completa que todo paciente faz depois do tratamento. Ela mantém a garantia de cinco anos em implantes e cerâmicas.</p></details>
+        <details data-cat="pagamento"><summary>O valor pode mudar durante o tratamento?</summary><p>Não. O plano tem valor fechado por escrito antes de qualquer procedimento. Se algo imprevisto surgir, a decisão é sua, com um novo orçamento separado.</p></details>
+        <details data-cat="pagamento"><summary>Vocês atendem convênio?</summary><p>Trabalhamos com reembolso. Emitimos toda a documentação para você solicitar ao seu plano.</p></details>
+        <details data-cat="pagamento"><summary>Quais as formas de pagamento?</summary><p>Pix, transferência e cartão. O parcelamento é combinado no plano, junto com o cronograma das etapas.</p></details>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="alt" id="contato">
+  <div class="wrap">
+    <div class="contato">
+      <div class="rv">
+        <p class="eyebrow">Contato</p>
+        <h2>Vamos planejar o seu <em>sorriso</em></h2>
+        <p class="muted" style="margin-top:16px;max-width:44ch">Conte o que você procura. A nossa concierge responde em até 2 horas úteis, pelo canal que você preferir.</p>
+        <div class="concierge"><span class="ini">CA</span><div><b>Camila Andrade</b><span>Concierge de pacientes</span></div></div>
+        <div class="linhas">
+          <div><span class="rotulo">WhatsApp</span><span><strong>(11) 90000-0000</strong><button type="button" class="copiar" data-copia="(11) 90000-0000">Copiar</button></span></div>
+          <div><span class="rotulo">E-mail</span><span><strong>contato@alveaodontologia.com.br</strong><button type="button" class="copiar" data-copia="contato@alveaodontologia.com.br">Copiar</button></span></div>
+          <div><span class="rotulo">Endereço</span><strong>Alameda dos Ipês, 214 · Jardim Europa</strong></div>
+          <div><span class="rotulo">Horário</span><strong>Seg. a sex., 8h–19h · Sáb., 8h–13h</strong></div>
+        </div>
+      </div>
+      <form class="form rv" id="form" novalidate>
+        <div class="campo"><label class="rotulo" for="f-nome">Nome</label><input class="in" id="f-nome" autocomplete="name"></div>
+        <div class="campo"><label class="rotulo" for="f-tel">Telefone / WhatsApp</label><input class="in" id="f-tel" inputmode="tel" autocomplete="tel" placeholder="(11) 90000-0000"></div>
+        <div class="campo cheia"><label class="rotulo" for="f-mail">E-mail</label><input class="in" id="f-mail" type="email" autocomplete="email"></div>
+        <div class="campo cheia"><label class="rotulo" for="f-esp">Especialidade</label><select class="in" id="f-esp"></select></div>
+        <div class="campo cheia">
+          <span class="rotulo">Horários disponíveis · avaliação de 90 min</span>
+          <div class="dias" id="f-dias" role="group" aria-label="Escolha o dia"></div>
+          <div class="horas" id="f-horas" role="group" aria-label="Escolha o horário"></div>
+          <p class="hora-sel" id="f-hora-sel" aria-live="polite"></p>
+        </div>
+        <div class="campo cheia"><span class="rotulo">Como prefere ser contatado</span><div class="seg" id="f-via" role="group" aria-label="Como prefere ser contatado" style="justify-self:start"><button type="button" data-v="WhatsApp" aria-pressed="true">WhatsApp</button><button type="button" data-v="Ligação" aria-pressed="false">Ligação</button><button type="button" data-v="E-mail" aria-pressed="false">E-mail</button></div></div>
+        <div class="campo cheia"><label class="rotulo" for="f-msg">Mensagem</label><textarea class="in" id="f-msg" placeholder="O que te incomoda hoje, tratamentos anteriores, dúvidas."></textarea></div>
+        <label class="aceite cheia"><input type="checkbox" id="f-ok"> Autorizo a Alvéa a entrar em contato, conforme a Política de Privacidade (LGPD).</label>
+        <p class="erro" id="f-erro" hidden></p>
+        <div class="cheia"><button class="btn" type="submit">Enviar mensagem <span class="seta">→</span></button></div>
+        <div class="ok" id="f-sucesso" hidden aria-live="polite"></div>
+      </form>
+    </div>
+    <!-- ponytail: endereço fictício, o mapa mostra o bairro (Jardim Europa); troque o q= pelo endereço real -->
+    <iframe class="mapa rv" title="Mapa: Jardim Europa, São Paulo" src="https://www.google.com/maps?q=Jardim%20Europa%2C%20S%C3%A3o%20Paulo%20-%20SP&output=embed" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+  </div>
+</section>
+</main>
+
+<footer style="margin-top:var(--sec)">
+  <div class="wrap rod">
+    <div>
+      <img src="img/alvea-assinatura-negativa.svg" alt="Alvéa">
+      <p>Odontologia sem relógio. Um paciente por vez, no Jardim Europa.</p>
+    </div>
+    <div><h4>Especialidades</h4><ul id="rod-esp"></ul></div>
+    <div><h4>A clínica</h4><ul><li><a href="#metodo">Método Alvéa</a></li><li><a href="#casa">A clínica</a></li><li><a href="#especialistas">Especialistas</a></li><li><a href="#avaliacoes">Avaliações</a></li><li><a href="#duvidas">Dúvidas</a></li></ul></div>
+    <div><h4>Contato</h4><ul><li>Alameda dos Ipês, 214<br>Jardim Europa · São Paulo</li><li><a href="#contato">WhatsApp (11) 90000-0000</a></li><li>contato@alveaodontologia.com.br</li><li>@alveaodontologia</li></ul></div>
+  </div>
+  <div class="wrap creditos">
+    <div class="faixa">
+      <div class="marca"><img src="img/alvea-simbolo.svg" alt=""><span>Alvéa<br>Odontologia</span></div>
+      <p class="copy">Copyright © <span id="ano">2026</span> Alvéa Odontologia.<br><b>Todos os direitos reservados.</b> Responsável técnica: Dra. Helena Varela · CRO-SP 98.214</p>
+      <a class="dev" href="https://stacksolution.com.br" target="_blank" rel="noopener">
+        <span class="ic"><svg viewBox="0 0 24 24"><path d="M10 14a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-1 1"/><path d="M14 10a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l1-1"/></svg></span>
+        Site desenvolvido por <img src="img/stack.svg" alt="STACK">
+      </a>
+    </div>
+  </div>
+</footer>
+
+<a class="fale" href="#contato" aria-label="Fale conosco"><svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8s-.4-.1-.6.1-.7.8-.8 1-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.3-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.7 11.8 11.8 0 0 0 4.5 4c1.7.7 2.3.8 3.2.6a2.7 2.7 0 0 0 1.8-1.2 2.2 2.2 0 0 0 .1-1.3c0-.1-.2-.2-.5-.3z"/></svg>Fale conosco</a>
+
+<script>
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+const U='https://images.unsplash.com/photo-';
+const RM=matchMedia('(prefers-reduced-motion: reduce)').matches;
+$('#ano').textContent=new Date().getFullYear();
+let lang='pt';const L=(pt,en)=>lang==='en'?en:pt; // textos montados na hora, no idioma atual
+
+/* especialidades: uma lista alimenta cards, selects e rodapé */
+const esp=[
+  {n:'Implantes guiados',d:'Planejados no computador e instalados com guia cirúrgico.',img:'img/resultados/implante.jpg'},
+  {n:'Lentes e facetas',d:'Cerâmica feita no nosso laboratório, desenhada para o seu rosto.',img:'img/resultados/facetas.jpg'},
+  {n:'Reabilitação oral',d:'Um único plano integra todos os especialistas do seu caso.',img:U+'1588776814546-1ffcf47267a5?w=900&q=80&auto=format&fit=crop'},
+  {n:'Ortodontia invisível',d:'Alinhadores com simulação do movimento de cada dente.',img:'img/resultados/alinhadores.jpg'},
+  {n:'Periodontia',d:'A saúde da gengiva, base de tudo que dura décadas.',img:'img/resultados/restauracao.jpg'},
+  {n:'Clareamento',d:'Supervisionado, com branco natural e sem azulado.',img:'img/resultados/clareamento.jpg'},
+];
+$('#cats').innerHTML=esp.map((e,i)=>`<button type="button" class="cat rv" data-det="${i}" aria-haspopup="dialog"><img class="cover foto" src="${e.img}" alt="" loading="lazy"><span class="txt"><b>${e.n}</b><small>${e.d}</small><span class="mais">Ver detalhes <span class="seta">→</span></span></span></button>`).join('');
+const opts=esp.map(e=>`<option value="${e.n}">${e.n}</option>`).join('')+'<option value="Ainda não sei">Ainda não sei</option>';
+$('#ag-esp').innerHTML=opts;$('#f-esp').innerHTML=opts;
+$('#rod-esp').innerHTML=esp.map((e,i)=>`<li><a href="#especialidades" data-det="${i}">${e.n}</a></li>`).join('');
+
+/* detalhe em janela: cada especialidade abre um painel com fotos, dados, etapas e o especialista responsável */
+const F=id=>U+id+'?w=1200&q=80&auto=format&fit=crop';
+const detalhes=[
+  {ld:'O implante é planejado no computador a partir da sua tomografia. Imprimimos um guia cirúrgico sob medida, que indica a posição exata de cada implante: a cirurgia fica mais curta e o pós-operatório, mais tranquilo.',
+   kv:[['Duração','3 a 6 meses'],['Cirurgia','Cerca de 1 hora'],['Consultas','4 a 6'],['Garantia','5 anos']],
+   et:['Tomografia e planejamento 3D','Cirurgia guiada, com anestesia local','Cicatrização com coroa provisória','Coroa definitiva feita no nosso laboratório'],
+   r:0,fotos:['img/resultados/implante.jpg',F('1588776814546-1ffcf47267a5'),F('1609207825181-52d3214556dd')]},
+  {ld:'Desenhamos cada lente para o seu rosto, e você prova o resultado em resina antes de qualquer desgaste. A cerâmica é feita no nosso laboratório, com acabamento à mão.',
+   kv:[['Duração','3 a 5 semanas'],['Consultas','3 a 4'],['Desgaste','Mínimo ou nenhum'],['Garantia','5 anos']],
+   et:['Fotos, escaneamento e desenho do sorriso','Prova em resina, direto na boca','Produção da cerâmica no laboratório','Cimentação e ajuste final'],
+   r:3,fotos:['img/resultados/facetas.jpg',F('1777331903190-341a3dd0441b'),F('1728342057953-94bfad8f0e7e')]},
+  {ld:'Quando há várias coisas a resolver, montamos um único plano com todos os especialistas envolvidos, na ordem certa, com cronograma e valor fechado desde o início.',
+   kv:[['Duração','6 a 12 meses'],['Especialistas','2 a 4, integrados'],['Consultas','Agrupadas por etapa'],['Garantia','5 anos']],
+   et:['Diagnóstico completo em 90 minutos','Plano integrado, com simulação digital','Tratamento por etapas, sem idas e vindas','Rito Alvéa: revisão anual completa'],
+   r:0,fotos:[F('1588776814546-1ffcf47267a5'),F('1606811842243-af7e16970c1f'),F('1629909613654-28e377c37b09')]},
+  {ld:'Você vê a simulação de todo o movimento antes de começar. Os alinhadores são trocados em casa, e as consultas de acompanhamento são curtas e marcadas com antecedência.',
+   kv:[['Duração','6 a 18 meses'],['Consultas','A cada 8 semanas'],['Uso diário','22 horas'],['Contenção','Inclusa no plano']],
+   et:['Escaneamento 3D, sem moldagem','Simulação do movimento de cada dente','Alinhadores trocados a cada 10 dias','Contenção para manter o resultado'],
+   r:1,fotos:['img/resultados/alinhadores.jpg',F('1777331903190-341a3dd0441b'),F('1728342057953-94bfad8f0e7e')]},
+  {ld:'Cuidamos da gengiva e do osso que sustentam os dentes. É o primeiro passo de muitos tratamentos e a base para que qualquer resultado dure.',
+   kv:[['Duração','2 a 6 semanas'],['Consultas','2 a 4'],['Anestesia','Local, quando necessária'],['Manutenção','A cada 6 meses']],
+   et:['Avaliação com sondagem e radiografias','Limpeza profunda por áreas','Reavaliação da gengiva','Manutenção periódica'],
+   r:2,fotos:['img/resultados/restauracao.jpg',F('1629909613654-28e377c37b09'),F('1777331903190-341a3dd0441b')]},
+  {ld:'Combinamos sessões no consultório com moldeiras para usar em casa, sempre com acompanhamento. O objetivo é um branco natural, que combine com o seu rosto.',
+   kv:[['Duração','2 a 3 semanas'],['Sessões','2 no consultório'],['Sensibilidade','Controlada'],['Resultado','Branco natural']],
+   et:['Avaliação da cor e da saúde dos dentes','Sessões no consultório','Moldeira personalizada para casa','Revisão da cor'],
+   r:3,fotos:['img/resultados/clareamento.jpg',F('1728342057953-94bfad8f0e7e'),F('1609207825181-52d3214556dd')]},
+];
+const dlg=$('#dlg');let detAtual=0;
+function abreDetalhe(i){
+  detAtual=i;const e=esp[i],d=detalhes[i],p=time[d.r];
+  $('#dlg-tit').textContent=e.n;$('#dlg-desc').textContent=d.ld;
+  $('#dlg-kv').innerHTML=d.kv.map(([k,v])=>`<div><span class="rotulo">${k}</span><b>${v}</b></div>`).join('');
+  $('#dlg-etapas').innerHTML=d.et.map(t=>`<li>${t}</li>`).join('');
+  $('#dlg-resp').innerHTML=`<img src="${U+p.img}?w=120&h=120&fit=crop&auto=format" alt=""><div><span class="rotulo">Especialista responsável</span><b>${p.n}</b><span class="cro">${p.c}</span></div>`;
+  $('#dlg-img').src=d.fotos[0];$('#dlg-img').alt=e.n;
+  $('#dlg-mini').innerHTML=d.fotos.map((f,j)=>`<button type="button" data-f="${j}" aria-pressed="${j===0}" aria-label="Foto ${j+1}"><img class="cover" src="${f}" alt=""></button>`).join('');
+  dlg.showModal();dlg.querySelector('.dlg-corpo').scrollTop=0;
+}
+document.addEventListener('click',ev=>{const b=ev.target.closest('[data-det]');if(!b)return;ev.preventDefault();abreDetalhe(+b.dataset.det)});
+$('#dlg-mini').addEventListener('click',ev=>{const b=ev.target.closest('button');if(!b)return;$('#dlg-img').src=detalhes[detAtual].fotos[+b.dataset.f];$$('#dlg-mini button').forEach(x=>x.setAttribute('aria-pressed',x===b))});
+dlg.addEventListener('click',ev=>{if(ev.target===dlg||ev.target.closest('[data-fecha]'))dlg.close()});
+$('#dlg-agendar').addEventListener('click',()=>{dlg.close();irAgendar(esp[detAtual].n)});
+
+/* agendar: leva ao formulário já preenchido */
+function irAgendar(nome,periodo,via){
+  if(nome)$('#f-esp').value=nome;
+  if(periodo)escolheHorario(periodo);
+  if(via)$$('#f-via button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.v===via));
+  $('#contato').scrollIntoView({behavior:RM?'auto':'smooth'});
+  setTimeout(()=>$('#f-nome').focus({preventScroll:true}),RM?0:700);
+}
+$$('[data-esp]').forEach(b=>b.addEventListener('click',()=>irAgendar(b.dataset.esp)));
+let tipo='Primeira consulta';
+$$('.tipo button').forEach(b=>b.onclick=()=>{tipo=b.dataset.tipo;$$('.tipo button').forEach(x=>x.setAttribute('aria-pressed',x===b))});
+$('#agenda').addEventListener('submit',e=>{e.preventDefault();if(tipo==='Retorno')$('#f-msg').value=L('Já sou paciente e quero agendar um retorno.','I am already a patient and would like to book a follow-up.');irAgendar($('#ag-esp').value,$('#ag-per').value,$('#ag-via').value)});
+
+/* quiz de tratamento: cada resposta soma pontos por especialidade; vence a maior (empate: ordem de `esp`) */
+const [IMP,LEN,REA,ORT,PER,CLA]=esp.map(e=>e.n);
+const perguntas=[
+  {p:'O que mais te incomoda hoje?',op:[
+    {t:'Perdi um ou mais dentes',s:{[IMP]:3,[REA]:1}},
+    {t:'A cor dos meus dentes',s:{[CLA]:3,[LEN]:1}},
+    {t:'O formato ou o desgaste dos dentes',s:{[LEN]:3}},
+    {t:'Dentes tortos ou espaçados',s:{[ORT]:3}},
+    {t:'Gengiva que sangra ou retraiu',s:{[PER]:3}},
+    {t:'Várias coisas ao mesmo tempo',s:{[REA]:3,[IMP]:1}},
+  ]},
+  {p:'O que você espera do resultado?',op:[
+    {t:'Algo natural, que ninguém perceba',s:{[CLA]:1,[ORT]:1,[PER]:1}},
+    {t:'Uma mudança visível no sorriso',s:{[LEN]:2,[REA]:1}},
+    {t:'Voltar a mastigar e falar bem',s:{[IMP]:2,[REA]:2}},
+    {t:'Parar o incômodo ou a dor',s:{[PER]:2,[REA]:1}},
+  ]},
+  {p:'Quanto tempo você tem para o tratamento?',op:[
+    {t:'Poucas semanas',s:{[CLA]:2,[LEN]:1}},
+    {t:'Alguns meses',s:{[IMP]:1,[ORT]:1,[PER]:1,[LEN]:1}},
+    {t:'O tempo que for preciso',s:{[REA]:1,[ORT]:1,[IMP]:1}},
+  ]},
+];
+const porque={
+  [IMP]:'Repõe o dente que falta com planejamento 3D e guia cirúrgico, para uma cirurgia curta e previsível.',
+  [LEN]:'Corrige cor e formato com cerâmica fina, desenhada para o seu rosto e provada antes de começar.',
+  [REA]:'Quando há várias coisas a resolver, um único plano integra os especialistas e define a ordem certa.',
+  [ORT]:'Alinha os dentes com alinhadores transparentes, com simulação do movimento antes de começar.',
+  [PER]:'Cuida da gengiva, a base que sustenta qualquer tratamento que precise durar.',
+  [CLA]:'Devolve o branco natural em poucas sessões, supervisionado e sem azulado.',
+};
+let respostas=[];
+const qzCorpo=$('#qz-corpo');
+function qzTroca(html){
+  if(RM){qzCorpo.innerHTML=html;return}
+  qzCorpo.classList.add('saindo');
+  setTimeout(()=>{qzCorpo.innerHTML=html;qzCorpo.classList.remove('saindo')},250);
+}
+function qzProgresso(n){
+  $('#qz-barra').style.width=(n/perguntas.length*100)+'%';
+  $('#qz-passo').textContent=n<perguntas.length?L(`Pergunta ${n+1} de ${perguntas.length}`,`Question ${n+1} of ${perguntas.length}`):L('Seu ponto de partida','Your starting point');
+}
+function qzPergunta(i,anima=true){
+  qzProgresso(i);
+  const q=perguntas[i];
+  const html=`<p class="qz-perg">${q.p}</p>
+    <div class="qz-opcoes">${q.op.map((o,j)=>`<button type="button" class="qz-op" data-j="${j}">${o.t}<span class="seta">→</span></button>`).join('')}</div>
+    ${i?'<button type="button" class="lnk qz-voltar" data-voltar>← Voltar</button>':''}`;
+  anima?qzTroca(html):qzCorpo.innerHTML=html;
+}
+function qzResultado(){
+  const pts={};
+  respostas.forEach((j,i)=>Object.entries(perguntas[i].op[j].s).forEach(([k,v])=>pts[k]=(pts[k]||0)+v));
+  const ordem=esp.map(e=>e.n).sort((a,b)=>(pts[b]||0)-(pts[a]||0)); // sort estável: empate mantém a ordem de esp
+  const [top,seg2]=ordem,e=esp.find(x=>x.n===top);
+  qzProgresso(perguntas.length);
+  qzTroca(`<div class="qz-res">
+      <div class="ft"><img class="cover foto" src="${e.img}" alt=""></div>
+      <div>
+        <span class="rotulo">Indicado para você</span>
+        <h3>${top}</h3>
+        <p class="por">${porque[top]}</p>
+        ${pts[seg2]?`<p class="qz-alt">Também vale conversar sobre: <b>${seg2}</b></p>`:''}
+        <div class="acoes" style="margin-top:20px">
+          <button type="button" class="btn" data-agendar="${top}">Agendar avaliação <span class="seta">→</span></button>
+          <button type="button" class="btn linha" data-refazer>Refazer</button>
+        </div>
+      </div>
+    </div>`);
+}
+qzCorpo.addEventListener('click',e=>{
+  const op=e.target.closest('.qz-op'),b=e.target.closest('button');
+  if(op){respostas.push(+op.dataset.j);respostas.length<perguntas.length?qzPergunta(respostas.length):qzResultado();return}
+  if(!b)return;
+  if('voltar' in b.dataset){respostas.pop();qzPergunta(respostas.length)}
+  else if('refazer' in b.dataset){respostas=[];qzPergunta(0)}
+  else if(b.dataset.agendar){
+    const t=s=>L(s,EN[s]||s);
+    $('#f-msg').value=L('Respostas do quiz: ','Quiz answers: ')+respostas.map((j,i)=>t(perguntas[i].op[j].t).toLowerCase()).join('; ')+'.';
+    irAgendar(b.dataset.agendar);
+  }
+});
+qzPergunta(0,false);
+
+/* botão segmentado: liga/desliga aria-pressed dentro do grupo e avisa quem escuta */
+function seg(el,aoEscolher){
+  el.addEventListener('click',e=>{
+    const b=e.target.closest('button');if(!b||b.getAttribute('aria-pressed')==='true')return;
+    el.querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',x===b));
+    aoEscolher&&aoEscolher(b);
+  });
+}
+
+/* tratamento em destaque: o botão segmentado troca foto, texto e dados */
+const destaques=[
+  {n:'Implantes guiados',t:'Implantes guiados, <em>sem surpresas</em>',d:'Planejados no computador a partir da sua tomografia e instalados com guia cirúrgico impresso para a sua boca. A cirurgia é mais curta, o pós-operatório mais tranquilo e a coroa sai do nosso laboratório.',kv:[['Planejamento','3D, antes de tudo'],['Cirurgia','Cerca de 1 hora'],['Garantia','5 anos'],['Acompanhamento','Rito Alvéa anual']],img:U+'1629909613654-28e377c37b09?w=1400&q=80&auto=format&fit=crop',alt:'Consultório iluminado por luz natural'},
+  {n:'Lentes e facetas',t:'Lentes de cerâmica, <em>feitas aqui</em>',d:'Desenhadas para o seu rosto e produzidas no laboratório do subsolo. Você prova o resultado em resina antes de qualquer desgaste e aprova cor e formato com o ceramista.',kv:[['Prova','Antes de começar'],['Etapas','3 a 4 consultas'],['Garantia','5 anos'],['Laboratório','Próprio, no subsolo']],img:'img/resultados/facetas.jpg',alt:'Sorriso harmonioso com lentes de cerâmica'},
+  {n:'Ortodontia invisível',t:'Alinhadores, <em>sem fios à vista</em>',d:'Você vê a simulação do movimento de cada dente antes de começar. Os alinhadores são trocados em casa e as consultas de acompanhamento são curtas e marcadas com antecedência.',kv:[['Simulação','Digital, dente a dente'],['Duração média','6 a 18 meses'],['Consultas','A cada 8 semanas'],['Contenção','Inclusa no plano']],img:'img/resultados/alinhadores.jpg',alt:'Paciente colocando alinhador transparente'},
+];
+const dqSeg=$('#dq-seg');
+dqSeg.innerHTML=destaques.map((d,i)=>`<button type="button" aria-pressed="${i===0}" data-i="${i}">${d.n.split(' ')[0]}</button>`).join('');
+function mostraDestaque(i,anima){
+  const d=destaques[i],caixa=$('#destaque');
+  const aplica=()=>{
+    $('#dq-tit').innerHTML=d.t;$('#dq-desc').textContent=d.d;
+    $('#dq-kv').innerHTML=d.kv.map(([k,v])=>`<div><span class="rotulo">${k}</span><b>${v}</b></div>`).join('');
+    $('#dq-img').src=d.img;$('#dq-img').alt=d.alt;$('#dq-btn').dataset.esp=d.n;
+    caixa.classList.remove('trocando');
+  };
+  if(!anima||RM)return aplica();
+  caixa.classList.add('trocando');setTimeout(aplica,300);
+}
+mostraDestaque(0,false);
+seg(dqSeg,b=>mostraDestaque(+b.dataset.i,true));
+
+/* dúvidas: filtro por categoria */
+const filtraFaq=cat=>$$('.faq-lista details').forEach(d=>{d.hidden=d.dataset.cat!==cat;if(d.hidden)d.open=false});
+filtraFaq('consulta');
+seg($('#faq-seg'),b=>filtraFaq(b.dataset.cat));
+
+/* formulário (demonstração: não envia dados) */
+$$('#f-via button').forEach(b=>b.onclick=()=>$$('#f-via button').forEach(x=>x.setAttribute('aria-pressed',x===b)));
+$('#form').addEventListener('submit',e=>{
+  e.preventDefault();
+  const nome=$('#f-nome').value.trim(),tel=$('#f-tel').value.replace(/\D/g,''),erro=$('#f-erro'),ok=$('#f-sucesso');
+  const falta=!nome?L('Diga o seu nome.','Please tell us your name.')
+    :tel.length<10?L('Informe um telefone com DDD.','Please enter a phone number with area code.')
+    :!horaSel?L('Escolha um dia e um horário.','Please pick a day and a time.')
+    :!$('#f-ok').checked?L('Marque a autorização de contato.','Please tick the contact consent.'):'';
+  erro.textContent=falta;erro.hidden=!falta;
+  if(falta)return;
+  const via=$('#f-via [aria-pressed="true"]').textContent.toLowerCase(),primeiro=nome.split(' ')[0].replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  const espSel=$('#f-esp').selectedOptions[0].textContent.toLowerCase(),quando=`${dataLonga(dias[diaSel])} ${L('às','at')} ${horaSel}`;
+  ok.innerHTML=L(
+    `<em>Obrigada, ${primeiro}.</em>Pedido de avaliação de ${espSel} para ${quando}. Em um site real, a Camila confirmaria por ${via} em até 2 horas úteis. Este formulário é uma demonstração e não envia dados.`,
+    `<em>Thank you, ${primeiro}.</em>Consultation request for ${espSel} on ${quando}. On a real site, Camila would confirm by ${via} within 2 business hours. This form is a demo and does not send any data.`);
+  ok.hidden=false;
+});
+$$('.copiar').forEach(b=>b.onclick=async()=>{try{await navigator.clipboard.writeText(b.dataset.copia);b.textContent='Copiado'}catch{b.textContent='Selecione e copie'}setTimeout(()=>b.textContent='Copiar',1800)});
+
+/* avaliações: fluxo do unique-testimonial (sai 200ms, troca, entra 400ms) */
+const depos=[
+  {q:'Foi a primeira vez que um dentista me mostrou o plano inteiro antes de encostar em mim. O valor não mudou um real.',a:'Marina Azevedo',r:'reabilitação oral',img:'1544005313-94ddf0286df2'},
+  {q:'Ninguém percebe que são facetas. Era exatamente isso que eu queria.',a:'Ricardo Lemos',r:'lentes de cerâmica',img:'1500648767791-00dcc994a43e'},
+  {q:'Tinha pavor de dentista. Aqui ninguém tem pressa, e isso mudou tudo.',a:'Beatriz Sampaio',r:'implantes guiados',img:'1494790108377-be9c29b29330'},
+];
+const ut=$('.ut');let ativo=0,animando=false;
+const mostraDepo=i=>{$('#ut-texto').textContent=`“${depos[i].q}”`;$('#ut-role').innerHTML=`<b>${depos[i].a}</b> · ${depos[i].r}`};
+mostraDepo(0);
+const botoes=depos.map((d,i)=>{
+  const b=document.createElement('button');
+  b.className='ut-p';b.type='button';b.setAttribute('role','tab');b.setAttribute('aria-label',d.a);
+  b.innerHTML=`<img src="${U+d.img}?w=96&h=96&fit=crop&auto=format" alt=""><span class="nome"><span>${d.a}</span></span>`;
+  b.onclick=()=>escolher(i);
+  b.onmouseenter=()=>b.classList.add('mostra');
+  b.onmouseleave=()=>i!==ativo&&b.classList.remove('mostra');
+  $('#ut-pessoas').append(b);return b;
+});
+const pinta=()=>botoes.forEach((b,i)=>{b.classList.toggle('ativo',i===ativo);b.classList.toggle('mostra',i===ativo);b.setAttribute('aria-selected',i===ativo)});
+function escolher(i){
+  if(i===ativo||animando)return;
+  animando=true;ut.classList.add('saindo');
+  setTimeout(()=>{mostraDepo(i);ativo=i;pinta();ut.classList.remove('saindo');setTimeout(()=>animando=false,400)},200);
+}
+pinta();
+
+/* especialistas (team-01 + avatar verificado) */
+const time=[
+  {n:'Dra. Helena Varela',c:'Implantodontia · CRO-SP 98.214',d:'2014',img:'1559839734-2b71ea197ec2'},
+  {n:'Dr. Tomás Albuquerque',c:'Ortodontia · CRO-SP 101.377',d:'2014',img:'1612349317150-e413f6a5b16d'},
+  {n:'Dra. Lívia Moraes',c:'Periodontia · CRO-SP 112.508',d:'2017',img:'1594824476967-48c8b964273f'},
+  {n:'Dr. Rafael Nogueira',c:'Estética em cerâmica · CRO-SP 118.043',d:'2019',img:'1622253692010-333f2da6031d'},
+];
+const selo=`<svg class="selo" viewBox="0 0 24 24" aria-hidden="true"><path fill="#F7F3EC" d="M3.046 8.277A4.402 4.402 0 0 1 8.303 3.03a4.4 4.4 0 0 1 7.411 0 4.397 4.397 0 0 1 5.19 3.068c.207.713.23 1.466.067 2.19a4.4 4.4 0 0 1 0 7.415 4.403 4.403 0 0 1-3.06 5.187 4.398 4.398 0 0 1-2.186.072 4.398 4.398 0 0 1-7.422 0 4.398 4.398 0 0 1-5.257-5.248 4.4 4.4 0 0 1 0-7.437Z"/><path fill="#1F3B3D" d="M4.674 8.954a3.602 3.602 0 0 1 4.301-4.293 3.6 3.6 0 0 1 6.064 0 3.598 3.598 0 0 1 4.3 4.302 3.6 3.6 0 0 1 0 6.067 3.6 3.6 0 0 1-4.29 4.302 3.6 3.6 0 0 1-6.074 0 3.598 3.598 0 0 1-4.3-4.293 3.6 3.6 0 0 1 0-6.085Z"/><path fill="#F7F3EC" d="M15.707 9.293a1 1 0 0 1 0 1.414l-4 4a1 1 0 0 1-1.414 0l-2-2a1 1 0 1 1 1.414-1.414L11 12.586l3.293-3.293a1 1 0 0 1 1.414 0Z"/></svg>`;
+const iniciais=n=>n.replace(/^Dra?\.\s*/,'').split(' ').map(p=>p[0]).slice(0,2).join('');
+$('#team').innerHTML=time.map(p=>`
+  <article class="membro rv">
+    <div class="ft"><img class="cover foto" src="${U+p.img}?w=700&h=875&fit=crop&auto=format" alt="${p.n}" loading="lazy"></div>
+    <div class="linha-nome">
+      <div class="avatar"><div class="av"><img src="${U+p.img}?w=96&h=96&fit=crop&auto=format" alt="" onerror="this.remove()">${iniciais(p.n)}</div>${selo}<span class="sr-only">CRO verificado</span></div>
+      <div><h3>${p.n}</h3><p class="cargo">${p.c}</p></div>
+    </div>
+    <div class="rodape"><span class="rotulo">Na Alvéa desde</span><span class="desde">${p.d}</span></div>
+  </article>`).join('');
+
+/* resultados: loop do ResultsCarousel da Lavie (cards das pontas giram e crescem, pausa no hover) */
+const resultados=[
+  {l:'Clareamento',src:'img/resultados/clareamento.jpg',alt:'Sorriso com dentes brancos e naturais após clareamento'},
+  {l:'Lentes de cerâmica',src:'img/resultados/facetas.jpg',alt:'Sorriso harmonioso com lentes de cerâmica'},
+  {l:'Implantes guiados',src:'img/resultados/implante.jpg',alt:'Coroa sobre implante nas mãos da especialista'},
+  {l:'Ortodontia invisível',src:'img/resultados/alinhadores.jpg',alt:'Paciente colocando alinhador transparente'},
+  {l:'Periodontia',src:'img/resultados/restauracao.jpg',alt:'Avaliação da saúde da gengiva'},
+  {l:'Reabilitação oral',src:U+'1588776814546-1ffcf47267a5?w=600&h=780&fit=crop&auto=format',alt:'Especialista analisando exames de imagem para o planejamento'},
+];
+(()=>{
+  const wrap=$('#rc'),track=$('#rc-trilho');
+  track.innerHTML=[...resultados,...resultados].map((r,i)=>{const c=i>=resultados.length;return `<div class="rc-card"${c?' aria-hidden="true"':''}><img src="${r.src}" alt="${c?'':r.alt}" loading="lazy"><span>${r.l}</span></div>`}).join('');
+  const cards=[...track.children];let off=0,last=performance.now(),pausado=false;
+  wrap.onmouseenter=()=>pausado=true;wrap.onmouseleave=()=>pausado=false;
+  (function frame(now){
+    const dt=Math.min(.05,(now-last)/1000);last=now;
+    if(!RM&&!pausado)off=(off+40*dt)%(track.scrollWidth/2);
+    track.style.transform=`translate3d(${-off}px,0,0)`;
+    const mid=wrap.clientWidth/2;
+    for(const el of cards){const d=Math.max(-1.3,Math.min(1.3,(el.offsetLeft+el.offsetWidth/2-off-mid)/mid));el.style.transform=`rotateY(${-d*16}deg) scale(${1+Math.abs(d)*.07})`}
+    requestAnimationFrame(frame);
+  })(last);
+})();
+
+/* horários disponíveis: próximos 12 dias (sem domingo); ocupação fictícia e fixa por data/hora */
+const SLOTS={sem:['08:00','09:30','11:00','14:00','15:30','17:00'],sab:['08:00','09:30','11:00']};
+const dias=[];{const h=new Date();h.setHours(0,0,0,0);for(let d=1;dias.length<12;d++){const x=new Date(h);x.setDate(h.getDate()+d);if(x.getDay())dias.push(x)}}
+const slotsDe=d=>d.getDay()===6?SLOTS.sab:SLOTS.sem;
+const ocupado=(d,h)=>(Math.imul(d.getDate()*31+d.getMonth()*7+parseInt(h)*13+parseInt(h.slice(3)),2654435761)>>>0)%10<4; // ponytail: agenda fictícia; ligar a uma agenda real quando houver
+const livres=d=>slotsDe(d).filter(h=>!ocupado(d,h));
+const fmt=(d,o)=>new Intl.DateTimeFormat(L('pt-BR','en-US'),o).format(d).replace('.','');
+const dataLonga=d=>fmt(d,{weekday:'long',day:'numeric',month:'long'});
+let diaSel=Math.max(0,dias.findIndex(d=>livres(d).length)),horaSel=null;
+function renderAgenda(){
+  $('#f-dias').innerHTML=dias.map((d,i)=>`<button type="button" data-i="${i}" aria-pressed="${i===diaSel}" ${livres(d).length?'':'disabled'} aria-label="${dataLonga(d)}"><small>${fmt(d,{weekday:'short'})}</small><b>${d.getDate()}</b><small>${fmt(d,{month:'short'})}</small></button>`).join('');
+  const d=dias[diaSel];
+  $('#f-horas').innerHTML=slotsDe(d).map(h=>`<button type="button" data-h="${h}" aria-pressed="${h===horaSel}" ${ocupado(d,h)?'disabled':''}>${h}</button>`).join('');
+  $('#f-hora-sel').innerHTML=horaSel?`${L('Seu horário','Your time')}: <b>${dataLonga(d)} ${L('às','at')} ${horaSel}</b>`:L('Escolha um dia e um horário livre.','Pick a day and an open time.');
+}
+$('#f-dias').addEventListener('click',e=>{const b=e.target.closest('button');if(!b||b.disabled)return;diaSel=+b.dataset.i;horaSel=null;renderAgenda()});
+$('#f-horas').addEventListener('click',e=>{const b=e.target.closest('button');if(!b||b.disabled)return;horaSel=b.dataset.h;renderAgenda()});
+function escolheHorario(periodo){ // vindo do agendador do topo: primeiro horário livre do período
+  const cabe=(d,h)=>periodo==='Sábado'?d.getDay()===6:periodo==='Tarde'?parseInt(h)>=12:parseInt(h)<12;
+  for(let i=0;i<dias.length;i++){const h=livres(dias[i]).find(x=>cabe(dias[i],x));if(h){diaSel=i;horaSel=h;break}}
+  renderAgenda();
+}
+renderAgenda();
+
+/* tour da clínica: mosaico + tela cheia (setas, teclado e deslizar no celular) */
+const tour=[
+  ['Recepção com jardim interno','1648775507324-b48dd3791fa5'],['Sala de espera privativa','1787496994867-939269b4d323'],
+  ['Consultório de pedra e jardim','1609207825181-52d3214556dd'],['Corredor dos consultórios','1497366754035-f200968a6e72'],
+  ['Consultório com luz natural','1728342057953-94bfad8f0e7e'],['Conversa antes de tudo','1777331903190-341a3dd0441b'],
+  ['Plano explicado na cadeira','1606811842243-af7e16970c1f'],['Planejamento digital','1588776814546-1ffcf47267a5'],
+];
+$('#tour-grid').innerHTML=tour.map(([c,id],i)=>`<button type="button" class="rv" data-i="${i}" aria-label="${c}"><img class="cover foto" src="${U+id}?w=900&q=75&auto=format&fit=crop" alt="" loading="lazy"><span>${c}</span></button>`).join('');
+const lb=$('#lb');let lbI=0;
+function lbMostra(i){
+  lbI=(i+tour.length)%tour.length;const [c,id]=tour[lbI];
+  $('#lb-img').src=`${U+id}?w=2000&q=80&auto=format&fit=crop`;$('#lb-img').alt=c;
+  $('#lb-cap').textContent=c;$('#lb-n').textContent=`${lbI+1} / ${tour.length}`;
+}
+$('#tour-grid').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;lbMostra(+b.dataset.i);lb.showModal()});
+$('#lb-x').onclick=()=>lb.close();$('#lb-ant').onclick=()=>lbMostra(lbI-1);$('#lb-prox').onclick=()=>lbMostra(lbI+1);
+lb.addEventListener('click',e=>{if(e.target===lb||e.target.tagName==='FIGURE')lb.close()});
+lb.addEventListener('keydown',e=>{if(e.key==='ArrowLeft')lbMostra(lbI-1);if(e.key==='ArrowRight')lbMostra(lbI+1)});
+let toqueX=null;lb.addEventListener('touchstart',e=>toqueX=e.touches[0].clientX,{passive:true});
+lb.addEventListener('touchend',e=>{if(toqueX===null)return;const dx=e.changedTouches[0].clientX-toqueX;if(Math.abs(dx)>50)lbMostra(lbI+(dx<0?1:-1));toqueX=null});
+
+/* antes e depois: o "antes" é a mesma foto com filtro (simulação ilustrativa) */
+const casos=[
+  {img:'img/resultados/clareamento.jpg',f:'sepia(.55) saturate(.7) brightness(.9) contrast(.95)'},
+  {img:'img/resultados/facetas.jpg',f:'sepia(.45) saturate(.6) brightness(.86) contrast(.9)'},
+];
+const caso=i=>{$('#ad-antes').src=$('#ad-depois').src=casos[i].img;$('#ad-antes').style.filter=casos[i].f};
+$('#ad-range').addEventListener('input',e=>$('#ad-box').style.setProperty('--x',e.target.value+'%'));
+seg($('#ad-seg'),b=>caso(+b.dataset.caso));caso(0);
+
+/* movimento: título palavra por palavra, revelação ao rolar, parallax do hero e recorte da foto em destaque */
+$$('.split').forEach(el=>{let i=0;el.innerHTML=el.innerHTML.trim().split(/\s+(?![^<]*>)/).map(w=>`<span class="w"><span style="--i:${i++}">${w}</span></span>`).join(' ');el.classList.add('play')});
+if(!RM&&'IntersectionObserver' in window){
+  const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visto');io.unobserve(e.target)}}),{rootMargin:'0px 0px -8% 0px'});
+  $$('.rv').forEach((el,i)=>{el.style.transitionDelay=(i%3)*80+'ms';io.observe(el)});
+}else $$('.rv').forEach(el=>el.classList.add('visto'));
+const bg=$('#hero-bg img'),fm=$('#feat-media');
+const faixaTopo=()=>document.documentElement.classList.toggle('rolou',scrollY>$('.ubar').offsetHeight);
+addEventListener('scroll',faixaTopo,{passive:true});faixaTopo();
+function rolar(){
+  if(RM)return;
+  const vh=innerHeight,r=bg.parentElement.getBoundingClientRect();
+  if(r.bottom>0)bg.style.translate=`0 ${(-r.top*.18).toFixed(1)}px`;
+  const f=fm.getBoundingClientRect();fm.style.setProperty('--c',Math.min(1,Math.max(0,(f.top-vh*.12)/(vh*.7))).toFixed(3));
+}
+addEventListener('scroll',rolar,{passive:true});rolar();
+const navLinks=$$('.nav ul a');
+const spy=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting)navLinks.forEach(a=>a.classList.toggle('ativo',a.hash==='#'+e.target.id))}),{rootMargin:'-45% 0px -50% 0px'});
+navLinks.forEach(a=>{const sec=document.getElementById(a.hash.slice(1));sec&&spy.observe(sec)});
+
+/* idioma PT/EN: o HTML é a versão PT; em EN cada texto/atributo com entrada no dicionário é trocado
+   e o original fica guardado para voltar. O que é desenhado depois passa pelo observador. */
+const EN={
+"Seg. a sex., 8h às 19h · Sáb., 8h às 13h":"Mon–Fri, 8am–7pm · Sat, 8am–1pm","Alvéa Odontologia, início":"Alvéa Dentistry, home",
+"Especialidades":"Specialties","Método":"Method","Resultados":"Results","A clínica":"The clinic","Especialistas":"Specialists","Contato":"Contact",
+"Agendar avaliação":"Book a consultation","Consultório da Alvéa com parede de pedra, vidro e jardim ao fundo":"Alvéa treatment room with a stone wall, glass and a garden behind",
+"O":"The","sorriso":"smile","que":"that","dura.":"lasts.",
+"Um paciente por vez, num andar inteiro reservado para você. A primeira consulta dura noventa minutos e termina com um plano em imagens e o valor fechado por escrito.":"One patient at a time, on a floor reserved just for you. The first visit lasts ninety minutes and ends with a visual plan and a fixed price in writing.",
+"Agende sua avaliação":"Book your consultation","Tipo de consulta":"Visit type","Primeira vez":"First visit","Já sou paciente":"I'm a patient",
+"Especialidade":"Specialty","Implantes guiados":"Guided implants","Lentes e facetas":"Veneers","Reabilitação oral":"Full-mouth rehabilitation","Ortodontia invisível":"Clear aligners","Periodontia":"Periodontics","Clareamento":"Whitening","Ainda não sei":"Not sure yet",
+"Melhor período":"Best time","Manhã":"Morning","Tarde":"Afternoon","Sábado":"Saturday","Contato por":"Contact by","Ligação":"Phone call","E-mail":"Email","Agendar":"Book",
+"no Google":"on Google","pacientes acompanhados":"patients cared for","5 anos":"5 years","de garantia":"warranty",
+"Uma clínica, um propósito":"One clinic, one purpose","Especialistas sob o mesmo teto":"Specialists under one roof","De primeira consulta":"First visit","Paciente por andar, sempre":"Patient per floor, always",
+"Feito uma vez,":"Done once,","bem feito":"done well",
+"Só indicamos o que é necessário. Toque em uma especialidade para começar o seu agendamento.":"We only recommend what you need. Tap a specialty to start booking.",
+"Não sabe qual escolher? Responda 3 perguntas":"Not sure which one? Answer 3 questions",
+"Planejados no computador e instalados com guia cirúrgico.":"Planned on screen and placed with a surgical guide.","Cerâmica feita no nosso laboratório, desenhada para o seu rosto.":"Ceramics made in our own lab, designed for your face.","Um único plano integra todos os especialistas do seu caso.":"One plan brings together every specialist on your case.","Alinhadores com simulação do movimento de cada dente.":"Aligners with a simulation of every tooth's movement.","A saúde da gengiva, base de tudo que dura décadas.":"Healthy gums, the base of everything built to last.","Supervisionado, com branco natural e sem azulado.":"Supervised, with a natural white and no blue tint.",
+"Por onde começar":"Where to start","Qual tratamento é":"Which treatment is","para você?":"right for you?",
+"Três perguntas rápidas para indicar um ponto de partida. A indicação final é sempre do especialista, na avaliação de 90 minutos.":"Three quick questions to suggest a starting point. The final recommendation always comes from the specialist, during the 90-minute consultation.",
+"O que mais te incomoda hoje?":"What bothers you most today?","Perdi um ou mais dentes":"I've lost one or more teeth","A cor dos meus dentes":"The color of my teeth","O formato ou o desgaste dos dentes":"The shape or wear of my teeth","Dentes tortos ou espaçados":"Crooked or gapped teeth","Gengiva que sangra ou retraiu":"Bleeding or receding gums","Várias coisas ao mesmo tempo":"Several things at once",
+"O que você espera do resultado?":"What do you expect from the result?","Algo natural, que ninguém perceba":"Something natural nobody notices","Uma mudança visível no sorriso":"A visible change in my smile","Voltar a mastigar e falar bem":"To chew and speak well again","Parar o incômodo ou a dor":"To stop the discomfort or pain",
+"Quanto tempo você tem para o tratamento?":"How much time do you have for treatment?","Poucas semanas":"A few weeks","Alguns meses":"A few months","O tempo que for preciso":"As long as it takes",
+"Indicado para você":"Recommended for you","Também vale conversar sobre:":"Also worth discussing:","Refazer":"Start over","← Voltar":"← Back",
+"Repõe o dente que falta com planejamento 3D e guia cirúrgico, para uma cirurgia curta e previsível.":"Replaces the missing tooth with 3D planning and a surgical guide, for a short and predictable surgery.","Corrige cor e formato com cerâmica fina, desenhada para o seu rosto e provada antes de começar.":"Corrects color and shape with thin ceramics, designed for your face and tried on before we start.","Quando há várias coisas a resolver, um único plano integra os especialistas e define a ordem certa.":"When there are several things to fix, one plan brings the specialists together and sets the right order.","Alinha os dentes com alinhadores transparentes, com simulação do movimento antes de começar.":"Straightens your teeth with clear aligners, with a movement simulation before you start.","Cuida da gengiva, a base que sustenta qualquer tratamento que precise durar.":"Takes care of your gums, the base that supports any treatment meant to last.","Devolve o branco natural em poucas sessões, supervisionado e sem azulado.":"Brings back a natural white in a few sessions, supervised and with no blue tint.",
+"Consultório iluminado por luz natural":"Treatment room lit by natural light","Escolha o tratamento em destaque":"Choose the featured treatment","Implantes":"Implants","Lentes":"Veneers","Ortodontia":"Orthodontics","Tratamento em destaque":"Featured treatment",
+"Implantes guiados,":"Guided implants,","sem surpresas":"no surprises",
+"Planejados no computador a partir da sua tomografia e instalados com guia cirúrgico impresso para a sua boca. A cirurgia é mais curta, o pós-operatório mais tranquilo e a coroa sai do nosso laboratório.":"Planned on screen from your CT scan and placed with a surgical guide printed for your mouth. Surgery is shorter, recovery is calmer and the crown comes from our own lab.",
+"Planejamento":"Planning","3D, antes de tudo":"3D, before anything","Cirurgia":"Surgery","Cerca de 1 hora":"About 1 hour","Garantia":"Warranty","Acompanhamento":"Follow-up","Rito Alvéa anual":"Annual Alvéa Ritual","Ver resultados":"See results",
+"Lentes de cerâmica,":"Ceramic veneers,","feitas aqui":"made in-house",
+"Desenhadas para o seu rosto e produzidas no laboratório do subsolo. Você prova o resultado em resina antes de qualquer desgaste e aprova cor e formato com o ceramista.":"Designed for your face and made in our basement lab. You try the result in resin before any reshaping and approve color and shape with the ceramist.",
+"Prova":"Try-on","Antes de começar":"Before we start","Etapas":"Steps","3 a 4 consultas":"3 to 4 visits","Laboratório":"Lab","Próprio, no subsolo":"Our own, downstairs",
+"Alinhadores,":"Aligners,","sem fios à vista":"no visible wires",
+"Você vê a simulação do movimento de cada dente antes de começar. Os alinhadores são trocados em casa e as consultas de acompanhamento são curtas e marcadas com antecedência.":"You see a simulation of each tooth's movement before you start. Aligners are changed at home and follow-up visits are short and booked ahead.",
+"Simulação":"Simulation","Digital, dente a dente":"Digital, tooth by tooth","Duração média":"Average length","6 a 18 meses":"6 to 18 months","Consultas":"Visits","A cada 8 semanas":"Every 8 weeks","Contenção":"Retainer","Inclusa no plano":"Included in the plan",
+"O Método Alvéa":"The Alvéa Method","Odontologia":"Dentistry","sem relógio":"without a clock",
+"Três passos, do primeiro café ao último retorno. Você entende cada etapa antes de ela acontecer.":"Three steps, from the first coffee to the last follow-up. You understand each step before it happens.",
+"Escuta":"Listening","Avaliação de 90 minutos com escaneamento 3D, fotografia clínica e tomografia quando necessário.":"A 90-minute consultation with 3D scanning, clinical photography and a CT scan when needed.",
+"Plano visível":"A visible plan","Você vê o resultado em simulação digital, com cronograma e valor fechado por escrito.":"You see the result in a digital simulation, with a schedule and a fixed price in writing.",
+"Cuidado contínuo":"Ongoing care","Um especialista de referência do início ao fim e o Rito Alvéa, a revisão anual completa.":"One lead specialist from start to finish, plus the Alvéa Ritual, a full annual check-up.",
+"Sob o mesmo teto":"Under one roof","Tomógrafo":"CT scanner","Scanner intraoral":"Intraoral scanner","Fresadora de cerâmica":"Ceramic milling machine","Laboratório próprio":"In-house lab",
+"Naturais a ponto de":"So natural that","ninguém notar":"nobody notices","Tratamentos feitos na Alvéa, do clareamento aos implantes guiados.":"Treatments done at Alvéa, from whitening to guided implants.",
+"Escolha o caso":"Choose the case","Lentes de cerâmica":"Ceramic veneers","Simulação ilustrativa · arraste para comparar":"Illustrative simulation · drag to compare",
+"Depois do tratamento":"After treatment","Antes do tratamento":"Before treatment","Antes":"Before","Depois":"After","Comparar antes e depois":"Compare before and after",
+"Sorriso com dentes brancos e naturais após clareamento":"Smile with natural white teeth after whitening","Sorriso harmonioso com lentes de cerâmica":"Balanced smile with ceramic veneers","Coroa sobre implante nas mãos da especialista":"Implant crown in the specialist's hands","Paciente colocando alinhador transparente":"Patient putting in a clear aligner","Avaliação da saúde da gengiva":"Gum health assessment","Especialista analisando exames de imagem para o planejamento":"Specialist reviewing imaging for treatment planning",
+"Um consultório para o seu":"A clinic built for your","Em Braga, Joaquim Varela passou quarenta anos esculpindo dentes de porcelana numa oficina com uma janela em arco. Em 2014, a neta, Dra. Helena Varela, abriu a Alvéa no Jardim Europa: consultórios privativos, luz natural e, atrás das paredes, tomógrafo, scanner e um laboratório de cerâmica.":"In Braga, Joaquim Varela spent forty years carving porcelain teeth in a workshop with an arched window. In 2014 his granddaughter, Dr. Helena Varela, opened Alvéa in Jardim Europa: private treatment rooms, natural light and, behind the walls, a CT scanner, an intraoral scanner and a ceramics lab.",
+"A regra é uma só: durante o seu horário, a clínica é sua.":"There is only one rule: during your appointment, the clinic is yours.","Agendar uma visita":"Book a visit","Conhecer a equipe":"Meet the team","Dentista conversando com a paciente no consultório":"Dentist talking with a patient in the treatment room",
+"Tour da clínica":"Clinic tour","Conheça cada":"Explore every","ambiente":"space","Da porta de entrada ao laboratório. Toque em uma foto para ver em tela cheia.":"From the front door to the lab. Tap a photo to view it full screen.",
+"Recepção com jardim interno":"Reception with an indoor garden","Sala de espera privativa":"Private waiting lounge","Corredor dos consultórios":"Treatment room corridor","Consultório com luz natural":"Treatment room with natural light","Conversa antes de tudo":"A conversation before anything else","Plano explicado na cadeira":"The plan explained chairside","Consultório de pedra e jardim":"Stone and garden treatment room","Planejamento digital":"Digital planning",
+"Fechar":"Close","Foto anterior":"Previous photo","Próxima foto":"Next photo",
+"Doze especialistas,":"Twelve specialists,","um paciente por vez":"one patient at a time","Cada tratamento tem um especialista de referência, do primeiro dia à última revisão.":"Every treatment has a lead specialist, from the first day to the last check-up.",
+"Dra. Helena Varela":"Dr. Helena Varela","Dra. Lívia Moraes":"Dr. Lívia Moraes","CRO verificado":"Verified dental license","Na Alvéa desde":"At Alvéa since",
+"Implantodontia · CRO-SP 98.214":"Implant dentistry · CRO-SP 98.214","Ortodontia · CRO-SP 101.377":"Orthodontics · CRO-SP 101.377","Periodontia · CRO-SP 112.508":"Periodontics · CRO-SP 112.508","Estética em cerâmica · CRO-SP 118.043":"Ceramic aesthetics · CRO-SP 118.043",
+
+"Avaliações":"Reviews","Escolha um depoimento":"Choose a review",
+"“Foi a primeira vez que um dentista me mostrou o plano inteiro antes de encostar em mim. O valor não mudou um real.”":"“It was the first time a dentist showed me the whole plan before touching me. The price didn't change by a single real.”",
+"“Ninguém percebe que são facetas. Era exatamente isso que eu queria.”":"“Nobody can tell they're veneers. That's exactly what I wanted.”",
+"“Tinha pavor de dentista. Aqui ninguém tem pressa, e isso mudou tudo.”":"“I used to dread the dentist. Here nobody is in a hurry, and that changed everything.”",
+"· reabilitação oral":"· full-mouth rehabilitation","· lentes de cerâmica":"· ceramic veneers","· implantes guiados":"· guided implants",
+"de 5 no Google, com 318 avaliações de pacientes.":"out of 5 on Google, from 318 patient reviews.",
+"Garantias":"Guarantees","Garantia de 5 anos":"5-year warranty","Por escrito, em implantes e cerâmicas":"In writing, on implants and ceramics","Biossegurança rastreada":"Traceable sterilization","Cada instrumento com lote e data de esterilização":"Every instrument logged with batch and sterilization date","Cerâmica feita no nosso laboratório":"Ceramics made in our own lab","Valor fechado":"Fixed price","Orçamento por escrito antes de começar":"Written quote before we start","Responsável técnica":"Clinical director","Dra. Helena Varela · CRO-SP 98.214":"Dr. Helena Varela · CRO-SP 98.214",
+"Dúvidas":"FAQ","Antes de":"Before you","começar":"start","Filtrar dúvidas":"Filter questions","Consulta":"Consultation","Tratamentos":"Treatments","Valores":"Pricing",
+"Como é a avaliação de 90 minutos?":"What happens in the 90-minute consultation?","Conversamos sobre o seu histórico, fazemos escaneamento 3D, fotografias clínicas e, se necessário, tomografia. Você sai com um plano explicado em imagens.":"We talk through your history, do a 3D scan, clinical photos and, if needed, a CT scan. You leave with a plan explained in images.",
+"Preciso levar algum exame?":"Do I need to bring any exams?","Se tiver radiografias ou tomografias recentes, traga. Se não, fazemos tudo aqui na clínica, no mesmo dia.":"If you have recent X-rays or CT scans, bring them. If not, we do everything here at the clinic, on the same day.",
+"Como funciona a chegada?":"How does arrival work?","Há manobrista na porta e entrada privativa para os consultórios. Você é recebido pelo seu especialista, sem sala de espera cheia.":"There is valet parking at the door and a private entrance to the treatment rooms. You are welcomed by your specialist, with no crowded waiting room.",
+"Quanto tempo leva um implante?":"How long does an implant take?","Depende do osso e do caso. Na avaliação você recebe o cronograma completo, com cada consulta marcada no calendário.":"It depends on the bone and the case. At the consultation you get the full schedule, with every visit on the calendar.",
+"As lentes de cerâmica parecem dentes naturais?":"Do ceramic veneers look like natural teeth?","Sim. Cor, textura e formato são desenhados para o seu rosto e feitos no nosso laboratório, com prova antes da cimentação.":"Yes. Color, texture and shape are designed for your face and made in our lab, with a try-on before bonding.",
+"O que é o Rito Alvéa?":"What is the Alvéa Ritual?","A revisão anual completa que todo paciente faz depois do tratamento. Ela mantém a garantia de cinco anos em implantes e cerâmicas.":"The full annual check-up every patient has after treatment. It keeps the five-year warranty on implants and ceramics.",
+"O valor pode mudar durante o tratamento?":"Can the price change during treatment?","Não. O plano tem valor fechado por escrito antes de qualquer procedimento. Se algo imprevisto surgir, a decisão é sua, com um novo orçamento separado.":"No. The plan has a fixed written price before any procedure. If something unexpected comes up, the decision is yours, with a separate new quote.",
+"Vocês atendem convênio?":"Do you accept insurance?","Trabalhamos com reembolso. Emitimos toda a documentação para você solicitar ao seu plano.":"We work with reimbursement. We provide all the paperwork for you to claim from your plan.",
+"Quais as formas de pagamento?":"What payment methods do you accept?","Pix, transferência e cartão. O parcelamento é combinado no plano, junto com o cronograma das etapas.":"Pix, bank transfer and card. Installments are agreed in the plan, alongside the treatment schedule.",
+"Vamos planejar o seu":"Let's plan your","Conte o que você procura. A nossa concierge responde em até 2 horas úteis, pelo canal que você preferir.":"Tell us what you're looking for. Our concierge replies within 2 business hours, on the channel you prefer.",
+"Concierge de pacientes":"Patient concierge","Copiar":"Copy","Copiado":"Copied","Selecione e copie":"Select and copy","Endereço":"Address","Horário":"Hours","Seg. a sex., 8h–19h · Sáb., 8h–13h":"Mon–Fri, 8am–7pm · Sat, 8am–1pm",
+"Nome":"Name","Telefone / WhatsApp":"Phone / WhatsApp","Horários disponíveis · avaliação de 90 min":"Available times · 90-min consultation","Escolha o dia":"Choose the day","Escolha o horário":"Choose the time",
+"Como prefere ser contatado":"How would you like to be contacted","Mensagem":"Message","O que te incomoda hoje, tratamentos anteriores, dúvidas.":"What bothers you today, past treatments, questions.",
+"Autorizo a Alvéa a entrar em contato, conforme a Política de Privacidade (LGPD).":"I authorize Alvéa to contact me, under the Privacy Policy (LGPD).","Enviar mensagem":"Send message","Mapa: Jardim Europa, São Paulo":"Map: Jardim Europa, São Paulo",
+"Odontologia sem relógio. Um paciente por vez, no Jardim Europa.":"Dentistry without a clock. One patient at a time, in Jardim Europa.",
+"A clínica":"The clinic","Método Alvéa":"Alvéa Method","Alvéa Odontologia.":"Alvéa Dentistry.","Todos os direitos reservados.":"All rights reserved.","Responsável técnica: Dra. Helena Varela · CRO-SP 98.214":"Clinical director: Dr. Helena Varela · CRO-SP 98.214",
+"Site desenvolvido por":"Website by","Fale conosco":"Contact us","Pular para o conteúdo":"Skip to content",
+"Ver detalhes":"See details","Como funciona":"How it works","Especialista responsável":"Lead specialist","Fotos":"Photos","Foto 1":"Photo 1","Foto 2":"Photo 2","Foto 3":"Photo 3",
+"Duração":"Length","Desgaste":"Tooth reshaping","Uso diário":"Daily wear","Anestesia":"Anesthesia","Manutenção":"Maintenance","Sessões":"Sessions","Sensibilidade":"Sensitivity","Resultado":"Result",
+"3 a 6 meses":"3 to 6 months","4 a 6":"4 to 6","3 a 5 semanas":"3 to 5 weeks","3 a 4":"3 to 4","Mínimo ou nenhum":"Minimal or none","6 a 12 meses":"6 to 12 months","2 a 4, integrados":"2 to 4, working together","Agrupadas por etapa":"Grouped by stage","22 horas":"22 hours","2 a 6 semanas":"2 to 6 weeks","2 a 4":"2 to 4","Local, quando necessária":"Local, when needed","A cada 6 meses":"Every 6 months","2 a 3 semanas":"2 to 3 weeks","2 no consultório":"2 in the clinic","Controlada":"Kept under control","Branco natural":"Natural white",
+"O implante é planejado no computador a partir da sua tomografia. Imprimimos um guia cirúrgico sob medida, que indica a posição exata de cada implante: a cirurgia fica mais curta e o pós-operatório, mais tranquilo.":"Your implant is planned on screen from your CT scan. We print a custom surgical guide that shows the exact position of each implant, so surgery is shorter and recovery is calmer.",
+"Desenhamos cada lente para o seu rosto, e você prova o resultado em resina antes de qualquer desgaste. A cerâmica é feita no nosso laboratório, com acabamento à mão.":"We design each veneer for your face, and you try the result in resin before any reshaping. The ceramic is made in our own lab and finished by hand.",
+"Quando há várias coisas a resolver, montamos um único plano com todos os especialistas envolvidos, na ordem certa, com cronograma e valor fechado desde o início.":"When there are several things to fix, we build a single plan with every specialist involved, in the right order, with a schedule and a fixed price from day one.",
+"Você vê a simulação de todo o movimento antes de começar. Os alinhadores são trocados em casa, e as consultas de acompanhamento são curtas e marcadas com antecedência.":"You see a simulation of the whole movement before you start. Aligners are changed at home, and follow-up visits are short and booked ahead.",
+"Cuidamos da gengiva e do osso que sustentam os dentes. É o primeiro passo de muitos tratamentos e a base para que qualquer resultado dure.":"We care for the gums and bone that hold your teeth. It is the first step of many treatments and the base for any result to last.",
+"Combinamos sessões no consultório com moldeiras para usar em casa, sempre com acompanhamento. O objetivo é um branco natural, que combine com o seu rosto.":"We combine in-clinic sessions with custom trays for home use, always supervised. The goal is a natural white that suits your face.",
+"Tomografia e planejamento 3D":"CT scan and 3D planning","Cirurgia guiada, com anestesia local":"Guided surgery under local anesthesia","Cicatrização com coroa provisória":"Healing with a temporary crown","Coroa definitiva feita no nosso laboratório":"Final crown made in our own lab",
+"Fotos, escaneamento e desenho do sorriso":"Photos, scanning and smile design","Prova em resina, direto na boca":"Resin try-on, right in your mouth","Produção da cerâmica no laboratório":"Ceramic made in the lab","Cimentação e ajuste final":"Bonding and final adjustment",
+"Diagnóstico completo em 90 minutos":"Full diagnosis in 90 minutes","Plano integrado, com simulação digital":"One integrated plan, with a digital simulation","Tratamento por etapas, sem idas e vindas":"Treatment in stages, without back-and-forth","Rito Alvéa: revisão anual completa":"Alvéa Ritual: a full annual check-up",
+"Escaneamento 3D, sem moldagem":"3D scan, no impressions","Simulação do movimento de cada dente":"Simulation of every tooth's movement","Alinhadores trocados a cada 10 dias":"Aligners changed every 10 days","Contenção para manter o resultado":"A retainer to keep the result",
+"Avaliação com sondagem e radiografias":"Assessment with probing and X-rays","Limpeza profunda por áreas":"Deep cleaning, area by area","Reavaliação da gengiva":"Gum re-assessment","Manutenção periódica":"Regular maintenance",
+"Avaliação da cor e da saúde dos dentes":"Assessment of tooth color and health","Sessões no consultório":"In-clinic sessions","Moldeira personalizada para casa":"Custom tray for home use","Revisão da cor":"Color check-up","Jardim Europa · São Paulo":"Jardim Europa · São Paulo"
+};
+const ATR=['placeholder','aria-label','alt','title'],origTxt=new WeakMap(),origAtr=new WeakMap();
+function traduz(raiz){
+  const w=document.createTreeWalker(raiz,NodeFilter.SHOW_TEXT|NodeFilter.SHOW_ELEMENT,{acceptNode:n=>n.nodeType===1&&/^(SCRIPT|STYLE)$/.test(n.tagName)?NodeFilter.FILTER_REJECT:NodeFilter.FILTER_ACCEPT});
+  for(let n=w.currentNode;n;n=w.nextNode()){
+    if(n.nodeType===3){
+      const pt=origTxt.has(n)?origTxt.get(n):n.nodeValue,k=pt.trim();
+      if(!k||!(k in EN))continue;
+      origTxt.set(n,pt);n.nodeValue=lang==='en'?pt.replace(k,EN[k]):pt;
+    }else if(n.nodeType===1)for(const a of ATR){
+      if(!n.hasAttribute(a))continue;
+      const m=origAtr.get(n)||{},pt=a in m?m[a]:n.getAttribute(a);
+      if(!(pt in EN))continue;
+      m[a]=pt;origAtr.set(n,m);n.setAttribute(a,lang==='en'?EN[pt]:pt);
+    }
+  }
+}
+new MutationObserver(ms=>{if(lang==='en')ms.forEach(m=>m.addedNodes.forEach(traduz))}).observe(document.body,{childList:true,subtree:true});
+const TITULO=document.title,DESC=$('meta[name=description]').content;
+function setLang(l){
+  lang=l;document.documentElement.lang=L('pt-BR','en');
+  document.title=L(TITULO,'Alvéa Dentistry · Dentistry without a clock');
+  $('meta[name=description]').content=L(DESC,'Dental clinic in Jardim Europa, São Paulo. One patient at a time, a 90-minute first visit and a fixed price before treatment starts.');
+  traduz(document.body);
+  $$('#idioma button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.l===l));
+  renderAgenda();qzProgresso(respostas.length);$('#f-sucesso').hidden=$('#f-erro').hidden=true;
+  try{localStorage.setItem('alvea-lang',l)}catch{}
+}
+$('#idioma').addEventListener('click',e=>{const b=e.target.closest('button');if(b&&b.dataset.l!==lang)setLang(b.dataset.l)});
+{let ini=new URLSearchParams(location.search).get('lang');try{ini=ini||localStorage.getItem('alvea-lang')}catch{}if(ini==='en')setLang('en')}
+</script>
+</body>
+</html>

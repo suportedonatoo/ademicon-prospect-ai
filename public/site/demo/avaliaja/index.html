@@ -1,0 +1,1332 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>AvaliaJá Demonstração</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@500&display=swap">
+<style>
+  /* Layout: shell do AvaliaJá (menu lateral no computador, abas roláveis no celular); telas trocadas por JS; pesquisa do cliente numa moldura de celular. */
+  :root {
+    --bg: #f3f4f8; --surface: #ffffff; --muted-bg: #eceef4; --line: #e2e4ec;
+    --fg: #13151d; --muted: #5b6173; --accent: #4338ca; --accent-fg: #ffffff; --accent-soft: #e9e8fb;
+    --promoter: #15803d; --promoter-bg: #e7f5ec; --passive: #b45309; --passive-bg: #fdf3e4;
+    --detractor: #b91c1c; --detractor-bg: #fbeaea; --star: #f59e0b;
+    --shadow: 0 1px 2px rgb(19 21 29 / 6%), 0 6px 18px rgb(19 21 29 / 5%);
+    --font: "Geist", system-ui, -apple-system, "Segoe UI", sans-serif;
+    --mono: "Geist Mono", ui-monospace, Menlo, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0e1016; --surface: #171a22; --muted-bg: #20232d; --line: #2b2f3b;
+      --fg: #eceef4; --muted: #a2a8b9; --accent: #8b85f7; --accent-fg: #0e1016; --accent-soft: #25234a;
+      --promoter: #4ade80; --promoter-bg: #13291c; --passive: #fbbf24; --passive-bg: #2d2412;
+      --detractor: #f87171; --detractor-bg: #321717; --star: #fbbf24;
+      --shadow: 0 1px 2px rgb(0 0 0 / 30%); color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0e1016; --surface: #171a22; --muted-bg: #20232d; --line: #2b2f3b;
+    --fg: #eceef4; --muted: #a2a8b9; --accent: #8b85f7; --accent-fg: #0e1016; --accent-soft: #25234a;
+    --promoter: #4ade80; --promoter-bg: #13291c; --passive: #fbbf24; --passive-bg: #2d2412;
+    --detractor: #f87171; --detractor-bg: #321717; --star: #fbbf24;
+    --shadow: 0 1px 2px rgb(0 0 0 / 30%); color-scheme: dark;
+  }
+  * { box-sizing: border-box; }
+  body { background: var(--bg); color: var(--fg); font-family: var(--font); font-size: 15px; line-height: 1.5; }
+  h1, h2, h3 { margin: 0; text-wrap: balance; }
+  p { margin: 0; }
+  button, input, select, textarea { font: inherit; color: inherit; }
+  button { cursor: pointer; }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .tab { font-variant-numeric: tabular-nums; }
+  .demo-bar { background: #3730a3; color: #ffffff; font-size: 13px; padding-block: 8px;
+    padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+    display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; justify-content: space-between; }
+  .demo-bar select { background: var(--surface); color: var(--fg); border: 0; border-radius: 6px; padding: 2px 6px; font-size: 13px; }
+  .shell { display: grid; grid-template-columns: 236px minmax(0, 1fr); min-height: calc(100vh - 37px); }
+  nav.side { border-right: 1px solid var(--line); background: var(--surface); padding: 18px 12px; display: flex; flex-direction: column; gap: 2px; }
+  .logo { display: flex; align-items: center; gap: 8px; font-weight: 700; padding: 0 10px 14px; }
+  .logo span.mark { width: 28px; height: 28px; border-radius: 7px; background: var(--accent); color: var(--accent-fg); display: grid; place-items: center; font-size: 16px; }
+  .logo em { color: var(--accent); font-style: normal; }
+  .nav-btn { display: flex; align-items: center; gap: 10px; border: 0; background: none; text-align: left; padding: 7px 10px; border-radius: 8px; color: var(--muted); font-weight: 500; white-space: nowrap; }
+  .nav-btn:hover { background: var(--muted-bg); color: var(--fg); }
+  .nav-btn[aria-current="page"] { background: var(--accent-soft); color: var(--accent); }
+  .nav-btn .count { margin-left: auto; font-size: 11px; background: var(--detractor); color: #ffffff; border-radius: 99px; padding: 0 7px; }
+  .nav-sep { height: 1px; background: var(--line); margin: 8px 4px; }
+  .nav-label { font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); padding: 12px 10px 4px; }
+  main { padding-block: 26px 64px; padding-left: max(16px, min(40px, 4vw)); padding-right: max(16px, min(40px, 4vw)); min-width: 0; }
+  .page-head { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 12px; margin-bottom: 20px; }
+  .page-head h1 { font-size: 26px; letter-spacing: -.01em; }
+  .page-head p { margin-top: 4px; color: var(--muted); max-width: 72ch; }
+  .actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  .grid { display: grid; gap: 16px; }
+  .g2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .g3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .g4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .g32 { grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); }
+  .mt { margin-top: 16px; }
+  .card { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 18px; box-shadow: var(--shadow); min-width: 0; }
+  .card h3, .card h2 { font-size: 15px; }
+  .card .sub { color: var(--muted); font-size: 13px; margin: 2px 0 14px; }
+  .stat .label { color: var(--muted); font-size: 13px; }
+  .stat .value { font-size: 30px; font-weight: 600; font-variant-numeric: tabular-nums; line-height: 1.2; }
+  .stat .delta { font-size: 13px; }
+  .up { color: var(--promoter); } .down { color: var(--detractor); }
+  .btn { border: 1px solid var(--line); background: var(--surface); border-radius: 8px; padding: 7px 12px; font-weight: 500; font-size: 14px; display: inline-flex; align-items: center; gap: 6px; text-decoration: none; }
+  .btn:hover { background: var(--muted-bg); }
+  .btn.primary { background: var(--accent); color: var(--accent-fg); border-color: var(--accent); }
+  .btn.primary:hover { filter: brightness(1.08); }
+  .btn.sm { padding: 4px 10px; font-size: 13px; }
+  .btn.ghost { border-color: transparent; background: none; }
+  .btn.danger { color: var(--detractor); }
+  .btn:disabled { opacity: .5; cursor: not-allowed; }
+  .link { background: none; border: 0; padding: 0; color: var(--accent); font-weight: 500; font-size: 13px; text-decoration: underline; text-underline-offset: 3px; }
+  .badge { display: inline-flex; align-items: center; border-radius: 99px; padding: 2px 9px; font-size: 12px; font-weight: 500; background: var(--muted-bg); color: var(--muted); white-space: nowrap; }
+  .badge.promoter { background: var(--promoter-bg); color: var(--promoter); }
+  .badge.passive { background: var(--passive-bg); color: var(--passive); }
+  .badge.detractor { background: var(--detractor-bg); color: var(--detractor); }
+  .badge.accent { background: var(--accent-soft); color: var(--accent); }
+  .score { width: 38px; height: 38px; border-radius: 99px; display: grid; place-items: center; font-weight: 600; flex: none; font-variant-numeric: tabular-nums; }
+  .score.promoter { background: var(--promoter-bg); color: var(--promoter); }
+  .score.passive { background: var(--passive-bg); color: var(--passive); }
+  .score.detractor { background: var(--detractor-bg); color: var(--detractor); }
+  .bars { display: grid; gap: 12px; }
+  .bar-row .top { display: flex; justify-content: space-between; gap: 10px; font-size: 14px; align-items: baseline; }
+  .bar-row .top .l { display: flex; gap: 8px; align-items: baseline; min-width: 0; flex-wrap: wrap; }
+  .bar-track { height: 9px; background: var(--muted-bg); border-radius: 0 5px 5px 0; margin-top: 4px; }
+  .bar-fill { height: 100%; border-radius: 0 5px 5px 0; background: var(--accent); }
+  .bar-fill.promoter { background: var(--promoter); } .bar-fill.detractor { background: var(--detractor); } .bar-fill.passive { background: var(--passive); }
+  .list { display: grid; gap: 8px; }
+  .row { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 12px; }
+  .row.click { cursor: pointer; text-align: left; width: 100%; }
+  .row.click:hover { background: var(--muted-bg); }
+  .row .grow { flex: 1; min-width: 180px; display: grid; gap: 2px; }
+  .row .meta { color: var(--muted); font-size: 13px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .chip { border: 1px solid var(--line); background: var(--surface); border-radius: 99px; padding: 4px 12px; font-size: 13px; }
+  .chip[aria-pressed="true"] { background: var(--accent); color: var(--accent-fg); border-color: var(--accent); }
+  .tabs { display: flex; gap: 4px; overflow-x: auto; border-bottom: 1px solid var(--line); margin-bottom: 20px; }
+  .tabs button { border: 0; background: none; padding: 8px 12px; color: var(--muted); font-weight: 500; white-space: nowrap; border-bottom: 2px solid transparent; }
+  .tabs button[aria-current="page"] { color: var(--accent); border-bottom-color: var(--accent); }
+  label.field { display: grid; gap: 4px; font-size: 14px; font-weight: 500; }
+  label.field .hint { font-weight: 400; color: var(--muted); font-size: 12px; }
+  label.check { display: flex; gap: 8px; align-items: flex-start; font-size: 14px; }
+  label.check input { margin-top: 4px; }
+  input[type=text], input[type=date], input[type=email], input[type=password], input[type=number], input[type=url], select, textarea { border: 1px solid var(--line); background: var(--surface); border-radius: 8px; padding: 8px 10px; width: 100%; }
+  textarea { min-height: 80px; resize: vertical; }
+  .form { display: grid; gap: 14px; max-width: 680px; }
+  .form .two { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+  .muted { color: var(--muted); }
+  .small { font-size: 13px; }
+  table.data { width: 100%; border-collapse: collapse; font-size: 14px; font-variant-numeric: tabular-nums; }
+  table.data th, table.data td { padding: 9px 8px; border-top: 1px solid var(--line); text-align: right; white-space: nowrap; }
+  table.data th:first-child, table.data td:first-child { text-align: left; }
+  table.data td.wrap { white-space: normal; }
+  table.data thead th { border-top: 0; color: var(--muted); font-weight: 500; }
+  table.data tr.click { cursor: pointer; } table.data tr.click:hover td { background: var(--muted-bg); }
+  .scroll-x { overflow-x: auto; }
+  .chart { width: 100%; min-height: 220px; }
+  .chart svg { display: block; }
+  .chart text { fill: var(--muted); font-family: var(--font); font-size: 12px; }
+  .ruler { position: relative; height: 12px; background: var(--muted-bg); border-radius: 99px; margin-top: 10px; }
+  .ruler .band { position: absolute; top: 0; bottom: 0; background: var(--accent-soft); border-radius: 99px; }
+  .ruler .med { position: absolute; top: 0; bottom: 0; width: 2px; background: var(--accent); opacity: .7; }
+  .ruler .me { position: absolute; top: 50%; width: 16px; height: 16px; border-radius: 99px; background: var(--accent); border: 2px solid var(--surface); transform: translate(-50%, -50%); }
+  .ruler-l { display: flex; justify-content: space-between; color: var(--muted); font-size: 12px; margin-top: 4px; }
+  dl.kv { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin: 14px 0 0; }
+  dl.kv dt { color: var(--muted); font-size: 13px; } dl.kv dd { margin: 0; font-weight: 600; font-variant-numeric: tabular-nums; }
+  .stars { color: var(--star); letter-spacing: 1px; } .stars .off { color: var(--line); }
+  .reply { background: var(--muted-bg); border-radius: 8px; padding: 10px 12px; font-size: 14px; display: grid; gap: 6px; }
+  .notice { border: 1px solid var(--line); background: var(--accent-soft); color: var(--fg); border-radius: 10px; padding: 10px 14px; font-size: 14px; }
+  .notice.warn { background: var(--passive-bg); }
+  code.f { font-family: var(--mono); font-size: 12px; background: var(--muted-bg); padding: 8px; border-radius: 6px; display: block; overflow-x: auto; word-break: break-all; }
+  .toast { position: fixed; right: calc(20px + env(safe-area-inset-right, 0px)); bottom: calc(20px + env(safe-area-inset-bottom, 0px)); background: var(--fg); color: var(--bg); padding: 10px 16px; border-radius: 10px; box-shadow: var(--shadow); font-size: 14px; z-index: 50; max-width: calc(100vw - 40px); }
+  .verdict { font-weight: 600; font-size: 16px; }
+  .timeline { display: grid; gap: 12px; border-left: 2px solid var(--line); padding-left: 14px; }
+  .timeline div { font-size: 14px; } .timeline .when { color: var(--muted); font-size: 12px; }
+  .progress { height: 8px; background: var(--muted-bg); border-radius: 99px; overflow: hidden; }
+  .progress > div { height: 100%; background: var(--accent); }
+  .steps { display: grid; gap: 8px; }
+  .step { display: flex; gap: 10px; align-items: center; font-size: 14px; }
+  .step .dot { width: 22px; height: 22px; border-radius: 99px; display: grid; place-items: center; font-size: 12px; border: 1px solid var(--line); flex: none; }
+  .step.done .dot { background: var(--promoter); color: #ffffff; border-color: var(--promoter); }
+  .q { border: 1px solid var(--line); border-radius: 10px; padding: 12px; display: grid; gap: 8px; background: var(--surface); }
+  .q .qh { display: flex; gap: 8px; align-items: center; justify-content: space-between; flex-wrap: wrap; }
+  .auth { min-height: calc(100vh - 37px); display: grid; place-items: center; padding-block: 32px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+  .auth .card { width: 100%; max-width: 420px; display: grid; gap: 14px; }
+  .badge-card { border: 1px dashed var(--line); border-radius: 12px; padding: 16px; display: grid; gap: 8px; justify-items: center; text-align: center; background: var(--surface); }
+  .qr { background: #ffffff; padding: 8px; border-radius: 8px; width: 148px; height: 148px; display: grid; place-items: center; }
+  .qr img, .qr canvas { width: 132px !important; height: 132px !important; }
+  /* Pesquisa do cliente */
+  .phone-wrap { display: grid; grid-template-columns: minmax(0, 360px) minmax(0, 1fr); gap: 28px; align-items: start; }
+  .phone { border: 10px solid var(--fg); border-radius: 34px; background: #ffffff; color: #13151d; overflow: hidden; max-width: 100%; }
+  .phone .ph-head { background: #0f4c81; color: #ffffff; padding: 18px; font-weight: 600; }
+  .phone .ph-body { padding: 18px; display: grid; gap: 16px; }
+  .nps-scale { display: grid; grid-template-columns: repeat(11, minmax(0, 1fr)); gap: 3px; }
+  .nps-scale button { border: 1px solid #d9dce5; background: #ffffff; color: #13151d; border-radius: 6px; padding: 8px 0; font-size: 13px; font-weight: 600; }
+  .nps-scale button[aria-pressed="true"] { background: #0f4c81; color: #ffffff; border-color: #0f4c81; }
+  .phone .chip { background: #ffffff; color: #13151d; border-color: #d9dce5; }
+  .phone .chip[aria-pressed="true"] { background: #0f4c81; color: #ffffff; border-color: #0f4c81; }
+  .phone textarea, .phone input, .phone select { background: #ffffff; color: #13151d; border: 1px solid #d9dce5; border-radius: 8px; padding: 8px; width: 100%; }
+  .phone .send { background: #0f4c81; color: #ffffff; border: 0; border-radius: 10px; padding: 12px; font-weight: 600; width: 100%; }
+  .phone .send:disabled { opacity: .45; }
+  .phone .gbtn { display: block; text-align: center; background: #1a73e8; color: #ffffff; border-radius: 10px; padding: 12px; font-weight: 600; text-decoration: none; }
+  .ends { display: flex; justify-content: space-between; font-size: 11px; color: #5b6173; }
+  /* Cores por perfil, ícones, entrada, TV e totem */
+  :root { --c-owner: #4338ca; --c-owner-bg: #e9e8fb; --c-manager: #0f766e; --c-manager-bg: #ddf4f1; --c-attendant: #c2410c; --c-attendant-bg: #fdebdf; --tv-bg: #0b0d14; --tv-fg: #f4f5fa; --tv-muted: #9aa1b5; --tv-card: #161a26; --wa-bg: #e6ddd4; --wa-bubble: #ffffff; --wa-fg: #13151d; }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --c-owner: #a5a1fb; --c-owner-bg: #25234a; --c-manager: #5eead4; --c-manager-bg: #0f2f2c; --c-attendant: #fdba74; --c-attendant-bg: #3a2312; --wa-bg: #0b141a; --wa-bubble: #1f2c33; --wa-fg: #e9edef; } }
+  :root[data-theme="dark"] { --c-owner: #a5a1fb; --c-owner-bg: #25234a; --c-manager: #5eead4; --c-manager-bg: #0f2f2c; --c-attendant: #fdba74; --c-attendant-bg: #3a2312; --wa-bg: #0b141a; --wa-bubble: #1f2c33; --wa-fg: #e9edef; }
+  .ic { flex: none; }
+  .nav-btn .ic { width: 17px; height: 17px; }
+  .nav-group { display: contents; }
+  .theme-btn { background: rgb(255 255 255 / 16%); color: inherit; border: 0; border-radius: 6px; padding: 3px 10px; font-size: 13px; display: inline-flex; gap: 6px; align-items: center; }
+  .theme-btn:hover { background: rgb(255 255 255 / 26%); }
+  .bar-right { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+  .role-pill { display: inline-flex; align-items: center; gap: 6px; border-radius: 99px; padding: 3px 10px 3px 4px; font-size: 12px; font-weight: 600; }
+  .role-pill .ic { width: 20px; height: 20px; padding: 3px; border-radius: 99px; }
+  .roles { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; }
+  .role-card { --c: var(--c-owner); --cb: var(--c-owner-bg); text-align: left; cursor: pointer; display: grid; gap: 14px; align-content: start; background: var(--surface); border: 1px solid var(--line); border-radius: 18px; padding: 24px; box-shadow: var(--shadow); transition: transform .15s ease, border-color .15s ease, box-shadow .15s ease; position: relative; }
+  .role-card:hover, .role-card:focus-visible { transform: translateY(-3px); border-color: var(--c); box-shadow: 0 10px 30px rgb(19 21 29 / 12%); }
+  .role-card.manager { --c: var(--c-manager); --cb: var(--c-manager-bg); }
+  .role-card.attendant { --c: var(--c-attendant); --cb: var(--c-attendant-bg); }
+  .role-card .icon { width: 56px; height: 56px; border-radius: 16px; background: var(--cb); color: var(--c); display: grid; place-items: center; }
+  .role-card .icon .ic { width: 28px; height: 28px; }
+  .role-card h2 { font-size: 20px; }
+  .role-card ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 6px; font-size: 14px; color: var(--muted); }
+  .role-card li { display: flex; gap: 8px; } .role-card li::before { content: "✓"; color: var(--c); font-weight: 700; }
+  .role-card .go { margin-top: 4px; display: inline-flex; justify-content: center; align-items: center; gap: 6px; background: var(--c); color: var(--surface); border-radius: 10px; padding: 11px 14px; font-weight: 600; }
+  .insight { display: flex; gap: 14px; align-items: flex-start; }
+  .insight .ib { width: 38px; height: 38px; border-radius: 10px; display: grid; place-items: center; background: var(--accent-soft); color: var(--accent); flex: none; }
+  .medals { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px; }
+  .medal { border: 1px solid var(--line); border-radius: 12px; padding: 12px; text-align: center; display: grid; gap: 4px; font-size: 13px; }
+  .medal .m { font-size: 26px; } .medal.off { opacity: .45; filter: grayscale(1); }
+  .wa { background: var(--wa-bg); border-radius: 12px; padding: 14px; }
+  .wa .bubble { background: var(--wa-bubble); color: var(--wa-fg); border-radius: 10px; padding: 10px 12px; font-size: 14px; max-width: 420px; white-space: pre-line; box-shadow: 0 1px 1px rgb(0 0 0 / 15%); }
+  .post { background: linear-gradient(140deg, #0f4c81, #4338ca); color: #ffffff; border-radius: 16px; aspect-ratio: 1; max-width: 340px; width: 100%; padding: 28px; display: grid; align-content: space-between; }
+  .post q { font-size: 20px; line-height: 1.35; font-weight: 600; }
+  .seal { display: inline-flex; gap: 10px; align-items: center; border: 2px solid var(--accent); border-radius: 12px; padding: 10px 14px; background: var(--surface); }
+  .seal strong { font-size: 22px; color: var(--accent); }
+  .tv { min-height: 100vh; background: var(--tv-bg); color: var(--tv-fg); padding-block: 28px; padding-left: max(24px, env(safe-area-inset-left, 0px)); padding-right: max(24px, env(safe-area-inset-right, 0px)); display: grid; gap: 24px; align-content: start; }
+  .tv .tvc { background: var(--tv-card); border-radius: 18px; padding: 22px; }
+  .tv .big { font-size: clamp(56px, 9vw, 120px); font-weight: 700; line-height: 1; font-variant-numeric: tabular-nums; }
+  .tv .mut { color: var(--tv-muted); }
+  .tv .rk { display: grid; gap: 10px; } .tv .rk div { display: flex; justify-content: space-between; gap: 10px; font-size: clamp(18px, 2.2vw, 28px); }
+  .tv .quote { font-size: clamp(22px, 3vw, 40px); font-weight: 600; line-height: 1.3; }
+  .tv .btn { background: var(--tv-card); color: var(--tv-fg); border-color: #2b3142; }
+  .kiosk { min-height: 100vh; background: #0f4c81; color: #ffffff; display: grid; place-items: center; text-align: center; padding-block: 24px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+  .kiosk .scale { display: grid; grid-template-columns: repeat(11, minmax(0, 1fr)); gap: 8px; max-width: 900px; width: 100%; }
+  .kiosk .scale button { border: 0; border-radius: 14px; padding: 22px 0; font-size: clamp(18px, 3vw, 30px); font-weight: 700; color: #ffffff; }
+  .kiosk .chip { background: rgb(255 255 255 / 12%); color: #ffffff; border-color: rgb(255 255 255 / 30%); font-size: 18px; padding: 10px 18px; }
+  .kiosk .chip[aria-pressed="true"] { background: #ffffff; color: #0f4c81; }
+  .audio { display: flex; gap: 10px; align-items: center; background: var(--muted-bg); border-radius: 99px; padding: 6px 14px 6px 6px; width: fit-content; max-width: 100%; }
+  .audio .play { width: 32px; height: 32px; border-radius: 99px; background: var(--accent); color: var(--accent-fg); border: 0; display: grid; place-items: center; }
+  .wave { display: flex; gap: 2px; align-items: center; height: 22px; } .wave i { width: 3px; background: var(--accent); border-radius: 2px; opacity: .7; }
+  @media (max-width: 960px) {
+    .shell { grid-template-columns: minmax(0, 1fr); }
+    nav.side { flex-direction: row; overflow-x: auto; border-right: 0; border-bottom: 1px solid var(--line); padding-block: 8px; padding-left: max(12px, env(safe-area-inset-left, 0px)); padding-right: max(12px, env(safe-area-inset-right, 0px)); position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; }
+    .logo, .nav-sep, .nav-label { display: none; }
+    .g3, .g4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .g32 { grid-template-columns: minmax(0, 1fr); }
+    .phone-wrap { grid-template-columns: minmax(0, 1fr); }
+    dl.kv { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+  @media (max-width: 860px) { .roles { grid-template-columns: minmax(0, 1fr); } }
+  @media (max-width: 560px) {
+    .g2, .g3, .g4, .form .two { grid-template-columns: minmax(0, 1fr); }
+    .kiosk .scale { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+  }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } .role-card:hover { transform: none; } }
+</style>
+
+</head>
+<body style="margin:0">
+<div class="demo-bar">
+  <span>Demonstração do AvaliaJá com dados de exemplo (Prime Veículos). Nada é enviado para lugar nenhum.</span>
+  <span class="bar-right"><button class="theme-btn" id="theme-btn" type="button">Modo escuro</button>
+  <label>Perfil <select id="role" aria-label="Perfil">
+    <option value="owner">Admin da empresa</option><option value="manager">Líder</option><option value="attendant">Colaborador</option>
+  </select></label></span>
+</div>
+<div id="app"></div>
+<div class="toast" id="toast" role="status" hidden></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script>
+(function () {
+  "use strict";
+  // ================= Dados de exemplo =================
+  var DAY = 86400000, NOW = Date.now();
+  var seed = 11;
+  function rnd() { seed = (seed * 16807) % 2147483647; return (seed - 1) / 2147483646; }
+  function pick(a) { return a[Math.floor(rnd() * a.length)]; }
+
+  var company = { name: "Prime Veículos", segment: "Concessionária de veículos", color: "#0f4c81", document: "12.345.678/0001-95", goal: 50, plan: "Empresa", trialDays: 9 };
+  var terms = { sector: "Setor", sectors: "Setores", attendant: "Consultor", attendants: "Consultores" };
+  var sectors = [
+    { id: "s1", name: "Vendas", goal: 60, active: true },
+    { id: "s2", name: "Oficina", goal: 40, active: true },
+    { id: "s3", name: "Pós-venda", goal: 50, active: true }
+  ];
+  var attendants = [
+    { id: "a1", name: "Rafael Costa", sector: "s1", active: true }, { id: "a2", name: "Juliana Ramos", sector: "s1", active: true },
+    { id: "a3", name: "Marcos Vieira", sector: "s2", active: true }, { id: "a4", name: "Bianca Torres", sector: "s2", active: true },
+    { id: "a5", name: "Pedro Alves", sector: "s3", active: true }, { id: "a6", name: "Larissa Gomes", sector: "s3", active: false }
+  ];
+  var members = [
+    { id: "u1", name: "Wendell (você)", email: "dono@primeveiculos.com.br", role: "owner", sectors: "Todos" },
+    { id: "u2", name: "Carla Nunes", email: "carla@primeveiculos.com.br", role: "manager", sectors: "Vendas" },
+    { id: "u3", name: "Rafael Costa", email: "rafael@primeveiculos.com.br", role: "attendant", sectors: "Vendas" }
+  ];
+  var reasonsNeg = ["Demora", "Preço", "Atendimento", "Comunicação", "Agendamento"];
+  var reasonsPos = ["Rapidez", "Simpatia", "Honestidade", "Limpeza", "Explicação clara"];
+  var NAMES = ["Ana Souza", "Bruno Lima", "Carla Mendes", "Diego Rocha", "Elisa Prado", "Fábio Nunes", "Helena Dias", "Igor Pires", "Júlia Castro", "Kátia Alves", "Lucas Moraes", "Marina Reis", "Nelson Brito", "Otávio Paz", "Paula Freitas", "Renato Lopes", "Sílvia Matos", "Tiago Melo", "Vera Campos", "Wagner Dutra", "Yara Lins", "Zeca Moura"];
+  var C_NEG = ["Esperei mais de uma hora para ser atendido.", "Ninguém me avisou que o carro ia atrasar.", "O orçamento veio bem acima do combinado.", "Liguei três vezes e ninguém retornou.", "Demorou para agendar a revisão."];
+  var C_POS = ["Atendimento excelente, voltarei!", "Explicou tudo com calma.", "Rápido e sem enrolação.", "Carro entregue limpo e no horário.", "Equipe muito simpática."];
+  var CHANNELS = ["QR code", "Link", "WhatsApp", "E-mail", "Crachá"];
+  var surveys = [
+    { id: "v1", name: "Pós-venda da oficina", slug: "PrmOfc7", status: "Ativa", template: "Pós-serviço / entrega", sector: "s2", askAttendant: true, googleMin: 9, questions: ["De 0 a 10, quanto você recomendaria a Prime Veículos para um amigo?", "O que mais pesou na sua nota?", "Quer deixar um comentário?"] },
+    { id: "v2", name: "Compra de veículo", slug: "PrmVnd3", status: "Ativa", template: "Pós-compra", sector: "s1", askAttendant: true, googleMin: 9, questions: ["De 0 a 10, quanto você recomendaria a Prime Veículos para um amigo?", "Como foi o atendimento do seu consultor?"] },
+    { id: "v3", name: "Satisfação geral 2025", slug: "PrmGer1", status: "Arquivada", template: "NPS relacional", sector: null, askAttendant: false, googleMin: 9, questions: ["De 0 a 10, quanto você recomendaria a Prime Veículos?"] }
+  ];
+
+  var responses = [];
+  for (var i = 0; i < 170; i++) {
+    var daysAgo = Math.floor(rnd() * 90);
+    var r = rnd() + (daysAgo < 22 ? 0.1 : 0);
+    var sc = r > 0.34 ? (r > 0.68 ? 10 : 9) : r > 0.2 ? (rnd() > 0.5 ? 8 : 7) : Math.floor(rnd() * 7);
+    var att = pick(attendants.slice(0, 5));
+    var neg = sc <= 6, rs = [];
+    if (neg) rs.push(daysAgo < 22 && rnd() > 0.45 ? pick(["Preço", "Comunicação"]) : (rnd() > 0.35 ? "Demora" : pick(reasonsNeg)));
+    else if (sc >= 9) rs.push(pick(reasonsPos));
+    var nm = pick(NAMES);
+    var st = neg ? (daysAgo > 3 ? (rnd() > 0.15 ? "resolved" : "contacted") : pick(["new", "new", "in_progress"])) : "ok";
+    responses.push({
+      id: "r" + i, name: nm, score: sc, reasons: rs,
+      comment: rnd() > 0.45 ? (neg ? pick(C_NEG) : sc >= 9 ? pick(C_POS) : "") : "",
+      at: NOW - daysAgo * DAY - Math.floor(rnd() * DAY), sector: att.sector, attendant: att.id,
+      survey: att.sector === "s1" ? "v2" : "v1", channel: pick(CHANNELS), status: st,
+      contact: neg && rnd() > 0.3 ? nm.split(" ")[0].toLowerCase() + "@email.com" : null,
+      phone: neg && rnd() > 0.5 ? "(11) 9" + Math.floor(1000 + rnd() * 8999) + "-" + Math.floor(1000 + rnd() * 8999) : null,
+      assigned: neg ? "Marcos Vieira" : null, note: "", events: []
+    });
+  }
+  responses.push({ id: "rx1", name: "Gil Teixeira", score: 3, reasons: ["Demora"], comment: "Fiquei 2 horas esperando.", at: NOW - 40 * DAY, sector: "s2", attendant: "a3", survey: "v1", channel: "QR code", status: "resolved", contact: "gil@email.com", phone: "(11) 94444-3333", assigned: "Marcos Vieira", note: "Liguei, pedi desculpas e agendei a próxima revisão com prioridade.", events: [] });
+  responses.push({ id: "rx2", name: "Gil Teixeira", score: 10, reasons: ["Rapidez"], comment: "Dessa vez foi rápido, parabéns pela mudança!", audio: "0:18", transcript: "Oi, aqui é o Gil. Da outra vez eu esperei muito, mas hoje foi rapidinho e o Marcos me avisou de tudo pelo WhatsApp. Parabéns pela mudança.", at: NOW - 3 * DAY, sector: "s2", attendant: "a3", survey: "v1", channel: "E-mail", status: "ok", contact: "gil@email.com", phone: null, assigned: null, note: "", events: [] });
+  responses.sort(function (a, b) { return b.at - a.at; });
+  responses.forEach(function (x) {
+    x.events = [{ at: x.at, text: "Resposta recebida pelo canal " + x.channel }];
+    if (x.score <= 6) x.events.push({ at: x.at + 60000, text: "Alerta enviado por e-mail e no celular para Marcos Vieira" });
+    if (x.status === "contacted" || x.status === "resolved") x.events.push({ at: x.at + 3 * 3600000, text: "Contato registrado por Marcos Vieira (WhatsApp)" });
+    if (x.status === "resolved") x.events.push({ at: x.at + 26 * 3600000, text: "Marcado como resolvido" });
+    if (x.score >= 9) x.events.push({ at: x.at + 30000, text: "Convite para avaliar no Google exibido" + (rnd() > 0.5 ? " e clicado" : "") });
+  });
+
+  var plans = [
+    { id: "p1", title: "Senha de atendimento e aviso de atraso na oficina", theme: "Demora", kind: "Motivo marcado pelos clientes", owner: "Marcos Vieira", due: offsetDate(15), status: "Em andamento", start: NOW - 22 * DAY, notes: "Painel de senhas instalado. Aviso por WhatsApp quando passar de 30 min." },
+    { id: "p2", title: "Tabela de preços de revisão no balcão", theme: "Preço", kind: "Motivo marcado pelos clientes", owner: "Wendell (você)", due: offsetDate(-2), status: "A fazer", start: NOW - 6 * DAY, notes: "" }
+  ];
+  var reviews = [
+    { id: "g1", who: "Carla Mendes", stars: 5, text: "Atendimento excelente, voltarei!", at: NOW - 46 * DAY, reply: "Obrigado, Carla! Esperamos você na próxima revisão." },
+    { id: "g2", who: "Paulo Lima", stars: 2, text: "Atendimento demorado na oficina.", at: NOW - 20 * DAY, reply: null },
+    { id: "g3", who: null, stars: 4, text: "", at: NOW - 70 * DAY, reply: null },
+    { id: "g4", who: "Roberta Sá", stars: 5, text: "Comprei meu carro aqui, tudo muito transparente.", at: NOW - 9 * DAY, reply: null },
+    { id: "g5", who: "Henrique Bastos", stars: 1, text: "Prometeram retorno e não ligaram.", at: NOW - 120 * DAY, reply: "Sentimos muito, Henrique. Já ajustamos o retorno das ligações." }
+  ];
+  var googleMonths = [4.1, 4.1, 4.15, 4.2, 4.18, 4.22, 4.25, 4.3, 4.31, 4.36, 4.4, 4.42];
+  var invitations = [
+    { name: "Ana Souza", contact: "(11) 98888-1111", channel: "WhatsApp", status: "Respondeu", at: NOW - 2 * DAY },
+    { name: "Bruno Lima", contact: "bruno@email.com", channel: "E-mail", status: "Enviado", at: NOW - DAY },
+    { name: "Carla Mendes", contact: "(11) 97777-2222", channel: "WhatsApp", status: "Agendado", at: NOW + 2 * 3600000 }
+  ];
+  var apiKeys = [{ name: "ERP da loja", prefix: "avj_live_8Kd2", created: NOW - 60 * DAY, used: NOW - 3600000 }];
+  var webhooks = [{ url: "https://hooks.zapier.com/hooks/catch/1234/abcd", active: true, last: NOW - 2 * 3600000 }];
+  var adminCompanies = [
+    { name: "Prime Veículos", plan: "Empresa", status: "Teste grátis", responses: 172, users: 3, created: NOW - 21 * DAY },
+    { name: "Clínica Sorriso", plan: "Equipe", status: "Ativa", responses: 488, users: 4, created: NOW - 140 * DAY },
+    { name: "Padaria Pão Quente", plan: "Equipe", status: "Ativa", responses: 913, users: 2, created: NOW - 300 * DAY },
+    { name: "Rede Fit Academias", plan: "Corporativo", status: "Ativa", responses: 6210, users: 18, created: NOW - 410 * DAY },
+    { name: "Ótica Visão", plan: "Empresa", status: "Pagamento atrasado", responses: 230, users: 3, created: NOW - 95 * DAY }
+  ];
+  var settings = {
+    alerts: { threshold: 6, email: true, push: true, whatsapp: false, slaHours: 4, escalation: true, weekly: true },
+    whatsapp: { connected: true, phone: "+55 11 3333-4444", mode: "Enviar sozinho", limit: 1000, used: 212 },
+    feed: false, crm: { rdstation: null, hubspot: null }, inviteDays: 30
+  };
+
+  // Feedbacks com assinatura de leitura, manual de atendimento e premiação do mês.
+  var feedbacks = [
+    { id: "f1", to: "a1", from: "Carla Nunes (líder)", type: "Elogio", text: "Rafael, três clientes citaram a sua explicação clara na entrega do carro esta semana. Continue assim!", at: NOW - 2 * DAY, acks: {} },
+    { id: "f2", to: "todos", from: "Carla Nunes (líder)", type: "Orientação", text: "A partir de segunda, todo cliente que esperar mais de 15 minutos deve receber água e uma previsão de atendimento.", at: NOW - 5 * DAY, acks: { a1: NOW - 4 * DAY, a2: NOW - 5 * DAY + 3600000 } },
+    { id: "f3", to: "a1", from: "Carla Nunes (líder)", type: "Ponto de melhoria", text: "Na resposta do Bruno Lima, ele comentou que não recebeu retorno sobre o financiamento. Combine sempre um horário de retorno e cumpra.", at: NOW - 9 * DAY, acks: { a1: NOW - 8 * DAY } }
+  ];
+  var manual = {
+    version: 3, updated: NOW - 12 * DAY, acks: { a2: NOW - 10 * DAY },
+    sections: [
+      { title: "1. Recepção", body: "Cumprimente o cliente em até 1 minuto, pelo nome quando souber. Ofereça água e café. Se houver espera, informe o tempo previsto." },
+      { title: "2. Atendimento", body: "Escute antes de oferecer. Explique valores e prazos por escrito. Nunca prometa o que não depende de você." },
+      { title: "3. Entrega e pesquisa", body: "Na entrega, mostre o que foi feito. Apresente o QR code do seu crachá e peça a avaliação com naturalidade: \"Sua opinião ajuda muito o meu trabalho\". Nunca ofereça brinde em troca de nota." },
+      { title: "4. Cliente insatisfeito", body: "Não discuta. Agradeça o retorno, peça desculpas pelo ocorrido e chame o líder. Toda nota até 6 recebe contato em até 4 horas." }
+    ]
+  };
+  var reward = {
+    enabled: true, campaign: false, campaignName: "Novembro Azul do Atendimento", campaignEnd: offsetDate(19), campaignBonus: 200,
+    prizes: [300, 150, 80], saveBonus: 50, metaNps: 70, metaValue: 100, minResponses: 5
+  };
+  var stackPayments = [
+    { co: "Rede Fit Academias", plan: "Corporativo", value: 1490, due: NOW - 5 * DAY, status: "Pago", method: "Boleto" },
+    { co: "Clínica Sorriso", plan: "Equipe", value: 99, due: NOW - 3 * DAY, status: "Pago", method: "Pix" },
+    { co: "Padaria Pão Quente", plan: "Equipe", value: 99, due: NOW - 1 * DAY, status: "Pago", method: "Cartão" },
+    { co: "Ótica Visão", plan: "Empresa", value: 199, due: NOW - 8 * DAY, status: "Atrasado", method: "Boleto" },
+    { co: "Prime Veículos", plan: "Empresa", value: 199, due: NOW + 9 * DAY, status: "Pendente", method: "Pix" }
+  ];
+
+  var ICONS = {
+    home: '<rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/>',
+    inbox: '<polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/>',
+    users: '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>',
+    user: '<circle cx="12" cy="8" r="4"/><path d="M4 21v-1a6 6 0 0 1 12 0v1"/>',
+    star: '<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>',
+    target: '<circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/>',
+    trophy: '<path d="M8 21h8"/><path d="M12 17v4"/><path d="M7 4h10v5a5 5 0 0 1-10 0z"/><path d="M17 5h3v2a3 3 0 0 1-3 3"/><path d="M7 5H4v2a3 3 0 0 0 3 3"/>',
+    message: '<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>',
+    book: '<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>',
+    clipboard: '<rect x="8" y="2" width="8" height="4" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/>',
+    heart: '<path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>',
+    tv: '<rect x="2" y="7" width="20" height="15" rx="2"/><polyline points="17 2 12 7 7 2"/>',
+    file: '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>',
+    settings: '<line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/>',
+    pin: '<path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/>',
+    chart: '<line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/>',
+    qr: '<rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><path d="M14 14h3v3h-3zM20 14v.01M14 20h.01M17 17h4v4h-4"/>',
+    grad: '<path d="M22 10 12 5 2 10l10 5 10-5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/>',
+    phone: '<rect x="5" y="2" width="14" height="20" rx="2"/><path d="M12 18h.01"/>',
+    logout: '<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>',
+    shield: '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>',
+    flag: '<path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/>',
+    spark: '<path d="M12 3l1.9 5.8L20 10l-6.1 1.2L12 17l-1.9-5.8L4 10l6.1-1.2z"/>',
+    mic: '<rect x="9" y="2" width="6" height="12" rx="3"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="22"/>',
+    play: '<polygon points="7 4 20 12 7 20 7 4"/>',
+    coin: '<circle cx="12" cy="12" r="9"/><path d="M15 9.5c0-1.4-1.3-2.5-3-2.5s-3 1-3 2.3c0 3 6 1.7 6 4.7 0 1.3-1.3 2.5-3 2.5s-3-1.1-3-2.5M12 5.5v1.5M12 17v1.5"/>',
+    sun: '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/>',
+    moon: '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>',
+    arrow: '<line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>'
+  };
+  function ic(n, sz) { return '<svg class="ic" width="' + (sz || 18) + '" height="' + (sz || 18) + '" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + (ICONS[n] || "") + "</svg>"; }
+
+  var mentions = {
+    reclame: [
+      { id: "m1", who: "Paulo R.", title: "Revisão atrasou 3 dias", text: "Deixei o carro para revisão e prometeram para terça. Só fiquei sabendo do atraso quando liguei.", at: NOW - 6 * DAY, reply: null },
+      { id: "m2", who: "Sandra M.", title: "Cobrança de item não autorizado", text: "Cobraram a troca do filtro de cabine que eu não pedi.", at: NOW - 31 * DAY, reply: "Sandra, devolvemos o valor no mesmo dia e ajustamos a conferência do orçamento. Obrigado pelo retorno." }
+    ],
+    instagram: [
+      { id: "m3", who: "@carol.dirige", title: "Comentário no post", text: "Amei o atendimento da Juliana! Já indiquei para a minha irmã.", at: NOW - 1 * DAY, reply: null },
+      { id: "m4", who: "@joao.p", title: "Menção nos stories", text: "Alguém já fez revisão na Prime? Demora muito?", at: NOW - 2 * DAY, reply: null }
+    ]
+  };
+  var branches = [
+    { name: "Prime Centro", city: "São Paulo", nps: 66, resp: 172, google: 4.4, waiting: 3 },
+    { name: "Prime Zona Sul", city: "São Paulo", nps: 58, resp: 140, google: 4.3, waiting: 5 },
+    { name: "Prime Campinas", city: "Campinas", nps: 71, resp: 96, google: 4.6, waiting: 1 }
+  ];
+  var SAVES = { a1: 1, a3: 1 };
+  var ticket = 3500;
+  var dailyWa = true, autoSorry = true;
+  var tvTimer = null;
+  var trainings = [
+    { id: "t1", title: "Como avisar um atraso antes do cliente perguntar", why: "2 clientes seus citaram falta de retorno nas últimas semanas.", tips: ["Combine um horário de retorno e anote na ficha do cliente.", "Se algo atrasar, avise antes do horário combinado, mesmo sem novidade.", "Feche com uma pergunta: 'Posso te mandar a próxima atualização às 16h?'"], done: null },
+    { id: "t2", title: "Transformar elogio em avaliação no Google", why: "Você tem 7 promotores no mês e só 3 clicaram para avaliar no Google.", tips: ["Peça a avaliação na hora da entrega, não depois.", "Mostre o QR code do crachá e diga que leva 30 segundos.", "Nunca ofereça brinde em troca: o Google remove e pune."], done: NOW - 3 * DAY }
+  ];
+
+  // ================= Estado =================
+  var S = { role: "owner", picked: false, logged: true, onboard: false, view: "painel", id: null, tab: "empresa", period: "30", sectorF: "", rFilter: "todas", gFilter: "todas", prefill: "", survey: { score: null, reasons: [], comment: "", done: false, att: "" } };
+
+  // ================= Utilidades =================
+  function offsetDate(d) { return new Date(NOW + d * DAY).toISOString().slice(0, 10); }
+  function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
+  function fmtDate(t) { return new Date(t).toLocaleDateString("pt-BR"); }
+  function fmtDT(t) { var d = new Date(t); return d.toLocaleDateString("pt-BR") + " " + d.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }); }
+  function fmtDay(s) { var p = s.split("-"); return p[2] + "/" + p[1] + "/" + p[0]; }
+  function num(n, d) { return Number(n).toLocaleString("pt-BR", { minimumFractionDigits: d || 0, maximumFractionDigits: d || 0 }); }
+  function cat(s) { return s >= 9 ? "promoter" : s >= 7 ? "passive" : "detractor"; }
+  var CAT = { promoter: "Promotor", passive: "Neutro", detractor: "Detrator" };
+  var STATUS = { new: ["Nova", "detractor"], in_progress: ["Em tratativa", "passive"], contacted: ["Contatado", "accent"], resolved: ["Resolvido", "promoter"], ok: ["Sem pendência", ""] };
+  function nps(list) { if (!list.length) return null; var p = 0, d = 0; list.forEach(function (r) { if (r.score >= 9) p++; else if (r.score <= 6) d++; }); return Math.round((p - d) / list.length * 100); }
+  function between(a, b, list) { return (list || responses).filter(function (r) { return r.at >= NOW - a * DAY && r.at < NOW - b * DAY; }); }
+  function secName(id) { var s = sectors.filter(function (x) { return x.id === id; })[0]; return s ? s.name : "—"; }
+  function attName(id) { var s = attendants.filter(function (x) { return x.id === id; })[0]; return s ? s.name : "Não informado"; }
+  function byId(list, id) { return list.filter(function (x) { return x.id === id; })[0]; }
+  function toast(msg) { var t = document.getElementById("toast"); t.textContent = msg; t.hidden = false; clearTimeout(toast.h); toast.h = setTimeout(function () { t.hidden = true; }, 2800); }
+  function stars(n) { var s = ""; for (var i = 1; i <= 5; i++) s += i <= n ? "★" : '<span class="off">★</span>'; return '<span class="stars" role="img" aria-label="' + n + ' de 5 estrelas">' + s + "</span>"; }
+  function head(t, d, right) { return '<div class="page-head"><div><h1>' + esc(t) + "</h1>" + (d ? "<p>" + esc(d) + "</p>" : "") + "</div>" + (right ? '<div class="actions">' + right + "</div>" : "") + "</div>"; }
+  function stat(l, v, d, tone) { return '<div class="card stat"><div class="label">' + l + '</div><div class="value">' + v + "</div>" + (d ? '<div class="delta ' + (tone || "muted") + '">' + d + "</div>" : "") + "</div>"; }
+  function back(view, label, id) { return '<button class="btn ghost sm" data-nav="' + view + '"' + (id ? ' data-id="' + id + '"' : "") + ">← " + label + "</button>"; }
+  function canManage() { return S.role !== "attendant"; }
+  function isOwner() { return S.role === "owner"; }
+  function scope() { return S.role === "manager" ? responses.filter(function (r) { return r.sector === "s1"; }) : S.role === "attendant" ? responses.filter(function (r) { return r.attendant === "a1"; }) : responses; }
+  function waitingCount() { return scope().filter(function (r) { return r.status === "new" || r.status === "in_progress"; }).length; }
+
+  // ---------- Gráficos (desenhados no tamanho real do contêiner) ----------
+  var charts = [];
+  function chart(spec) { charts.push(spec); return '<div class="chart" data-chart="' + (charts.length - 1) + '"></div>'; }
+  function drawCharts() {
+    document.querySelectorAll("[data-chart]").forEach(function (el) {
+      var c = charts[Number(el.dataset.chart)]; if (!c) return;
+      var W = Math.max(260, el.clientWidth), H = c.height || 220;
+      var L = 40, R = 16, T = 14, B = 30;
+      var x, y = function (v) { return T + (c.max - v) * (H - T - B) / (c.max - c.min); };
+      var g = c.ticks.map(function (t) { return '<line x1="' + L + '" x2="' + (W - R) + '" y1="' + y(t) + '" y2="' + y(t) + '" stroke="var(--line)" stroke-width="1"/><text x="' + (L - 8) + '" y="' + (y(t) + 4) + '" text-anchor="end">' + (c.fmt ? c.fmt(t) : t) + "</text>"; }).join("");
+      if (c.zero != null) g += '<line x1="' + L + '" x2="' + (W - R) + '" y1="' + y(c.zero) + '" y2="' + y(c.zero) + '" stroke="var(--muted)" stroke-opacity=".5" stroke-width="1"/>';
+      var n = c.points.length, maxLabels = Math.max(2, Math.floor((W - L - R) / 64)), every = Math.ceil(n / maxLabels);
+      var labels = "", marks = "";
+      if (c.type === "bars") {
+        var bw = (W - L - R) / n;
+        x = function (i) { return L + bw * i + bw / 2; };
+        c.points.forEach(function (p, i) {
+          var h = (H - T - B) * (p.v - c.min) / (c.max - c.min);
+          marks += '<rect x="' + (x(i) - bw * 0.32) + '" y="' + (H - B - h) + '" width="' + (bw * 0.64) + '" height="' + Math.max(0, h) + '" rx="3" fill="' + (p.color || "var(--accent)") + '"><title>' + p.label + ": " + p.v + "</title></rect>";
+          labels += '<text x="' + x(i) + '" y="' + (H - 10) + '" text-anchor="middle">' + p.label + "</text>";
+        });
+      } else {
+        x = function (i) { return L + 8 + (n === 1 ? 0 : i * (W - L - R - 16) / (n - 1)); };
+        var path = "";
+        c.points.forEach(function (p, i) {
+          if (p.v != null) {
+            path += (path ? " L" : "M") + x(i).toFixed(1) + " " + y(p.v).toFixed(1);
+            marks += '<circle cx="' + x(i) + '" cy="' + y(p.v) + '" r="4" fill="var(--accent)" stroke="var(--surface)" stroke-width="2"><title>' + p.label + ": " + (c.fmt ? c.fmt(p.v) : p.v) + "</title></circle>";
+          }
+          if (i % every === 0 || i === n - 1) labels += '<text x="' + x(i) + '" y="' + (H - 10) + '" text-anchor="middle">' + p.label + "</text>";
+        });
+        var area = path ? path + " L" + x(n - 1).toFixed(1) + " " + (H - B) + " L" + x(0).toFixed(1) + " " + (H - B) + " Z" : "";
+        marks = '<path d="' + area + '" fill="var(--accent)" fill-opacity=".08"/><path d="' + path + '" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>' + marks;
+      }
+      el.innerHTML = '<svg width="' + W + '" height="' + H + '" viewBox="0 0 ' + W + " " + H + '" role="img" aria-label="' + esc(c.label) + '">' + g + marks + labels + "</svg>" +
+        (c.table ? '<details class="small" style="margin-top:6px"><summary class="muted" style="cursor:pointer">Ver em tabela</summary><div class="scroll-x"><table class="data"><thead><tr><th>' + c.table[0] + "</th><th>" + c.table[1] + "</th></tr></thead><tbody>" + c.points.map(function (p) { return "<tr><td>" + p.label + "</td><td>" + (p.v == null ? "—" : (c.fmt ? c.fmt(p.v) : p.v)) + "</td></tr>"; }).join("") + "</tbody></table></div></details>" : "");
+    });
+  }
+  var resizeT; window.addEventListener("resize", function () { clearTimeout(resizeT); resizeT = setTimeout(drawCharts, 120); });
+
+  // ================= Telas =================
+  var V = {};
+
+  // ---------- Entrar / Onboarding ----------
+  V.entrar = function () {
+    return '<div class="auth"><form class="card" id="loginform"><div class="logo" style="padding:0"><span class="mark" aria-hidden="true">✓</span>Avalia<em>Já</em></div><h1 style="font-size:22px">Entrar</h1>' +
+      '<label class="field">E-mail<input type="email" id="lg-email" value="dono@primeveiculos.com.br" autocomplete="email"></label>' +
+      '<label class="field">Senha<input type="password" id="lg-pass" value="demonstracao"></label>' +
+      '<button class="btn primary" type="submit" style="justify-content:center">Entrar</button>' +
+      '<button class="btn" type="button" data-act="login" style="justify-content:center">Entrar com o Google</button>' +
+      '<button class="btn" type="button" data-act="magic" style="justify-content:center">Receber link de acesso por e-mail</button>' +
+      '<div class="small" style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px"><button class="link" type="button" data-act="forgot">Esqueci minha senha</button><button class="link" type="button" data-act="signup">Criar conta grátis (14 dias)</button></div></form></div>';
+  };
+  V.onboarding = function () {
+    var step = S.obStep || 1;
+    var bodies = {
+      1: '<label class="field">Nome da empresa<input type="text" id="ob-name" value="' + esc(company.name) + '"></label><label class="field">Segmento<select id="ob-seg"><option>Concessionária ou automotivo</option><option>Restaurante, bar ou café</option><option>Clínica ou saúde</option><option>Loja ou varejo</option><option>Outro</option></select></label><label class="field">Como vocês chamam as áreas?<select><option>Setor</option><option>Unidade</option><option>Loja</option></select></label><label class="field">E quem atende?<select><option>Consultor</option><option>Atendente</option><option>Vendedor</option></select></label>',
+      2: '<p class="muted">Sugestões para o seu segmento. Marque o que faz sentido.</p><strong>O que deu errado</strong><div class="chips">' + reasonsNeg.map(function (r) { return '<button type="button" class="chip" aria-pressed="true">' + r + "</button>"; }).join("") + '</div><strong>O que agradou</strong><div class="chips">' + reasonsPos.map(function (r) { return '<button type="button" class="chip" aria-pressed="true">' + r + "</button>"; }).join("") + "</div>",
+      3: '<p class="muted">Escolha um modelo para a primeira pesquisa.</p><div class="grid g2">' + ["Pós-serviço / entrega", "Pós-compra", "Avaliação do consultor", "NPS relacional"].map(function (t, i) { return '<label class="check card" style="padding:12px"><input type="radio" name="tpl"' + (i === 0 ? " checked" : "") + "> " + t + "</label>"; }).join("") + "</div>"
+    };
+    return '<div class="auth"><div class="card" style="max-width:620px"><span class="muted small">Passo ' + step + ' de 3</span><div class="progress"><div style="width:' + step * 33.3 + '%"></div></div><h1 style="font-size:22px">' + ["", "Sua empresa", "Motivos das notas", "Primeira pesquisa"][step] + "</h1>" + bodies[step] +
+      '<div class="actions" style="justify-content:space-between">' + (step > 1 ? '<button class="btn" data-act="obback">Voltar</button>' : "<span></span>") + '<button class="btn primary" data-act="obnext">' + (step < 3 ? "Continuar" : "Criar pesquisa e ir ao painel") + "</button></div></div></div>";
+  };
+
+  // ---------- Painel ----------
+  V.painel = function () {
+    var days = Number(S.period);
+    var base = scope().filter(function (r) { return !S.sectorF || r.sector === S.sectorF; });
+    var cur = between(days, 0, base), prev = between(days * 2, days, base);
+    var n = nps(cur), pn = nps(prev), delta = n - pn;
+    var pr = cur.filter(function (r) { return r.score >= 9; }).length, de = cur.filter(function (r) { return r.score <= 6; }).length;
+    var waiting = waitingCount();
+    var negC = {}, posC = {};
+    cur.forEach(function (r) { r.reasons.forEach(function (x) { var m = r.score <= 6 ? negC : posC; m[x] = (m[x] || 0) + 1; }); });
+    function bars(map, tone, withPlan) {
+      var arr = Object.keys(map).map(function (k) { return [k, map[k]]; }).sort(function (a, b) { return b[1] - a[1]; }).slice(0, 5);
+      if (!arr.length) return '<p class="muted small">Nada marcado no período.</p>';
+      return '<div class="bars">' + arr.map(function (e) {
+        var pct = Math.round(e[1] / cur.length * 100);
+        var has = plans.some(function (p) { return p.theme === e[0] && p.status !== "Concluído" && p.status !== "Cancelado"; });
+        var act = withPlan && canManage() ? (has ? '<button class="link" data-nav="planos">Plano aberto</button>' : '<button class="link" data-newplan="' + esc(e[0]) + '" aria-label="Criar plano de ação para ' + esc(e[0]) + '">Criar plano</button>') : "";
+        return '<div class="bar-row"><div class="top"><span class="l"><span>' + esc(e[0]) + "</span>" + act + '</span><span class="tab">' + e[1] + " · " + pct + '%</span></div><div class="bar-track"><div class="bar-fill ' + tone + '" style="width:' + Math.min(100, Math.max(3, pct * 3)) + '%"></div></div></div>';
+      }).join("") + "</div>";
+    }
+    var weeks = days <= 7 ? 7 : days <= 30 ? 8 : 13, pts = [];
+    for (var w = weeks - 1; w >= 0; w--) { var span = days <= 7 ? 1 : 7; var l = between((w + 1) * span, w * span, base); pts.push({ label: fmtDate(NOW - (w + 1) * span * DAY).slice(0, 5), v: nps(l) }); }
+    var dist = []; for (var s = 0; s <= 10; s++) { (function (s) { dist.push({ label: String(s), v: cur.filter(function (r) { return r.score === s; }).length, color: s >= 9 ? "var(--promoter)" : s >= 7 ? "var(--passive)" : "var(--detractor)" }); })(s); }
+    var maxD = Math.max.apply(null, dist.map(function (d) { return d.v; })) || 1;
+    var bm = { p25: 18, p50: 38, p75: 57, n: 14 }, pos = function (v) { return Math.min(100, Math.max(0, (v + 100) / 2)); };
+    var where = n >= bm.p75 ? "entre os 25% melhores" : n > bm.p50 ? "acima da mediana" : n > bm.p25 ? "abaixo da mediana" : "entre os 25% mais baixos";
+    var goal = S.sectorF ? byId(sectors, S.sectorF).goal : company.goal;
+    var sectorRows = sectors.map(function (sct) { var l = cur.filter(function (r) { return r.sector === sct.id; }); return [sct, l.length, nps(l)]; });
+    var gShown = pr, gClicked = Math.round(pr * 0.46);
+
+    var greet = S.role === "manager" ? head("Painel de Vendas", "Olá, Carla! Os números do seu setor.") : head("Visão geral da empresa", "Olá, Wendell! Todos os setores da " + company.name + ".");
+    var sectorCards = S.role === "owner" && !S.sectorF ? '<h2 style="font-size:17px;margin:20px 0 10px">Por setor</h2><div class="grid g3">' + sectors.map(function (sct) {
+      var l = cur.filter(function (r) { return r.sector === sct.id; }), sn = nps(l), wt = l.filter(function (r) { return r.status === "new" || r.status === "in_progress"; }).length;
+      var lead = sct.id === "s1" ? "Carla Nunes" : sct.id === "s2" ? "Marcos Vieira" : "Sem líder";
+      return '<button class="card" style="text-align:left;cursor:pointer;display:grid;gap:6px" data-sector="' + sct.id + '"><div style="display:flex;justify-content:space-between;gap:8px"><strong>' + sct.name + '</strong><span class="badge ' + (sn >= sct.goal ? "promoter" : "detractor") + '">' + (sn >= sct.goal ? "Meta batida" : "Abaixo da meta") + '</span></div><div class="stat"><div class="value">' + (sn == null ? "—" : sn) + ' <span class="small muted">NPS · meta ' + sct.goal + '</span></div></div><div class="small muted">' + l.length + " respostas · " + wt + " aguardando contato · líder " + lead + "</div></button>";
+    }).join("") + "</div>" : "";
+    var why = whyInsight(cur, prev);
+    var lost = Math.round(de * 0.35), lostMoney = lost * ticket + Math.round(de * 0.5) * Math.round(ticket * 0.4);
+    var insightCard = canManage() && why ? '<div class="card" style="margin-bottom:16px"><div class="insight"><span class="ib">' + ic("spark", 20) + '</span><div><span class="small muted">Por que o NPS mudou</span><p class="verdict" style="margin-top:2px">' + why + '</p></div></div></div>' : "";
+    var moneyCard = canManage() ? '<div class="card mt"><div class="insight"><span class="ib" style="background:var(--detractor-bg);color:var(--detractor)">' + ic("coin", 20) + '</span><div style="flex:1;min-width:0"><h3>Quanto as notas baixas podem custar</h3><p class="sub">' + de + ' detratores no período. Em média, 35% deles não voltam e metade fala mal para outras pessoas.</p><div class="grid g3"><div class="stat"><div class="label">Clientes que podem não voltar</div><div class="value">' + lost + '</div></div><div class="stat"><div class="label">Dinheiro em risco</div><div class="value down">' + money(lostMoney) + '</div></div><label class="field">Quanto um cliente gasta por ano (R$)<input type="number" id="ticket" min="0" value="' + ticket + '"></label></div><p class="small muted mt">Cada cliente recuperado pela equipe devolve esse valor. ' + (waiting ? '<button class="link" data-nav="respostas" data-filter="aguardando">Ligar para os ' + waiting + " que estão esperando</button>" : "") + "</p></div></div></div>" : "";
+    var challenge = '<div class="card mt"><div class="insight"><span class="ib" style="background:var(--passive-bg);color:var(--passive)">' + ic("trophy", 20) + '</span><div style="flex:1"><h3>Desafio da semana</h3><p class="sub">O setor com mais promotores até domingo ganha café da manhã</p><div class="bars">' + sectors.map(function (sc, i) { var v = [26, 21, 14][i]; return '<div class="bar-row"><div class="top"><span>' + sc.name + (i === 0 ? " 🥇" : "") + '</span><span class="tab">' + v + ' promotores</span></div><div class="bar-track"><div class="bar-fill passive" style="width:' + v * 3.4 + '%"></div></div></div>'; }).join("") + "</div></div></div></div>";
+    return greet + insightCard +
+      '<div class="actions" style="margin-bottom:16px"><div class="chips" role="group" aria-label="Período">' + [["7", "7 dias"], ["30", "30 dias"], ["90", "90 dias"]].map(function (p) { return '<button class="chip" data-period="' + p[0] + '" aria-pressed="' + (S.period === p[0]) + '">' + p[1] + "</button>"; }).join("") + "</div>" +
+      (S.role === "owner" ? '<select id="sector-filter" aria-label="Setor" style="width:auto"><option value="">Todos os setores</option>' + sectors.map(function (s) { return '<option value="' + s.id + '"' + (S.sectorF === s.id ? " selected" : "") + ">" + s.name + "</option>"; }).join("") + "</select>" : "") + "</div>" +
+      (S.onboardDone ? "" : isOwner() ? '<div class="card" style="margin-bottom:16px"><h3>Primeiros passos</h3><p class="sub">3 de 5 concluídos</p><div class="steps">' + [["Criar a empresa", 1], ["Ativar a primeira pesquisa", 1], ["Receber a primeira resposta", 1], ["Imprimir o QR code ou os crachás", 0], ["Ligar os alertas no celular", 0]].map(function (st) { return '<div class="step' + (st[1] ? " done" : "") + '"><span class="dot">' + (st[1] ? "✓" : "") + "</span>" + st[0] + "</div>"; }).join("") + '</div><div style="margin-top:10px"><button class="btn sm ghost" data-act="hidesteps">Ocultar</button></div></div>' : "") +
+      (waiting && canManage() ? '<button class="row click" data-nav="respostas" data-filter="aguardando" style="margin-bottom:16px;border-color:var(--detractor)"><span class="badge detractor">' + waiting + '</span><span class="grow"><strong>' + waiting + ' clientes com nota baixa aguardando contato</strong><span class="meta">Quanto antes o contato, maior a chance de recuperar.</span></span><span class="link">Ver respostas</span></button>' : "") +
+      '<div class="grid g4">' +
+        stat("NPS", n == null ? "—" : n, pn == null ? "" : (delta >= 0 ? "▲ " : "▼ ") + Math.abs(delta) + " pts vs. período anterior", delta >= 0 ? "up" : "down") +
+        stat("Respostas", cur.length, Math.round(cur.length / days * 10) / 10 + " por dia") +
+        stat("Promotores · detratores", pr + " · " + de, Math.round(pr / Math.max(1, cur.length) * 100) + "% · " + Math.round(de / Math.max(1, cur.length) * 100) + "%") +
+        stat("Meta de NPS", goal, n >= goal ? "Meta batida!" : "Faltam " + (goal - n) + " pontos", n >= goal ? "up" : "down") +
+      "</div>" + sectorCards + moneyCard +
+      '<div class="grid g32 mt"><div class="card"><h3>Evolução do NPS</h3><p class="sub">' + (days <= 7 ? "Por dia" : "Por semana") + "</p>" + chart({ type: "line", points: pts, min: -100, max: 100, ticks: [-100, -50, 0, 50, 100], zero: 0, label: "Evolução do NPS", table: ["Início", "NPS"] }) + "</div>" +
+      '<div class="card"><h3>Distribuição das notas</h3><p class="sub">Quantas respostas em cada nota</p>' + chart({ type: "bars", points: dist, min: 0, max: maxD, ticks: [0, Math.round(maxD / 2), maxD], label: "Distribuição das notas", height: 220 }) + "</div></div>" +
+      (S.role !== "attendant" ? '<div class="card mt"><h3>Seu NPS × mercado</h3><p class="sub">' + bm.n + ' concessionárias · últimos 90 dias · nenhuma empresa é identificada</p><p class="verdict">Seu NPS está ' + where + ' do segmento.</p><div class="ruler" aria-hidden="true"><div class="band" style="left:' + pos(bm.p25) + "%;width:" + (pos(bm.p75) - pos(bm.p25)) + '%"></div><div class="med" style="left:' + pos(bm.p50) + '%"></div><div class="me" style="left:' + pos(n) + '%"></div></div><div class="ruler-l"><span>-100</span><span>0</span><span>100</span></div><dl class="kv"><div><dt>Seu NPS</dt><dd>' + n + "</dd></div><div><dt>Mediana do segmento</dt><dd>" + bm.p50 + "</dd></div><div><dt>Metade do meio</dt><dd>" + bm.p25 + " a " + bm.p75 + "</dd></div><div><dt>Acima de</dt><dd>~" + (n >= bm.p75 ? 80 : n > bm.p50 ? 60 : 30) + "% das empresas</dd></div></dl></div>" : "") +
+      '<div class="grid g2 mt"><div class="card"><h3>O que mais agrada</h3><p class="sub">% das respostas do período</p>' + bars(posC, "promoter", false) + '</div><div class="card"><h3>O que mais incomoda</h3><p class="sub">% das respostas · use “Criar plano” no tema que mais pesa</p>' + bars(negC, "detractor", true) + "</div></div>" + challenge +
+      '<div class="grid g32 mt"><div class="card"><h3>Resumo da IA</h3><p class="sub">Gerado hoje com ' + cur.length + ' respostas</p><p>Os clientes elogiam a simpatia da equipe de vendas e a explicação clara dos consultores. O principal problema continua sendo a <strong>demora na oficina</strong>, mas as menções caíram depois do painel de senhas. Preço da revisão começou a aparecer mais.</p><div class="grid g3 mt small"><div><strong>Pontos fortes</strong><ul style="padding-left:18px;margin:6px 0 0"><li>Simpatia</li><li>Explicação clara</li></ul></div><div><strong>Problemas</strong><ul style="padding-left:18px;margin:6px 0 0"><li>Demora na oficina</li><li>Preço da revisão</li></ul></div><div><strong>O que fazer</strong><ul style="padding-left:18px;margin:6px 0 0"><li>Avisar atraso por WhatsApp</li><li>Mostrar preço antes</li></ul></div></div></div>' +
+      '<div class="card"><h3>Temas nos comentários</h3><p class="sub">Analisados pela IA</p><div class="bars">' + [["tempo de espera", 18, 14], ["atendimento", 15, 2], ["preço", 9, 7], ["limpeza do carro", 6, 0]].map(function (t) { var has = plans.some(function (p) { return p.theme === t[0]; }); return '<div class="bar-row"><div class="top"><span class="l"><span>' + t[0] + "</span>" + (t[2] && canManage() ? (has ? '<button class="link" data-nav="planos">Plano aberto</button>' : '<button class="link" data-newplan="' + t[0] + '">Criar plano</button>') : "") + '</span><span class="tab">' + t[1] + (t[2] ? " · " + t[2] + " negativos" : "") + '</span></div><div class="bar-track"><div class="bar-fill" style="width:' + t[1] * 5 + '%"></div></div></div>'; }).join("") + "</div></div></div>" +
+      '<div class="grid g2 mt"><div class="card"><h3>Google</h3><p class="sub">Funil do período</p><div class="bars"><div class="bar-row"><div class="top"><span>Promotores</span><span class="tab">' + pr + '</span></div><div class="bar-track"><div class="bar-fill" style="width:100%"></div></div></div><div class="bar-row"><div class="top"><span>Viram o convite do Google</span><span class="tab">' + gShown + '</span></div><div class="bar-track"><div class="bar-fill" style="width:100%"></div></div></div><div class="bar-row"><div class="top"><span>Clicaram para avaliar</span><span class="tab">' + gClicked + " · " + Math.round(gClicked / Math.max(1, gShown) * 100) + '%</span></div><div class="bar-track"><div class="bar-fill" style="width:' + Math.round(gClicked / Math.max(1, gShown) * 100) + '%"></div></div></div></div></div>' +
+      '<div class="card"><h3>Tratativas</h3><p class="sub">Notas baixas do período</p><div class="grid g3"><div class="stat"><div class="label">Contatadas</div><div class="value">' + cur.filter(function (r) { return r.status === "contacted" || r.status === "resolved"; }).length + '</div></div><div class="stat"><div class="label">Tempo até o contato</div><div class="value">2h40</div></div><div class="stat"><div class="label">Recuperados</div><div class="value">1</div></div></div><p class="small muted mt">Recuperado de verdade: deu nota baixa e depois avaliou bem. Meta de contato: até 4 horas.</p></div></div>' +
+      (S.role === "owner" && !S.sectorF ? '<div class="card mt"><h3>Por setor</h3><div class="scroll-x"><table class="data"><thead><tr><th>Setor</th><th>Respostas</th><th>NPS</th><th>Meta</th></tr></thead><tbody>' + sectorRows.map(function (x) { return "<tr><td>" + x[0].name + "</td><td>" + x[1] + '</td><td class="' + (x[2] >= x[0].goal ? "up" : "down") + '">' + x[2] + "</td><td>" + x[0].goal + "</td></tr>"; }).join("") + "</tbody></table></div></div>" : "") +
+      '<div class="grid g2 mt"><div class="card"><h3>Uso do plano</h3><p class="sub">Respostas neste mês</p><div class="stat"><div class="value">' + between(30, 0).length + ' <span class="small muted">de 5.000</span></div></div><div class="progress mt"><div style="width:' + between(30, 0).length / 50 + '%"></div></div></div>' +
+      '<div class="card"><h3>Pesquisas ativas</h3><div class="list" style="margin-top:10px">' + surveys.filter(function (v) { return v.status === "Ativa"; }).map(function (v) { return '<div class="row"><span class="grow"><strong>' + v.name + '</strong><span class="meta">avaliaja.com.br/r/' + v.slug + '</span></span><button class="btn sm" data-nav="compartilhar" data-id="' + v.id + '">QR code e mais canais</button></div>'; }).join("") + "</div></div></div>";
+  };
+
+  function whyInsight(cur, prev) {
+    var DAYS = ["domingos", "segundas", "terças", "quartas", "quintas", "sextas", "sábados"];
+    var list = (S.role === "manager" ? sectors.filter(function (x) { return x.id === "s1"; }) : sectors).map(function (sc) {
+      var c = cur.filter(function (r) { return r.sector === sc.id; }), pv = prev.filter(function (r) { return r.sector === sc.id; });
+      return { sc: sc, c: c, d: (nps(c) || 0) - (nps(pv) || 0) };
+    }).sort(function (a, b) { return a.d - b.d; });
+    var w = list[0]; if (!w || !w.c.length) return "";
+    var neg = w.c.filter(function (r) { return r.score <= 6; });
+    if (!neg.length) return "O NPS " + (S.role === "manager" ? "do setor" : "de " + w.sc.name) + " subiu " + Math.abs(w.d) + " pontos e não houve notas baixas.";
+    var rc = {}, dc = {};
+    neg.forEach(function (r) { r.reasons.forEach(function (x) { rc[x] = (rc[x] || 0) + 1; }); var d = new Date(r.at).getDay(); dc[d] = (dc[d] || 0) + 1; });
+    var top = Object.keys(rc).sort(function (a, b) { return rc[b] - rc[a]; })[0], day = Object.keys(dc).sort(function (a, b) { return dc[b] - dc[a]; })[0];
+    var pct = Math.round(rc[top] / neg.length * 100);
+    return (w.d < 0 ? "O NPS " + (S.role === "manager" ? "do setor" : "de " + w.sc.name) + " caiu " + Math.abs(w.d) + " pontos" : "O ponto mais fraco é " + (S.role === "manager" ? "o setor" : w.sc.name)) + ": " + pct + "% das notas baixas citam “" + (top || "atendimento").toLowerCase() + "”, principalmente às " + DAYS[day] + ".";
+  }
+
+  // ---------- Respostas ----------
+  V.respostas = function () {
+    var f = S.rFilter;
+    var list = scope().filter(function (r) {
+      return f === "todas" || (f === "aguardando" && (r.status === "new" || r.status === "in_progress")) || (f === "detratores" && r.score <= 6) || (f === "promotores" && r.score >= 9) || (f === "comentario" && r.comment);
+    });
+    var opts = [["todas", "Todas"], ["aguardando", "Aguardando contato"], ["detratores", "Detratores"], ["promotores", "Promotores"], ["comentario", "Com comentário"]];
+    return head("Respostas", "Cada avaliação com nota, motivos, comentário e o andamento da tratativa.", canManage() ? '<button class="btn" data-nav="relatorios">Exportar CSV</button>' : "") +
+      '<div class="chips" role="group" aria-label="Filtro" style="margin-bottom:14px">' + opts.map(function (o) { return '<button class="chip" data-rfilter="' + o[0] + '" aria-pressed="' + (f === o[0]) + '">' + o[1] + "</button>"; }).join("") + "</div>" +
+      '<p class="small muted" style="margin-bottom:8px">' + list.length + " respostas</p>" +
+      '<div class="list">' + list.slice(0, 50).map(function (r) {
+        var s = STATUS[r.status];
+        return '<button class="row click" data-nav="resposta" data-id="' + r.id + '"><span class="score ' + cat(r.score) + '">' + r.score + '</span><span class="grow"><strong>' + esc(r.name) + '</strong><span class="meta">' + secName(r.sector) + " · " + attName(r.attendant) + " · " + fmtDate(r.at) + (r.reasons.length ? " · " + esc(r.reasons.join(", ")) : "") + "</span>" + (r.comment ? '<span class="small">“' + esc(r.comment) + "”</span>" : "") + "</span>" + (s[1] ? '<span class="badge ' + s[1] + '">' + s[0] + "</span>" : "") + "</button>";
+      }).join("") + "</div>" + (list.length > 50 ? '<p class="muted small mt">Mostrando 50 de ' + list.length + ".</p>" : "");
+  };
+
+  V.resposta = function () {
+    var r = byId(responses, S.id); if (!r) return V.respostas();
+    var s = STATUS[r.status], c = cat(r.score);
+    var others = responses.filter(function (x) { return x.name === r.name && x.id !== r.id; });
+    var aiTone = r.score <= 6 ? ["negativo", "detractor"] : r.score >= 9 ? ["positivo", "promoter"] : ["neutro", "passive"];
+    return back("respostas", "Respostas") +
+      head(r.name, secName(r.sector) + " · " + attName(r.attendant) + " · " + fmtDT(r.at) + " · canal " + r.channel, (s[1] ? '<span class="badge ' + s[1] + '">' + s[0] + "</span>" : "")) +
+      '<div class="grid g32"><div class="grid">' +
+        '<div class="card"><div style="display:flex;gap:14px;align-items:center"><span class="score ' + c + '" style="width:56px;height:56px;font-size:22px">' + r.score + '</span><div><strong>' + CAT[c] + '</strong><div class="muted small">Pesquisa: ' + byId(surveys, r.survey).name + "</div></div></div>" +
+        (r.reasons.length ? '<div class="mt"><span class="muted small">Motivos</span><div class="chips" style="margin-top:4px">' + r.reasons.map(function (x) { return '<span class="badge ' + (r.score <= 6 ? "detractor" : "promoter") + '">' + esc(x) + "</span>"; }).join("") + "</div></div>" : "") +
+        (r.comment ? '<blockquote style="margin:14px 0 0;padding-left:12px;border-left:3px solid var(--line)">' + esc(r.comment) + "</blockquote>" : '<p class="muted small mt">Sem comentário.</p>') +
+        (r.audio ? '<div class="mt" style="display:grid;gap:8px"><span class="small muted">Áudio do cliente</span><div class="audio"><button class="play" data-act="playaudio" aria-label="Ouvir áudio">' + ic("play", 14) + '</button><span class="wave" aria-hidden="true">' + [6, 12, 18, 10, 20, 14, 8, 16, 22, 12, 6, 14, 18, 10, 8, 12, 16, 20, 10, 6].map(function (h) { return '<i style="height:' + h + 'px"></i>'; }).join("") + '</span><span class="small tab">' + r.audio + '</span></div><p class="small muted">Transcrição: “' + esc(r.transcript) + "”</p></div>" : "") + "</div>" +
+        '<div class="card"><h3>Análise da IA</h3><p class="sub">Sentimento e temas do comentário</p><div class="chips"><span class="badge ' + aiTone[1] + '">Sentimento ' + aiTone[0] + "</span>" + (r.comment ? '<span class="badge">' + (r.score <= 6 ? "tempo de espera" : "atendimento") + "</span>" : "") + "</div>" + (r.score <= 6 && canManage() ? '<div class="mt"><button class="btn sm" data-act="suggestmsg">Sugerir mensagem para o cliente</button></div><div id="sugg" class="mt"></div>' : "") + "</div>" +
+        (canManage() && r.score <= 6 ? '<div class="card"><h3>Tratativa</h3><p class="sub">Fale com o cliente e registre o que foi feito</p><div class="form">' +
+          (r.phone ? '<div class="small">WhatsApp: <strong>' + r.phone + "</strong> " + (settings.whatsapp.connected ? '<button class="btn sm" data-act="wa">Enviar mensagem pelo WhatsApp oficial</button>' : "") + "</div>" : "") +
+          (r.contact ? '<div class="small">E-mail: <strong>' + r.contact + "</strong></div>" : "") +
+          (!r.phone && !r.contact ? '<p class="small muted">O cliente não deixou contato.</p>' : "") +
+          '<div class="two"><label class="field">Responsável<select id="rs-owner">' + members.filter(function (m) { return m.role !== "attendant"; }).map(function (m) { return "<option" + (m.name === r.assigned ? " selected" : "") + ">" + m.name + "</option>"; }).join("") + '</select></label><label class="field">Status<select id="rs-status">' + ["new", "in_progress", "contacted", "resolved"].map(function (k) { return '<option value="' + k + '"' + (k === r.status ? " selected" : "") + ">" + STATUS[k][0] + "</option>"; }).join("") + '</select></label></div><label class="field">O que foi feito<textarea id="rs-note" placeholder="Ex.: liguei, pedi desculpas e agendei a revisão">' + esc(r.note) + '</textarea></label><div class="actions"><button class="btn primary" data-act="saveresp">Salvar tratativa</button><button class="btn" data-act="contactnow">Registrar contato agora</button></div></div></div>' : "") +
+      '</div><div class="grid">' +
+        '<div class="card"><h3>Linha do tempo</h3><div class="timeline mt">' + r.events.slice().reverse().map(function (e) { return "<div>" + esc(e.text) + '<div class="when">' + fmtDT(e.at) + "</div></div>"; }).join("") + "</div></div>" +
+        '<div class="card"><h3>Cliente</h3><p class="sub">' + (others.length ? others.length + " outra(s) resposta(s)" : "Primeira resposta deste cliente") + "</p>" + others.slice(0, 4).map(function (o) { return '<div class="small" style="display:flex;gap:8px;align-items:center;margin-bottom:6px"><span class="score ' + cat(o.score) + '" style="width:28px;height:28px;font-size:12px">' + o.score + "</span>" + fmtDate(o.at) + "</div>"; }).join("") + (canManage() ? '<button class="link" data-nav="cliente" data-id="' + esc(r.name) + '">Ver o histórico deste cliente</button>' : "") +
+        (isOwner() ? '<div class="mt"><button class="btn sm ghost danger" data-act="anon">Anonimizar resposta (LGPD)</button></div>' : "") + "</div>" +
+      "</div></div>";
+  };
+
+  // ---------- Clientes ----------
+  function customersMap() {
+    var map = {};
+    responses.forEach(function (r) { (map[r.name] = map[r.name] || []).push(r); });
+    return Object.keys(map).map(function (k) {
+      var l = map[k].slice().sort(function (a, b) { return a.at - b.at; });
+      var lowIdx = -1; l.forEach(function (x, i) { if (x.score <= 6) lowIdx = i; });
+      var hadLow = l.some(function (x) { return x.score <= 6; });
+      var firstLow = l.findIndex(function (x) { return x.score <= 6; });
+      var after = firstLow >= 0 ? l.slice(firstLow + 1) : [];
+      var last = l[l.length - 1];
+      var sit = !hadLow ? ["Sem problemas", ""] : last.score >= 9 && firstLow < l.length - 1 ? ["Recuperado de verdade", "promoter"] : after.some(function (x) { return x.score >= 7; }) && last.score > 6 ? ["Melhorou", "passive"] : ["Em risco", "detractor"];
+      return { name: k, list: l, last: last, sit: sit, contact: (l.filter(function (x) { return x.contact; })[0] || {}).contact, phone: (l.filter(function (x) { return x.phone; })[0] || {}).phone };
+    });
+  }
+  V.clientes = function () {
+    var rows = customersMap().sort(function (a, b) { var o = { "Recuperado de verdade": 0, "Em risco": 1, "Melhorou": 2, "Sem problemas": 3 }; return o[a.sit[0]] - o[b.sit[0]] || b.last.at - a.last.at; });
+    var q = (S.cq || "").toLowerCase();
+    if (q) rows = rows.filter(function (c) { return c.name.toLowerCase().indexOf(q) >= 0; });
+    var leaving = customersMap().filter(function (c) { if (c.list.length < 2) return c.last.score >= 9 && NOW - c.last.at > 60 * DAY; var pv = c.list[c.list.length - 2]; return c.last.score <= pv.score - 3; }).slice(0, 4);
+    var leavingCard = leaving.length ? '<div class="card" style="margin-bottom:16px"><div class="insight"><span class="ib" style="background:var(--passive-bg);color:var(--passive)">' + ic("user", 20) + '</span><div style="flex:1;min-width:0"><h3>Podem estar indo embora</h3><p class="sub">A nota caiu bastante ou um cliente bom parou de voltar. Vale ligar antes de perder.</p><div class="list">' + leaving.map(function (c) { var pv = c.list[c.list.length - 2]; return '<div class="row"><span class="grow"><strong>' + esc(c.name) + '</strong><span class="meta">' + (pv ? "Nota caiu de " + pv.score + " para " + c.last.score : "Promotor que não volta há " + Math.round((NOW - c.last.at) / DAY) + " dias") + '</span></span><button class="btn sm" data-act="callclient">Pedir contato</button></div>'; }).join("") + "</div></div></div></div>" : "";
+    return head("Clientes", "Cada cliente com todas as respostas. Recuperado de verdade é quem deu nota baixa e depois avaliou bem.") + leavingCard +
+      '<div class="actions" style="margin-bottom:12px"><input type="text" id="cq" placeholder="Buscar por nome" value="' + esc(S.cq || "") + '" style="max-width:280px" aria-label="Buscar cliente"></div>' +
+      '<div class="list">' + rows.slice(0, 60).map(function (c) {
+        return '<button class="row click" data-nav="cliente" data-id="' + esc(c.name) + '"><span class="score ' + cat(c.last.score) + '">' + c.last.score + '</span><span class="grow"><strong>' + esc(c.name) + '</strong><span class="meta">' + c.list.length + (c.list.length === 1 ? " resposta" : " respostas") + " · última em " + fmtDate(c.last.at) + (c.contact ? " · " + c.contact : "") + '</span></span><span class="badge ' + c.sit[1] + '">' + c.sit[0] + "</span></button>";
+      }).join("") + "</div>";
+  };
+  V.cliente = function () {
+    var c = customersMap().filter(function (x) { return x.name === S.id; })[0]; if (!c) return V.clientes();
+    return back("clientes", "Clientes") + head(c.name, [c.phone, c.contact].filter(Boolean).join(" · ") || "Sem contato autorizado", '<span class="badge ' + c.sit[1] + '">' + c.sit[0] + "</span>") +
+      '<div class="grid g4">' + stat("Respostas", c.list.length) + stat("Última nota", c.last.score) + stat("Primeira resposta", fmtDate(c.list[0].at)) + stat("Convites", c.contact ? 2 : 0) + "</div>" +
+      '<div class="card mt"><h3>Todas as respostas</h3><div class="list" style="margin-top:10px">' + c.list.slice().reverse().map(function (r) { return '<button class="row click" data-nav="resposta" data-id="' + r.id + '"><span class="score ' + cat(r.score) + '">' + r.score + '</span><span class="grow"><span>' + fmtDate(r.at) + " · " + secName(r.sector) + '</span><span class="meta">' + esc(r.comment || "Sem comentário") + "</span></span></button>"; }).join("") + "</div></div>" +
+      (isOwner() ? '<div class="mt"><button class="btn sm ghost danger" data-act="delcustomer">Apagar dados do cliente (LGPD)</button></div>' : "");
+  };
+
+  // ---------- Planos de ação ----------
+  V.planos = function () {
+    var today = offsetDate(0);
+    return head("Planos de ação", "Trate a causa: cada tema que incomoda vira um plano com responsável e prazo, e o AvaliaJá mostra se as menções caíram depois.", '<button class="btn primary" data-nav="plano-novo">+ Novo plano</button>') +
+      (plans.length ? '<div class="list">' + plans.map(function (p) {
+        var late = p.due && p.due < today && p.status !== "Concluído";
+        var tone = p.status === "Concluído" ? "promoter" : p.status === "Em andamento" ? "passive" : "";
+        return '<button class="row click" data-nav="plano" data-id="' + p.id + '"><span class="grow"><strong>' + esc(p.title) + '</strong><span class="meta">Tema: ' + esc(p.theme) + " · " + esc(p.owner) + "</span></span>" + (p.due ? '<span class="small ' + (late ? "down" : "muted") + '">' + (late ? "Atrasado · " : "Prazo ") + fmtDay(p.due) + "</span>" : "") + '<span class="badge ' + tone + '">' + p.status + "</span></button>";
+      }).join("") + "</div>" : '<p class="muted">Nenhum plano ainda.</p>');
+  };
+  V.plano = function () {
+    var p = byId(plans, S.id); if (!p) return V.planos();
+    var mention = function (l) { return l.length ? Math.round(l.filter(function (r) { return r.reasons.indexOf(p.theme) >= 0; }).length / l.length * 1000) / 10 : null; };
+    var before = responses.filter(function (r) { return r.at >= p.start - 30 * DAY && r.at < p.start; }), after = responses.filter(function (r) { return r.at >= p.start; });
+    var bM = mention(before), aM = mention(after), bN = nps(before), aN = nps(after), days = Math.round((NOW - p.start) / DAY);
+    var d = bM == null || aM == null ? null : Math.round((aM - bM) * 10) / 10;
+    var verdict = d == null ? "Ainda não há respostas suficientes para comparar." : d < 0 ? "As menções a “" + p.theme + "” caíram " + num(-d, 1) + " p.p. desde o início." : d > 0 ? "As menções a “" + p.theme + "” subiram " + num(d, 1) + " p.p. desde o início." : "As menções estão iguais às de antes.";
+    var sg = function (v, pp) { return v == null ? "—" : (v > 0 ? "+" : "") + num(v, pp ? 1 : 0) + (pp ? " p.p." : ""); };
+    return back("planos", "Planos de ação") + head(p.title, p.kind + ": “" + p.theme + "” · Toda a empresa · início em " + fmtDate(p.start), '<span class="badge ' + (p.status === "Concluído" ? "promoter" : "passive") + '">' + p.status + "</span>") +
+      '<div class="card"><h3>Antes e depois</h3><p class="sub">30 dias antes do início × ' + days + ' dias desde o início</p><p class="verdict">' + esc(verdict) + "</p>" + (days < 14 || after.length < 5 ? '<p class="muted small">Resultado parcial: o ideal é esperar ao menos 14 dias e 5 respostas em cada período.</p>' : "") +
+      '<div class="scroll-x mt"><table class="data"><thead><tr><th>Indicador</th><th>Antes</th><th>Depois</th><th>Variação</th></tr></thead><tbody><tr><td>Respostas que citam o tema</td><td>' + (bM == null ? "—" : num(bM, 1) + "%") + "</td><td>" + (aM == null ? "—" : num(aM, 1) + "%") + '</td><td class="' + (d < 0 ? "up" : "down") + '">' + sg(d, true) + "</td></tr><tr><td>NPS</td><td>" + bN + "</td><td>" + aN + '</td><td class="' + (aN >= bN ? "up" : "down") + '">' + sg(aN - bN) + "</td></tr><tr><td>Respostas no período</td><td>" + before.length + "</td><td>" + after.length + "</td><td>—</td></tr></tbody></table></div></div>" +
+      '<div class="card mt"><h3>Andamento</h3><div class="form mt"><div class="two"><label class="field">Responsável<select id="pl-owner">' + members.filter(function (m) { return m.role !== "attendant"; }).map(function (m) { return "<option" + (m.name === p.owner ? " selected" : "") + ">" + m.name + "</option>"; }).join("") + '</select></label><label class="field">Status<select id="pl-status">' + ["A fazer", "Em andamento", "Concluído", "Cancelado"].map(function (s) { return "<option" + (s === p.status ? " selected" : "") + ">" + s + "</option>"; }).join("") + '</select></label></div><label class="field">Prazo<input type="date" id="pl-due" value="' + p.due + '"></label><label class="field">Anotações<textarea id="pl-notes">' + esc(p.notes) + '</textarea></label><div class="actions"><button class="btn primary" data-act="saveplan">Salvar plano</button>' + (isOwner() ? '<button class="btn ghost danger" data-act="delplan">Excluir plano</button>' : "") + "</div></div></div>";
+  };
+  V["plano-novo"] = function () {
+    return back("planos", "Planos de ação") + head("Novo plano de ação", "Escolha o tema que mais pesa, o responsável e o prazo. A partir de hoje o AvaliaJá compara as menções a esse tema com os 30 dias anteriores.") +
+      '<form class="form card" id="planform"><label class="field">O que vamos fazer<input type="text" id="np-title" required minlength="3" placeholder="Ex.: Retorno em até 2 h para quem ligar"></label><div class="two"><label class="field">Origem do tema<select><option>Motivo marcado pelos clientes</option><option>Tema dos comentários (IA)</option></select></label><label class="field">Tema<input type="text" id="np-theme" value="' + esc(S.prefill) + '" required><span class="hint">Igual ao do painel; é o que o antes e depois mede.</span></label></div><div class="two"><label class="field">Responsável<select id="np-owner">' + members.filter(function (m) { return m.role !== "attendant"; }).map(function (m) { return "<option>" + m.name + "</option>"; }).join("") + '</select></label><label class="field">Prazo<input type="date" id="np-due" value="' + offsetDate(30) + '"></label></div><label class="field">Anotações<textarea id="np-notes" placeholder="Passos, quem ajuda, o que já foi feito…"></textarea></label><div><button class="btn primary" type="submit">Criar plano</button></div></form>';
+  };
+
+  // ---------- Google ----------
+  V.google = function () {
+    var rt = S.repTab || "google";
+    var tabsRep = '<div class="tabs">' + [["google", "Google"], ["reclame", "Reclame Aqui"], ["instagram", "Instagram"]].map(function (x) { var n = x[0] === "google" ? reviews.filter(function (r) { return !r.reply; }).length : mentions[x[0]].filter(function (m) { return !m.reply; }).length; return '<button data-reptab="' + x[0] + '" aria-current="' + (rt === x[0] ? "page" : "false") + '">' + x[1] + (n ? ' <span class="badge detractor">' + n + "</span>" : "") + "</button>"; }).join("") + "</div>";
+    if (rt !== "google") {
+      return head("Reputação online", "Tudo o que falam da empresa na internet num lugar só, com resposta sugerida pela IA.") + tabsRep + '<div class="list">' + mentions[rt].map(function (m) { return '<div class="card" style="display:grid;gap:10px"><div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center"><strong>' + esc(m.who) + '</strong><span class="badge">' + esc(m.title) + '</span><span class="muted small">' + fmtDate(m.at) + "</span></div><div>" + esc(m.text) + "</div>" + (m.reply ? '<div class="reply"><strong>Sua resposta</strong><div>' + esc(m.reply) + "</div></div>" : '<textarea id="mr-' + m.id + '" aria-label="Resposta" placeholder="Escreva a resposta"></textarea><div class="actions"><button class="btn primary sm" data-mreply="' + m.id + '">Publicar resposta</button><button class="btn sm" data-msuggest="' + m.id + '">' + ic("spark", 14) + " Sugerir com IA</button></div>") + "</div>"; }).join("") + '</div><p class="small muted mt">' + (rt === "reclame" ? "Respostas rápidas no Reclame Aqui melhoram a nota de reputação da empresa." : "Comentários e menções públicas do perfil da empresa.") + "</p>";
+    }
+    var f = S.gFilter;
+    var list = reviews.filter(function (r) { return f === "todas" || (f === "sem" && !r.reply) || (f === "neg" && r.stars <= 2); }).sort(function (a, b) { return b.at - a.at; });
+    var pts = googleMonths.map(function (v, i) { var d = new Date(NOW); d.setMonth(d.getMonth() - 11 + i); return { label: d.toLocaleDateString("pt-BR", { month: "short" }).replace(".", "") + "/" + String(d.getFullYear()).slice(2), v: v }; });
+    return head("Reputação online", "Google, Reclame Aqui e Instagram num lugar só. Aqui: as avaliações do Google e a evolução das estrelas.", '<button class="btn sm" data-act="gsync">Sincronizar agora</button>' + (isOwner() ? '<button class="btn sm ghost danger" data-act="gdisc">Desconectar</button>' : "")) +
+      tabsRep + '<p class="muted small" style="margin-top:-6px;margin-bottom:12px">Prime Veículos · Centro · conectado como dono@primeveiculos.com.br · atualizado há 12 min</p>' +
+      '<div class="grid g3">' + stat("Média no Google", "4,4") + stat("Avaliações", "312") + stat("Sem resposta", reviews.filter(function (r) { return !r.reply; }).length) + "</div>" +
+      '<div class="card mt"><h3>Evolução das estrelas</h3><p class="sub">Média geral ao fim de cada mês, nos últimos 12 meses</p>' + chart({ type: "line", points: pts, min: 1, max: 5, ticks: [1, 2, 3, 4, 5], label: "Evolução das estrelas", fmt: function (v) { return num(v, v % 1 ? 1 : 0); }, table: ["Mês", "Média"] }) + "</div>" +
+      '<div style="display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px;align-items:center;margin:22px 0 10px"><h2 style="font-size:18px">Avaliações</h2><div class="chips">' + [["todas", "Todas"], ["sem", "Sem resposta"], ["neg", "1 e 2 estrelas"]].map(function (o) { return '<button class="chip" data-gfilter="' + o[0] + '" aria-pressed="' + (f === o[0]) + '">' + o[1] + "</button>"; }).join("") + "</div></div>" +
+      '<div class="list">' + (list.length ? list.map(reviewCard).join("") : '<p class="muted">Todas as avaliações têm resposta.</p>') + "</div>";
+  };
+  function reviewCard(r) {
+    return '<div class="card" style="display:grid;gap:10px"><div style="display:flex;flex-wrap:wrap;gap:10px;align-items:center"><strong>' + esc(r.who || "Cliente anônimo") + "</strong>" + stars(r.stars) + '<span class="muted small">' + fmtDate(r.at) + "</span></div>" + (r.text ? "<div>" + esc(r.text) + "</div>" : '<div class="muted small">Sem comentário, só a nota.</div>') +
+      (r.reply ? '<div class="reply"><strong>Sua resposta</strong><div>' + esc(r.reply) + '</div><div><button class="btn sm danger ghost" data-unreply="' + r.id + '">Apagar resposta</button></div></div>'
+        : canManage() ? '<label class="field" for="rp-' + r.id + '">Responder no Google</label><textarea id="rp-' + r.id + '" placeholder="A resposta fica pública no Google, abaixo da avaliação."></textarea><div class="actions"><button class="btn primary sm" data-reply="' + r.id + '">Publicar resposta</button><button class="btn sm" data-suggest="' + r.id + '">Usar sugestão</button></div>' : "") + "</div>";
+  }
+  function suggestion(r) {
+    var hi = r.who ? "Olá, " + r.who.split(" ")[0] + "!" : "Olá!";
+    if (r.stars >= 4) return hi + " Muito obrigado pela avaliação. Ficamos felizes com a sua experiência e esperamos ver você de novo. Equipe Prime Veículos";
+    if (r.stars === 3) return hi + " Obrigado pelo retorno. Queremos melhorar: conte para nós o que faltou para ser nota máxima. Equipe Prime Veículos";
+    return hi + " Sentimos muito pela sua experiência. Queremos entender o que aconteceu e resolver: fale com a gente pelos nossos canais de atendimento. Equipe Prime Veículos";
+  }
+
+  // ---------- Equipe ----------
+  function attStats(a, days) { var l = between(days || 30, 0).filter(function (r) { return r.attendant === a.id; }); return { id: a.id, n: l.length, nps: nps(l), pro: l.filter(function (r) { return r.score >= 9; }).length, list: l }; }
+  V.equipe = function () {
+    var rows = attendants.filter(function (a) { return a.active && (S.role !== "manager" || a.sector === "s1"); }).map(function (a) { return [a, attStats(a)]; }).sort(function (x, y) { return (y[1].nps || -999) - (x[1].nps || -999); });
+    var created = S.newColab ? '<div class="notice mt" style="display:grid;gap:10px"><strong>Perfil de ' + esc(S.newColab.name) + ' criado. Este é o link dele para usar no dia a dia:</strong><div style="display:flex;gap:14px;flex-wrap:wrap;align-items:center"><div class="qr" data-url="' + S.newColab.url + '"></div><div style="display:grid;gap:8px;min-width:0;flex:1"><code class="f" id="colab-link">' + S.newColab.url + '</code><div class="actions"><button class="btn sm" data-copy="colab-link">Copiar link</button><button class="btn sm" data-act="sendaccess">Enviar acesso por WhatsApp</button><button class="btn sm" data-nav="crachas" data-id="v2">Imprimir crachá</button></div><span class="small muted">O link já identifica o colaborador: toda avaliação feita por ele entra no perfil e no ranking. O acesso ao app chega no WhatsApp ou e-mail informado.</span></div></div></div>' : "";
+    return head("Equipe", "Ranking dos " + terms.attendants.toLowerCase() + " pelo NPS dos últimos 30 dias.", '<button class="btn primary" data-act="togglenew">+ Novo colaborador</button>') +
+      (S.showNew ? '<form class="card form" id="colabform" style="max-width:none;margin-bottom:16px"><h3>Novo colaborador</h3><div class="two"><label class="field">Nome completo<input type="text" id="nc-name" required minlength="3"></label><label class="field">Setor<select id="nc-sector">' + sectors.filter(function (x) { return S.role !== "manager" || x.id === "s1"; }).map(function (x) { return '<option value="' + x.id + '">' + x.name + "</option>"; }).join("") + '</select></label></div><div class="two"><label class="field">WhatsApp ou e-mail<input type="text" id="nc-contact" placeholder="Para enviar o acesso"></label><label class="field">Cargo<input type="text" id="nc-role" placeholder="Ex.: Consultor de vendas"></label></div><div class="actions"><button class="btn primary" type="submit">Criar perfil e gerar link</button><button class="btn ghost" type="button" data-act="togglenew">Cancelar</button></div></form>' : "") + created +
+      '<div class="card"><div class="scroll-x"><table class="data"><thead><tr><th>#</th><th>' + terms.attendant + "</th><th>Setor</th><th>Respostas</th><th>Promotores</th><th>NPS</th></tr></thead><tbody>" +
+      rows.map(function (x, i) { return '<tr class="click" data-nav="atendente" data-id="' + x[0].id + '"><td>' + (i + 1) + (i === 0 ? " 🏆" : "") + "</td><td style=\"text-align:left\">" + x[0].name + '</td><td style="text-align:left">' + secName(x[0].sector) + "</td><td>" + x[1].n + "</td><td>" + x[1].pro + '</td><td class="' + (x[1].nps >= 50 ? "up" : x[1].nps < 0 ? "down" : "") + '"><strong>' + (x[1].nps == null ? "—" : x[1].nps) + "</strong></td></tr>"; }).join("") +
+      "</tbody></table></div></div>";
+  };
+  V.atendente = function () {
+    var a = byId(attendants, S.id) || attendants[0], st = attStats(a, 30);
+    var pts = []; for (var w = 7; w >= 0; w--) { var l = between((w + 1) * 7, w * 7).filter(function (r) { return r.attendant === a.id; }); pts.push({ label: fmtDate(NOW - (w + 1) * 7 * DAY).slice(0, 5), v: nps(l) }); }
+    var praise = st.list.filter(function (r) { return r.score >= 9 && r.comment; }).slice(0, 4);
+    return (S.view === "atendente" ? back("equipe", "Equipe") : "") + head(S.view === "meu" ? "Meu desempenho" : a.name, secName(a.sector) + " · últimos 30 dias", '<button class="btn sm" data-act="profile">Ver perfil público</button>') +
+      '<div class="grid g4">' + stat("NPS", st.nps == null ? "—" : st.nps) + stat("Respostas", st.n) + stat("Promotores", st.pro) + stat("Posição no ranking", "2º de 5") + "</div>" +
+      '<div class="grid g32 mt"><div class="card"><h3>Evolução do NPS</h3><p class="sub">Por semana</p>' + chart({ type: "line", points: pts, min: -100, max: 100, ticks: [-100, -50, 0, 50, 100], zero: 0, label: "NPS por semana" }) + '</div><div class="card"><h3>Elogios recentes</h3><div class="grid mt">' + (praise.length ? praise.map(function (r) { return '<div class="small"><span class="badge promoter">' + r.score + "</span> “" + esc(r.comment) + '” <span class="muted">· ' + fmtDate(r.at) + "</span></div>"; }).join("") : '<p class="muted small">Sem elogios com comentário no período.</p>') + "</div></div></div>";
+  };
+  V.meu = function () { S.id = "a1"; return V.atendente(); };
+
+  // ---------- Pesquisas ----------
+  V.pesquisas = function () {
+    return head(S.role === "manager" ? "Pesquisa NPS" : "Pesquisas", "Crie, edite e compartilhe as pesquisas. Cada uma tem link, QR code, crachás, envio automático e modo totem para tablet.", canManage() ? '<button class="btn" data-nav="totem">' + ic("tv", 16) + ' Modo totem (tablet)</button><button class="btn primary" data-nav="pesquisa-nova">+ Nova pesquisa</button>' : "") +
+      '<div class="list">' + surveys.map(function (v) {
+        var n = responses.filter(function (r) { return r.survey === v.id; }).length;
+        return '<div class="row"><span class="grow"><strong>' + v.name + '</strong><span class="meta">' + v.template + " · " + (v.sector ? secName(v.sector) : "Toda a empresa") + " · " + n + ' respostas · /r/' + v.slug + '</span></span><span class="badge ' + (v.status === "Ativa" ? "promoter" : "") + '">' + v.status + '</span><div class="actions">' + (canManage() ? '<button class="btn sm" data-nav="pesquisa" data-id="' + v.id + '">Editar</button>' : "") + '<button class="btn sm" data-nav="compartilhar" data-id="' + v.id + '">Compartilhar</button>' + (canManage() ? '<button class="btn sm" data-nav="enviar" data-id="' + v.id + '">Enviar para clientes</button>' : "") + "</div></div>";
+      }).join("") + "</div>";
+  };
+  V["pesquisa-nova"] = function () {
+    var tpl = [["NPS relacional", "Quanto o cliente recomendaria a empresa. Bom para medir de tempos em tempos."], ["Pós-atendimento", "Logo depois do atendimento, com o nome de quem atendeu."], ["Pós-compra", "Depois da venda, sobre a experiência de compra."], ["Pós-serviço / entrega", "Depois de um serviço ou entrega."], ["Avaliação do consultor", "Nota para a pessoa que atendeu."], ["Avaliação do setor", "Nota para uma área da empresa."], ["Em branco", "Monte do seu jeito."]];
+    return back("pesquisas", "Pesquisas") + head("Nova pesquisa", "Comece por um modelo; dá para mudar tudo depois. Sugeridos para concessionárias primeiro.") +
+      '<div class="grid g3">' + tpl.map(function (t) { return '<button class="card" style="text-align:left;cursor:pointer" data-act="newsurvey" data-name="' + t[0] + '"><h3>' + t[0] + '</h3><p class="small muted" style="margin-top:6px">' + t[1] + "</p></button>"; }).join("") + "</div>";
+  };
+  V.pesquisa = function () {
+    var v = byId(surveys, S.id) || surveys[0];
+    return back("pesquisas", "Pesquisas") + head(v.name, "Editar pesquisa · " + v.template, '<button class="btn" data-nav="publica">Ver como o cliente</button><button class="btn primary" data-act="savesurvey">Salvar</button>') +
+      '<div class="grid g32"><div class="grid"><div class="card"><div class="form" style="max-width:none"><div class="two"><label class="field">Nome<input type="text" id="sv-name" value="' + esc(v.name) + '"></label><label class="field">Status<select id="sv-status"><option' + (v.status === "Ativa" ? " selected" : "") + ">Ativa</option><option" + (v.status === "Pausada" ? " selected" : "") + ">Pausada</option><option" + (v.status === "Arquivada" ? " selected" : "") + '>Arquivada</option></select></label></div><div class="two"><label class="field">Setor<select><option>Toda a empresa</option>' + sectors.map(function (s) { return "<option" + (s.id === v.sector ? " selected" : "") + ">" + s.name + "</option>"; }).join("") + '</select></label><label class="field">Perguntar quem atendeu<select><option' + (v.askAttendant ? " selected" : "") + ">Sim, com lista dos consultores</option><option" + (!v.askAttendant ? " selected" : "") + ">Não perguntar</option></select></label></div></div></div>" +
+      '<div class="card"><h3>Perguntas</h3><div class="grid mt">' + v.questions.map(function (q, i) { return '<div class="q"><div class="qh"><span class="badge accent">' + (i === 0 ? "Nota de 0 a 10 (principal)" : i === 1 ? "Motivos" : "Texto livre") + '</span><span class="actions"><button class="btn sm ghost" aria-label="Subir">↑</button><button class="btn sm ghost" aria-label="Descer">↓</button>' + (i ? '<button class="btn sm ghost danger" data-delq="' + i + '">Remover</button>' : "") + '</span></div><input type="text" value="' + esc(q) + '" aria-label="Pergunta ' + (i + 1) + '"></div>'; }).join("") + '</div><div class="actions mt"><button class="btn sm" data-act="addq">+ Pergunta</button></div></div>' +
+      '<div class="card"><h3>Depois da resposta</h3><div class="form mt" style="max-width:none"><label class="check"><input type="checkbox" checked> Convidar para avaliar no Google quem der nota alta</label><label class="field">A partir de qual nota o convite fica em destaque<select><option>9</option><option>8</option><option>7</option></select><span class="hint">O link do Google aparece para todos; nunca oferecemos brinde em troca de avaliação.</span></label><label class="check"><input type="checkbox" checked> Pedir contato (WhatsApp ou e-mail) a quem der nota baixa, com autorização</label><label class="field">Mensagem de agradecimento<textarea>Obrigado! Sua opinião ajuda a Prime Veículos a melhorar.</textarea></label></div></div></div>' +
+      '<div class="card"><h3>Prévia</h3><p class="sub">Como o cliente vê</p><div class="phone" style="border-width:8px"><div class="ph-head">' + company.name + '</div><div class="ph-body"><strong>' + esc(v.questions[0]) + '</strong><div class="nps-scale">' + [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(function (n) { return "<button tabindex=\"-1\">" + n + "</button>"; }).join("") + '</div><div class="ends"><span>Nada provável</span><span>Muito provável</span></div><button class="send" tabindex="-1">Enviar avaliação</button></div></div></div></div>';
+  };
+  V.compartilhar = function () {
+    var v = byId(surveys, S.id) || surveys[0], url = "https://avaliaja.com.br/r/" + v.slug;
+    var msg = "Olá! Obrigado por escolher a " + company.name + ". Conta pra gente como foi? Leva menos de 1 minuto: " + url;
+    return back("pesquisas", "Pesquisas") + head("Compartilhar: " + v.name, "Use o canal que combina com o seu atendimento. Cada canal aparece separado nos relatórios.") +
+      '<div class="grid g2"><div class="card"><h3>Link e QR code</h3><p class="sub">Imprima no balcão, na nota fiscal ou no cartão</p><div style="display:flex;gap:16px;flex-wrap:wrap;align-items:center"><div class="qr" id="qr" data-url="' + url + '?c=qr"></div><div style="display:grid;gap:8px;min-width:0;flex:1"><code class="f" id="surl">' + url + '</code><div class="actions"><button class="btn sm" data-copy="surl">Copiar link</button><button class="btn sm" data-nav="crachas" data-id="' + v.id + '">Crachás e cartaz</button></div></div></div></div>' +
+      '<div class="card"><h3>WhatsApp</h3><p class="sub">Mensagem pronta para mandar depois do atendimento</p><code class="f" id="wmsg" style="white-space:pre-wrap">' + esc(msg) + '</code><div class="actions mt"><button class="btn sm" data-copy="wmsg">Copiar mensagem</button><button class="btn sm" data-nav="enviar" data-id="' + v.id + '">Enviar automático</button></div></div>' +
+      '<div class="card"><h3>No seu site</h3><p class="sub">Botão que abre a pesquisa numa janela</p><code class="f" id="wcode">&lt;script src="https://avaliaja.com.br/widget.js" data-pesquisa="' + v.slug + '" async&gt;&lt;/script&gt;</code><div class="actions mt"><button class="btn sm" data-copy="wcode">Copiar código</button></div></div>' +
+      '<div class="card"><h3>Por ' + terms.attendant.toLowerCase() + '</h3><p class="sub">Link que já marca quem atendeu</p><div class="list">' + attendants.filter(function (a) { return a.active; }).slice(0, 4).map(function (a) { return '<div class="small" style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap"><span>' + a.name + '</span><code style="font-family:var(--mono)">/r/' + v.slug + "?p=" + a.id + "</code></div>"; }).join("") + "</div></div></div>";
+  };
+  V.crachas = function () {
+    var v = byId(surveys, S.id) || surveys[0];
+    return back("compartilhar", "Compartilhar", v.id) + head("Crachás e cartaz", "Gere o PDF para imprimir. Cada crachá leva o QR code que já identifica a pessoa.", '<button class="btn primary" data-act="pdf">Baixar PDF</button>') +
+      '<div class="grid g4">' + attendants.filter(function (a) { return a.active; }).map(function (a) { return '<div class="badge-card"><strong style="color:' + company.color + '">' + company.name + '</strong><div class="qr" data-url="https://avaliaja.com.br/r/' + v.slug + "?p=" + a.id + '"></div><strong>' + a.name + '</strong><span class="small muted">Como foi meu atendimento? Aponte a câmera.</span></div>'; }).join("") + "</div>" +
+      '<div class="card mt" style="max-width:420px"><h3>Cartaz A4</h3><div class="badge-card mt" style="padding:28px"><strong style="font-size:22px;color:' + company.color + '">Sua opinião vale muito!</strong><div class="qr" data-url="https://avaliaja.com.br/r/' + v.slug + '?c=cartaz"></div><span>Leva menos de 1 minuto. ' + company.name + "</span></div></div>";
+  };
+  V.enviar = function () {
+    var v = byId(surveys, S.id) || surveys[0];
+    return back("pesquisas", "Pesquisas") + head("Enviar para clientes", v.name + " · o convite sai por WhatsApp ou e-mail com o link pessoal da pesquisa.") +
+      '<div class="grid g32"><div class="card"><h3>Clientes</h3><p class="sub">Cole uma planilha (nome, telefone, e-mail, ' + terms.attendant.toLowerCase() + ") ou digite um por linha</p>" +
+      '<div class="form" style="max-width:none"><label class="field">Ou cole aqui<textarea id="inv-text" style="min-height:120px">nome,telefone,email\nMariana Lopes,11999990000,\nRoberto Dias,,roberto@email.com</textarea></label><div class="two"><label class="field">Canal<select id="inv-ch"><option>Automático (WhatsApp, senão e-mail)</option><option>WhatsApp</option><option>E-mail</option></select></label><label class="field">Quando enviar<select id="inv-when"><option value="0">Agora</option><option value="120">Daqui a 2 horas</option><option value="1440">Amanhã</option></select></label></div><div><button class="btn primary" data-act="sendinv">Enviar convites</button></div></div></div>' +
+      '<div class="card"><h3>Frequência</h3><p class="sub">Para não cansar quem já respondeu</p><label class="field">Dias entre convites para o mesmo cliente<input type="number" id="inv-days" min="0" max="365" value="' + settings.inviteDays + '"></label><div class="mt"><button class="btn sm" data-act="savedays">Salvar</button></div><p class="small muted mt">Cada convite tem o link “não quero mais receber”. Quem sai não recebe de novo.</p></div></div>' +
+      '<div class="card mt"><h3>Últimos convites</h3><div class="scroll-x"><table class="data"><thead><tr><th>Cliente</th><th>Contato</th><th>Canal</th><th>Status</th><th>Quando</th></tr></thead><tbody>' + invitations.map(function (i) { return "<tr><td>" + esc(i.name) + "</td><td>" + esc(i.contact) + "</td><td>" + i.channel + '</td><td><span class="badge ' + (i.status === "Respondeu" ? "promoter" : i.status === "Agendado" ? "passive" : "") + '">' + i.status + "</span></td><td>" + fmtDT(i.at) + "</td></tr>"; }).join("") + "</tbody></table></div></div>";
+  };
+
+  // ---------- Relatórios ----------
+  V.relatorios = function () {
+    return head("Relatórios", "PDF mensal para reunião, planilha das respostas e o resumo semanal por e-mail.") +
+      '<div class="grid g3"><div class="card"><h3>Relatório em PDF</h3><p class="sub">NPS, evolução, motivos, setores, equipe e comentários</p><div class="form"><label class="field">Mês<select><option>Este mês</option><option>Mês passado</option></select></label><label class="field">Setor<select><option>Todos</option>' + sectors.map(function (s) { return "<option>" + s.name + "</option>"; }).join("") + '</select></label><button class="btn primary" data-act="pdf">Gerar PDF</button></div></div>' +
+      '<div class="card"><h3>Planilha (CSV)</h3><p class="sub">Abre no Excel. Contatos só para proprietário e gestor (LGPD).</p><div class="form"><label class="field">Período<select><option>Últimos 30 dias</option><option>Últimos 90 dias</option></select></label><button class="btn" data-act="csv">Baixar CSV</button></div></div>' +
+      '<div class="card"><h3>Resumo semanal</h3><p class="sub">Toda segunda às 8h no seu e-mail</p><label class="check"><input type="checkbox"' + (settings.alerts.weekly ? " checked" : "") + ' id="weekly"> Receber o resumo semanal</label><p class="small muted mt">Inclui NPS da semana, comparação, quem está aguardando contato e o destaque da equipe.</p></div></div>' +
+      '<div class="card mt"><h3>Prévia do PDF</h3><div class="grid g4 mt">' + stat("NPS do mês", nps(between(30, 0))) + stat("Respostas", between(30, 0).length) + stat("Google: cliques", 31) + stat("Recuperados", 1) + "</div></div>";
+  };
+
+  // ---------- Configurações ----------
+  var CFG = [["empresa", "Empresa"], ["setores", "Setores"], ["atendentes", "Consultores"], ["motivos", "Motivos"], ["alertas", "Alertas"], ["whatsapp", "WhatsApp"], ["usuarios", "Usuários"], ["terminologia", "Terminologia"], ["plano", "Plano"], ["integracoes", "Integrações"], ["api", "API e webhooks"]];
+  V.config = function () {
+    var tabs = CFG.filter(function (t) { return isOwner() || ["motivos", "alertas"].indexOf(t[0]) >= 0; });
+    var t = S.tab, body = (CFGV[t] || CFGV.empresa)();
+    return head("Configurações", "") + '<div class="tabs" role="tablist">' + tabs.map(function (x) { return '<button data-tab="' + x[0] + '" aria-current="' + (t === x[0] ? "page" : "false") + '">' + x[1] + "</button>"; }).join("") + "</div>" + body;
+  };
+  var ro = function () { return isOwner() ? "" : " disabled"; };
+  var CFGV = {
+    empresa: function () {
+      return '<div class="card"><div class="form"><div class="two"><label class="field">Nome da empresa<input type="text" value="' + esc(company.name) + '"' + ro() + '></label><label class="field">CPF ou CNPJ<input type="text" value="' + company.document + '"' + ro() + '></label></div><label class="field">Segmento<input type="text" id="cf-seg" value="' + esc(company.segment) + '"' + ro() + '><span class="hint">Sugere motivos e define com quem seu NPS é comparado no painel.</span></label><div class="two"><label class="field">Cor da marca<input type="text" value="' + company.color + '"' + ro() + '></label><label class="field">Logo<input type="text" value="logo-prime.png"' + ro() + '></label></div><label class="field">Link de avaliação no Google<input type="url" value="https://g.page/r/prime-veiculos/review"' + ro() + '></label><label class="field">Política de privacidade<input type="url" placeholder="https://"' + ro() + "></label>" + (isOwner() ? '<div><button class="btn primary" data-act="saved">Salvar dados da empresa</button></div>' : '<p class="small muted">Somente o proprietário altera.</p>') + "</div></div>" +
+        '<div class="card mt"><h3>Meta de NPS</h3><p class="sub">O painel mostra quanto falta. Cada setor e cada pessoa também podem ter a própria meta.</p><div class="actions"><input type="number" value="' + company.goal + '" style="width:110px" aria-label="Meta de NPS"' + ro() + ">" + (isOwner() ? '<button class="btn" data-act="saved">Salvar</button>' : "") + "</div></div>" +
+        (isOwner() ? '<div class="card mt"><h3>Excluir empresa</h3><p class="sub">Apaga a empresa, as pesquisas e as respostas para sempre (LGPD).</p><button class="btn danger" data-act="nope">Excluir empresa</button></div>' : "");
+    },
+    setores: function () {
+      return '<div class="actions" style="margin-bottom:12px">' + (isOwner() ? '<button class="btn primary" data-act="addsector">+ Novo setor</button>' : "") + '</div><div class="list">' + sectors.map(function (s) { return '<div class="row"><span class="grow"><strong>' + s.name + '</strong><span class="meta">Meta de NPS ' + s.goal + " · " + attendants.filter(function (a) { return a.sector === s.id; }).length + " consultores</span></span><span class=\"badge " + (s.active ? "promoter" : "") + '">' + (s.active ? "Ativo" : "Inativo") + "</span>" + (isOwner() ? '<button class="btn sm" data-act="saved">Editar</button>' : "") + "</div>"; }).join("") + '</div><p class="small muted mt">Seu plano permite até 5 setores.</p>';
+    },
+    atendentes: function () {
+      return '<div class="actions" style="margin-bottom:12px"><button class="btn primary" data-act="addatt">+ Novo consultor</button></div><div class="list">' + attendants.map(function (a) { return '<div class="row"><span class="grow"><strong>' + a.name + '</strong><span class="meta">' + secName(a.sector) + " · perfil público /a/prime-veiculos/" + a.name.split(" ")[0].toLowerCase() + '</span></span><span class="badge ' + (a.active ? "promoter" : "") + '">' + (a.active ? "Ativo" : "Inativo") + '</span><button class="btn sm" data-toggleatt="' + a.id + '">' + (a.active ? "Desativar" : "Ativar") + "</button></div>"; }).join("") + "</div>";
+    },
+    motivos: function () {
+      function grp(title, list, key) { return '<div class="card"><h3>' + title + '</h3><div class="chips mt">' + list.map(function (r, i) { return '<span class="badge" style="gap:6px">' + esc(r) + ' <button class="link" data-delreason="' + key + ":" + i + '" aria-label="Remover ' + esc(r) + '">×</button></span>'; }).join("") + '</div><div class="actions mt"><input type="text" id="nr-' + key + '" placeholder="Novo motivo (até 28 letras)" maxlength="28" style="max-width:260px"><button class="btn sm" data-addreason="' + key + '">Adicionar</button></div></div>'; }
+      return '<div class="grid g2">' + grp("O que deu errado (notas baixas)", reasonsNeg, "neg") + grp("O que agradou (notas altas)", reasonsPos, "pos") + "</div>";
+    },
+    alertas: function () {
+      var a = settings.alerts;
+      return '<div class="card"><div class="form"><label class="field">Avisar quando a nota for até<select id="al-th"><option' + (a.threshold === 6 ? " selected" : "") + ">6</option><option>5</option><option>4</option></select></label><label class=\"check\"><input type=\"checkbox\"" + (a.email ? " checked" : "") + '> E-mail para os gestores do setor</label><label class="check"><input type="checkbox"' + (a.push ? " checked" : "") + '> Notificação no celular</label><label class="check"><input type="checkbox"' + (a.whatsapp ? " checked" : "") + '> WhatsApp para o gestor</label><label class="field">Prazo para o primeiro contato<select><option>4 horas</option><option>2 horas</option><option>24 horas</option></select></label><label class="check"><input type="checkbox"' + (a.escalation ? " checked" : "") + '> Se ninguém contatar no prazo, avisar o proprietário</label><div><button class="btn primary" data-act="saved">Salvar alertas</button></div></div></div>' +
+        '<div class="card mt"><h3>Bom-dia no WhatsApp do dono</h3><p class="sub">Todo dia às 8h, o resumo de ontem no seu WhatsApp</p><label class="check" style="margin-bottom:12px"><input type="checkbox" id="daily-wa"' + (dailyWa ? " checked" : "") + '> Enviar o resumo diário</label><div class="wa"><div class="bubble"><strong>AvaliaJá · Prime Veículos</strong>\nBom dia, Wendell! ☀️ Ontem:\n• NPS ' + nps(between(1, 0).length ? between(1, 0) : between(7, 0)) + " (" + between(7, 0).length + ' respostas na semana)\n• 2 clientes insatisfeitos, 1 já atendido\n• Rafael recebeu 3 elogios 👏\n• Oficina: “demora” voltou a aparecer\nResponda 1 para ver os detalhes.</div></div></div>' +
+        '<div class="card mt"><h3>Recuperação automática</h3><p class="sub">Quando a nota for até 6, o cliente recebe na hora uma mensagem de desculpas pelo WhatsApp oficial e um horário para conversar. O gestor entra só se o cliente responder.</p><label class="check"><input type="checkbox" id="auto-sorry"' + (autoSorry ? " checked" : "") + '> Ligar a recuperação automática</label><div class="wa mt"><div class="bubble">Olá, Ana! Aqui é da Prime Veículos. Vimos sua avaliação e sentimos muito. Podemos te ligar hoje para resolver? Responda com o melhor horário.</div></div></div>' +
+        '<div class="card mt"><h3>Notificação neste aparelho</h3><p class="sub">Receba as notas baixas na hora, mesmo com o app fechado</p><button class="btn" data-act="push">Ligar notificações neste aparelho</button></div>';
+    },
+    whatsapp: function () {
+      var w = settings.whatsapp;
+      return '<div class="card"><h3>WhatsApp oficial (Cloud API)</h3><p class="sub">Convites e mensagens de tratativa saem do número da empresa</p>' + (w.connected ? '<p><span class="badge promoter">Conectado</span> ' + w.phone + '</p><div class="form mt"><label class="field">Mensagens de tratativa<select><option>' + w.mode + "</option><option>Pedir aprovação antes de enviar</option></select></label><label class=\"field\">Modelo aprovado pela Meta<input type=\"text\" value=\"avaliaja_tratativa\" disabled></label><div><span class=\"small muted\">Uso no mês: " + w.used + " de " + w.limit + ' mensagens</span><div class="progress mt"><div style="width:' + w.used / w.limit * 100 + '%"></div></div></div><div class="actions"><button class="btn primary" data-act="saved">Salvar</button><button class="btn ghost danger" data-act="wadisc">Desconectar</button></div></div>' : '<button class="btn primary" data-act="waconn">Conectar número</button>') + "</div>";
+    },
+    usuarios: function () {
+      var RL = { owner: "Proprietário", manager: "Gestor", attendant: "Consultor" };
+      return '<div class="card"><h3>Convidar pessoa</h3><div class="actions mt"><input type="email" id="inv-email" placeholder="email@empresa.com" style="max-width:260px" aria-label="E-mail"><select id="inv-role" style="width:auto" aria-label="Papel"><option value="manager">Gestor</option><option value="attendant">Consultor</option></select><button class="btn primary" data-act="invite">Enviar convite</button></div></div>' +
+        '<div class="list mt">' + members.map(function (m) { return '<div class="row"><span class="grow"><strong>' + esc(m.name) + '</strong><span class="meta">' + esc(m.email) + " · " + m.sectors + '</span></span><span class="badge accent">' + RL[m.role] + "</span>" + (m.role !== "owner" && isOwner() ? '<button class="btn sm ghost danger" data-act="nope">Remover</button>' : "") + "</div>"; }).join("") + "</div>";
+    },
+    terminologia: function () {
+      return '<div class="card"><p class="sub">Use as palavras da sua empresa. O sistema inteiro, os e-mails e a pesquisa se ajustam.</p><div class="form"><div class="two"><label class="field">Como vocês chamam as áreas<input type="text" id="tm-s" value="' + terms.sector + '"></label><label class="field">No plural<input type="text" id="tm-ss" value="' + terms.sectors + '"></label></div><div class="two"><label class="field">Quem atende<input type="text" id="tm-a" value="' + terms.attendant + '"></label><label class="field">No plural<input type="text" id="tm-as" value="' + terms.attendants + '"></label></div><div><button class="btn primary" data-act="saveterms">Salvar</button></div></div></div>';
+    },
+    plano: function () {
+      var P = [["Equipe", "R$ 99", "1.000 respostas/mês · 2 setores · 5 consultores"], ["Empresa", "R$ 199", "5.000 respostas/mês · 5 setores · 20 consultores · IA · PDF"], ["Corporativo", "Sob consulta", "Ilimitado · API e webhooks · RD Station e HubSpot · marca própria"]];
+      return '<div class="notice" style="margin-bottom:16px">Teste grátis do plano Empresa: faltam ' + company.trialDays + ' dias.</div><div class="grid g3">' + P.map(function (p) { var cur = p[0] === company.plan; return '<div class="card" style="' + (cur ? "border-color:var(--accent)" : "") + '"><h3>' + p[0] + (cur ? ' <span class="badge accent">atual</span>' : "") + '</h3><div class="stat"><div class="value">' + p[1] + '<span class="small muted">' + (p[1].indexOf("R$") === 0 ? "/mês" : "") + '</span></div></div><p class="small muted">' + p[2] + '</p><div class="mt">' + (isOwner() ? '<button class="btn ' + (cur ? "" : "primary") + ' sm" data-act="' + (cur ? "pay" : "plan") + '">' + (cur ? "Assinar (Pix, boleto ou cartão)" : p[0] === "Corporativo" ? "Falar com vendas" : "Mudar para " + p[0]) + "</button>" : "") + "</div></div>"; }).join("") + '</div><p class="small muted mt">Anual com 2 meses grátis. Pagamento pelo Asaas.</p>';
+    },
+    integracoes: function () {
+      var url = "https://app.avaliaja.com.br/api/feed/Xk3v9QpL2mWc7RtY8bNa4HsD6fGj1KzE0uVqPw5ToM";
+      function crmCard(key, name, desc) {
+        var c = settings.crm[key];
+        return '<div class="card"><h3>' + name + ' <span class="badge">Corporativo</span></h3><p class="sub">' + desc + "</p>" + (c ? '<p class="small"><span class="badge promoter">Ligada</span> <span class="muted">Chave terminada em ' + c + '</span></p><button class="btn sm danger ghost" data-crmoff="' + key + '">Remover</button>' : '<div class="actions"><input type="text" id="crm-' + key + '" placeholder="Cole a chave aqui" style="max-width:300px" aria-label="Chave ' + name + '"><button class="btn primary sm" data-crm="' + key + '">Conectar</button></div>') + "</div>";
+      }
+      return '<div class="grid"><div class="card"><h3>Google Planilhas</h3><p class="sub">As respostas entram sozinhas numa planilha. Nome, telefone e e-mail do cliente não vão.</p>' + (settings.feed ? '<div class="notice" style="display:grid;gap:8px">Copie agora: por segurança o link não aparece de novo. Cole na célula A1 de uma planilha nova:<code class="f" id="formula">=IMPORTDATA("' + url + '")</code><div><button class="btn sm" data-copy="formula">Copiar fórmula</button></div></div>' : '<button class="btn primary" data-act="feed">Criar link da planilha</button>') + "</div>" +
+        crmCard("rdstation", "RD Station Marketing", "Cada resposta vira uma conversão com as tags avaliaja-promotor, -neutro ou -detrator. Só respostas com e-mail autorizado.") +
+        crmCard("hubspot", "HubSpot", "Atualiza o contato pelo e-mail e cria uma nota com a avaliação, os motivos e o comentário.") +
+        '<div class="card"><h3>Zapier e Make</h3><p class="sub">Pipedrive, Trello, Slack, Notion e milhares de outros apps</p><ol style="margin:0;padding-left:20px;display:grid;gap:6px"><li>No Zapier, crie o gatilho <strong>Webhooks › Catch Hook</strong> e copie o endereço.</li><li>Em <button class="link" data-tab="api">API e webhooks</button>, adicione o endereço e clique em <strong>Enviar teste</strong>.</li><li>Use os campos recebidos na ação que quiser.</li></ol></div></div>';
+    },
+    api: function () {
+      return '<div class="card"><h3>Chaves de API</h3><p class="sub">Envie no cabeçalho Authorization: Bearer &lt;chave&gt;. Somente leitura.</p><div class="list">' + apiKeys.map(function (k) { return '<div class="row"><span class="grow"><strong>' + esc(k.name) + '</strong><span class="meta">' + k.prefix + "… · criada em " + fmtDate(k.created) + " · usada " + fmtDT(k.used) + '</span></span><button class="btn sm ghost danger" data-act="nope">Revogar</button></div>'; }).join("") + '</div><div class="actions mt"><input type="text" id="key-name" placeholder="Nome da chave (ex.: BI)" style="max-width:260px" aria-label="Nome da chave"><button class="btn sm" data-act="newkey">Criar chave</button></div></div>' +
+        '<div class="card mt"><h3>Webhooks</h3><p class="sub">Aviso automático a cada resposta nova, assinado com HMAC</p><div class="list">' + webhooks.map(function (w) { return '<div class="row"><span class="grow"><strong style="word-break:break-all">' + esc(w.url) + '</strong><span class="meta">Último envio ' + fmtDT(w.last) + '</span></span><span class="badge promoter">Ativo</span><button class="btn sm" data-act="hooktest">Enviar teste</button></div>'; }).join("") + '</div><div class="actions mt"><input type="url" id="hook-url" placeholder="https://" style="max-width:320px" aria-label="Endereço do webhook"><button class="btn sm" data-act="newhook">Adicionar</button></div></div>';
+    }
+  };
+
+  // ---------- Conta ----------
+  V.conta = function () {
+    return head("Minha conta", "Seus dados de acesso e onde você recebe os avisos.") +
+      '<div class="grid g2"><div class="card"><div class="form"><label class="field">Nome<input type="text" value="Wendell"></label><label class="field">E-mail<input type="email" value="dono@primeveiculos.com.br"></label><label class="field">Nova senha<input type="password" placeholder="Mínimo 8 caracteres"></label><div><button class="btn primary" data-act="saved">Salvar</button></div></div></div>' +
+      '<div class="card"><h3>Empresas</h3><p class="sub">Você pode participar de mais de uma</p><div class="list"><div class="row"><span class="grow"><strong>Prime Veículos</strong><span class="meta">Proprietário</span></span><span class="badge accent">Atual</span></div><div class="row"><span class="grow"><strong>Prime Seminovos</strong><span class="meta">Gestor</span></span><button class="btn sm" data-act="switchco">Trocar</button></div></div><div class="mt"><button class="btn" data-act="push">Ligar notificações neste aparelho</button></div></div></div>';
+  };
+
+  // ---------- Admin ----------
+  V.admin = function () {
+    return head("Admin da plataforma", "Visão da Stack Solution: todas as empresas, planos e uso.") +
+      '<div class="grid g4">' + stat("Empresas", adminCompanies.length) + stat("Pagantes", adminCompanies.filter(function (c) { return c.status === "Ativa"; }).length) + stat("Em teste", 1) + stat("Respostas no mês", num(8013)) + "</div>" +
+      '<div class="card mt"><div class="scroll-x"><table class="data"><thead><tr><th>Empresa</th><th>Plano</th><th>Situação</th><th>Respostas</th><th>Usuários</th><th>Desde</th><th></th></tr></thead><tbody>' + adminCompanies.map(function (c) { return "<tr><td>" + c.name + "</td><td>" + c.plan + '</td><td><span class="badge ' + (c.status === "Ativa" ? "promoter" : c.status === "Teste grátis" ? "passive" : "detractor") + '">' + c.status + "</span></td><td>" + num(c.responses) + "</td><td>" + c.users + "</td><td>" + fmtDate(c.created) + '</td><td><button class="btn sm" data-act="admincompany">Abrir</button></td></tr>'; }).join("") + "</tbody></table></div></div>";
+  };
+
+  // ---------- Pesquisa pública ----------
+  V.publica = function () {
+    var s = S.survey, body;
+    if (s.done) {
+      var high = s.score >= 9;
+      body = '<h2 style="font-size:20px">' + (high ? "Que bom que você gostou!" : "Obrigado pela sinceridade.") + "</h2>" + (high ? "<p>Que tal contar isso no Google? Ajuda muito a gente.</p><a class=\"gbtn\" href=\"https://www.google.com/maps\" target=\"_blank\" rel=\"noopener\">Avaliar no Google</a>" : '<p>Quer que a gente fale com você para resolver?</p><input type="text" placeholder="Seu WhatsApp ou e-mail" aria-label="Seu WhatsApp ou e-mail"><label class="check small"><input type="checkbox" checked> Autorizo a Prime Veículos a entrar em contato</label><button class="send" data-act="pubcontact">Quero ser contatado</button>') +
+        '<button class="btn sm" data-act="again" style="background:#ffffff;color:#13151d;border-color:#d9dce5">Responder de novo</button>';
+    } else {
+      var neg = s.score != null && s.score <= 6, pos = s.score != null && s.score >= 9, opts = neg ? reasonsNeg : pos ? reasonsPos : [];
+      body = '<label class="field" style="font-weight:400">Seu nome (opcional)<input type="text" id="pub-name" value="' + esc(s.name || "") + '"></label><strong style="font-size:17px">De 0 a 10, quanto você recomendaria a ' + company.name + ' para um amigo?</strong><div class="nps-scale" role="group" aria-label="Nota">' + [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(function (n) { return '<button data-score="' + n + '" aria-pressed="' + (s.score === n) + '">' + n + "</button>"; }).join("") + '</div><div class="ends"><span>Nada provável</span><span>Muito provável</span></div>' +
+        (opts.length ? "<div><strong style=\"font-size:14px\">" + (neg ? "O que deu errado?" : "O que mais te agradou?") + '</strong><div class="chips" style="margin-top:8px">' + opts.map(function (o) { return '<button class="chip" data-reason="' + o + '" aria-pressed="' + (s.reasons.indexOf(o) >= 0) + '">' + o + "</button>"; }).join("") + "</div></div>" : "") +
+        (s.score != null ? '<textarea id="pub-comment" maxlength="280" placeholder="Quer deixar um comentário? (opcional)" aria-label="Comentário">' + esc(s.comment) + '</textarea><button type="button" class="chip" data-act="recaudio" style="display:inline-flex;gap:6px;align-items:center;width:fit-content">' + ic("mic", 14) + (s.audio ? " Áudio gravado (0:12) · regravar" : " Prefere falar? Grave um áudio (até 30 s)") + "</button>" + '<label class="field" style="font-weight:400">Quem te atendeu?<select id="pub-att"><option value="">Não sei</option>' + attendants.filter(function (a) { return a.active; }).map(function (a) { return '<option value="' + a.id + '"' + (s.att === a.id ? " selected" : "") + ">" + a.name + "</option>"; }).join("") + "</select></label>" : "") +
+        '<button class="send" data-act="pubsend"' + (s.score == null ? " disabled" : "") + ">Enviar avaliação</button>";
+    }
+    return head("Pesquisa do cliente", "É assim que o cliente vê a pesquisa pelo QR code, link ou WhatsApp. Responda e veja a avaliação chegar no Painel e em Respostas.") +
+      '<div class="phone-wrap"><div class="phone"><div class="ph-head">' + company.name + '</div><div class="ph-body">' + body + "</div></div>" +
+      '<div class="card"><h3>O que acontece depois</h3><ul style="margin:10px 0 0;padding-left:20px;display:grid;gap:6px"><li>Nota 9 ou 10: o convite para avaliar no Google fica em destaque (o link aparece para todos, sem brinde em troca).</li><li>Nota até 6: o gestor recebe alerta no celular e por e-mail, e a resposta fica “Aguardando contato”.</li><li>Os motivos alimentam “O que mais incomoda” e os planos de ação.</li><li>Se o cliente deixar contato com autorização, ele vira um cliente com histórico.</li><li>A página carrega em menos de 1 segundo, mesmo no 3G.</li></ul></div></div>';
+  };
+
+
+  // ---------- Colaborador ----------
+  var ME = "a1";
+  function rank() { return attendants.filter(function (a) { return a.active && a.sector === "s1"; }).map(function (a) { return [a, attStats(a, 30)]; }).sort(function (x, y) { return (y[1].nps || -999) - (x[1].nps || -999); }); }
+  function prizeFor(pos, st) {
+    if (!reward.enabled || st.n < reward.minResponses) return 0;
+    var v = (reward.prizes[pos] || 0) + (st.nps >= reward.metaNps ? reward.metaValue : 0);
+    if (reward.campaign && pos === 0) v += Number(reward.campaignBonus) || 0;
+    return v + (SAVES[st.id] || 0) * reward.saveBonus;
+  }
+  function myFeedbacks() { return feedbacks.filter(function (f) { return f.to === ME || f.to === "todos"; }); }
+  function pendingFb() { return myFeedbacks().filter(function (f) { return !f.acks[ME]; }).length; }
+  function money(v) { return "R$ " + num(v, 0); }
+
+  V.minha = function () {
+    var r = rank(), pos = r.findIndex(function (x) { return x[0].id === ME; }), st = r[pos][1];
+    var pts = []; for (var w = 7; w >= 0; w--) { var l = between((w + 1) * 7, w * 7).filter(function (x) { return x.attendant === ME; }); pts.push({ label: fmtDate(NOW - (w + 1) * 7 * DAY).slice(0, 5), v: nps(l) }); }
+    var pend = pendingFb();
+    return head("Minhas notas", "Olá, Rafael! Seus números dos últimos 30 dias.") +
+      (pend ? '<button class="row click" data-nav="feedbacks" style="margin-bottom:16px;border-color:var(--passive)"><span class="badge passive">' + pend + '</span><span class="grow"><strong>Você tem ' + (pend === 1 ? "1 feedback" : pend + " feedbacks") + ' para ler e assinar</strong><span class="meta">A líder acompanha quem já viu.</span></span><span class="link">Ver feedbacks</span></button>' : "") +
+      '<div class="grid g4">' + stat("Meu NPS", st.nps == null ? "—" : st.nps, st.nps >= reward.metaNps ? "Acima da meta de " + reward.metaNps : "Meta da premiação: " + reward.metaNps, st.nps >= reward.metaNps ? "up" : "down") + stat("Avaliações", st.n) + stat("Promotores", st.pro) + stat("Posição no setor", (pos + 1) + "º de " + r.length) + "</div>" +
+      '<div class="grid g32 mt"><div class="card"><h3>Evolução do meu NPS</h3><p class="sub">Por semana</p>' + chart({ type: "line", points: pts, min: -100, max: 100, ticks: [-100, -50, 0, 50, 100], zero: 0, label: "Meu NPS por semana" }) + "</div>" + prizeCard(pos, st) + "</div>" +
+      '<div class="card mt"><h3>Minhas medalhas</h3><p class="sub">Conquistas do mês</p><div class="medals">' + [["🔥", "10 promotores seguidos", 1], ["🥇", "1º lugar da semana", 1], ["🛟", "Salvou um cliente", SAVES[ME] ? 1 : 0], ["⭐", "5 avaliações no Google", 1], ["🎯", "NPS 90 no mês", st.nps >= 90 ? 1 : 0], ["📣", "30 avaliações no mês", st.n >= 30 ? 1 : 0]].map(function (m) { return '<div class="medal' + (m[2] ? "" : " off") + '"><span class="m" aria-hidden="true">' + m[0] + "</span>" + m[1] + (m[2] ? "" : '<span class="muted">bloqueada</span>') + "</div>"; }).join("") + "</div></div>" +
+      '<div class="card mt"><h3>Ranking de Vendas</h3><div class="scroll-x"><table class="data"><thead><tr><th>#</th><th>Colaborador</th><th>Avaliações</th><th>NPS</th></tr></thead><tbody>' + r.map(function (x, i) { return "<tr" + (x[0].id === ME ? ' style="font-weight:600"' : "") + "><td>" + (i + 1) + "º</td><td style=\"text-align:left\">" + x[0].name + (x[0].id === ME ? " (você)" : "") + "</td><td>" + x[1].n + "</td><td>" + (x[1].nps == null ? "—" : x[1].nps) + "</td></tr>"; }).join("") + "</tbody></table></div></div>";
+  };
+  function prizeCard(pos, st) {
+    if (!reward.enabled) return '<div class="card"><h3>Premiação</h3><p class="muted mt">Sem premiação neste mês.</p></div>';
+    var v = prizeFor(pos, st), falta = Math.max(0, reward.minResponses - st.n);
+    return '<div class="card"><h3>Minha premiação</h3><p class="sub">' + (reward.campaign ? "Campanha: " + esc(reward.campaignName) + " · até " + fmtDay(reward.campaignEnd) : "Regra do mês") + '</p><div class="stat"><div class="label">Se o mês fechasse hoje</div><div class="value">' + money(v) + "</div></div>" +
+      '<ul class="small" style="padding-left:18px;margin:10px 0 0;display:grid;gap:4px"><li>1º lugar ' + money(reward.prizes[0]) + ", 2º " + money(reward.prizes[1]) + ", 3º " + money(reward.prizes[2]) + "</li><li>+" + money(reward.metaValue) + " para NPS a partir de " + reward.metaNps + "</li><li>+" + money(reward.saveBonus) + " por cliente salvo (nota baixa que depois virou nota alta)" + (SAVES[ME] ? ' <span class="up">(você salvou ' + SAVES[ME] + ")</span>" : "") + "</li>" + (reward.campaign ? "<li>+" + money(reward.campaignBonus) + " extra para o 1º lugar na campanha</li>" : "") + "<li>Mínimo de " + reward.minResponses + " avaliações" + (falta ? ' <strong class="down">(faltam ' + falta + ")</strong>" : ' <span class="up">(atingido)</span>') + "</li></ul></div>";
+  }
+  V.avaliacoes = function () {
+    var list = responses.filter(function (r) { return r.attendant === ME; });
+    return head("Minhas avaliações", "Tudo o que os clientes disseram sobre o seu atendimento. Contato do cliente fica só com a liderança.") +
+      '<div class="list">' + list.slice(0, 40).map(function (r) { return '<div class="row"><span class="score ' + cat(r.score) + '">' + r.score + '</span><span class="grow"><strong>' + (r.score >= 9 ? "Promotor" : r.score >= 7 ? "Neutro" : "Detrator") + '</strong><span class="meta">' + fmtDate(r.at) + " · " + r.channel + (r.reasons.length ? " · " + esc(r.reasons.join(", ")) : "") + "</span>" + (r.comment ? '<span class="small">“' + esc(r.comment) + "”</span>" : "") + "</span></div>"; }).join("") + "</div>";
+  };
+  V.feedbacks = function () {
+    if (S.role === "attendant") {
+      var list = myFeedbacks();
+      return head("Feedbacks", "Mensagens da liderança para você. Leia e assine para confirmar que viu.") + '<div class="grid">' + list.map(function (f) {
+        var ack = f.acks[ME], tone = f.type === "Elogio" ? "promoter" : f.type === "Ponto de melhoria" ? "detractor" : "accent";
+        return '<div class="card" style="display:grid;gap:10px' + (ack ? "" : ";border-color:var(--passive)") + '"><div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><span class="badge ' + tone + '">' + f.type + '</span><strong>' + esc(f.from) + '</strong><span class="muted small">' + fmtDate(f.at) + (f.to === "todos" ? " · para toda a equipe" : "") + "</span></div><p>" + esc(f.text) + "</p>" +
+          (ack ? '<p class="small up">✓ Assinado por Rafael Costa em ' + fmtDT(ack) + "</p>" : '<div class="reply"><label class="check"><input type="checkbox" id="ck-' + f.id + '"> Li este feedback e estou ciente</label><div class="actions"><input type="text" id="sg-' + f.id + '" placeholder="Digite seu nome completo para assinar" style="max-width:300px" aria-label="Nome completo"><button class="btn primary sm" data-sign="' + f.id + '">Assinar</button></div></div>') + "</div>";
+      }).join("") + "</div>";
+    }
+    var team = attendants.filter(function (a) { return a.active && (S.role !== "manager" || a.sector === "s1"); });
+    return head("Feedbacks", "Envie elogios, orientações e pontos de melhoria. Cada colaborador assina que leu, e você vê quem já viu.") +
+      '<form class="card form" id="fbform" style="max-width:none"><h3>Novo feedback</h3><div class="two"><label class="field">Para<select id="fb-to"><option value="todos">Toda a equipe' + (S.role === "manager" ? " de Vendas" : "") + "</option>" + team.map(function (a) { return '<option value="' + a.id + '">' + a.name + "</option>"; }).join("") + '</select></label><label class="field">Tipo<select id="fb-type"><option>Elogio</option><option>Orientação</option><option>Ponto de melhoria</option></select></label></div><label class="field">Mensagem<textarea id="fb-text" required placeholder="Seja específico: cite a situação e o que esperar da próxima vez."></textarea></label><p class="small muted">O colaborador recebe no app e no WhatsApp, e precisa assinar que leu.</p><div><button class="btn primary" type="submit">Enviar feedback</button></div></form>' +
+      '<h2 style="font-size:17px;margin:22px 0 10px">Enviados</h2><div class="grid">' + feedbacks.map(function (f) {
+        var targets = f.to === "todos" ? team : team.filter(function (a) { return a.id === f.to; });
+        var signed = targets.filter(function (a) { return f.acks[a.id]; }).length;
+        return '<div class="card"><div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;justify-content:space-between"><span><span class="badge">' + f.type + '</span> <strong>' + (f.to === "todos" ? "Toda a equipe" : attName(f.to)) + '</strong> <span class="muted small">· ' + fmtDate(f.at) + '</span></span><span class="badge ' + (signed === targets.length ? "promoter" : "passive") + '">' + signed + " de " + targets.length + ' assinaram</span></div><p class="small mt">' + esc(f.text) + '</p><div class="chips mt">' + targets.map(function (a) { return '<span class="badge ' + (f.acks[a.id] ? "promoter" : "") + '">' + a.name.split(" ")[0] + (f.acks[a.id] ? " ✓ " + fmtDate(f.acks[a.id]) : " · pendente") + "</span>"; }).join("") + "</div></div>";
+      }).join("") + "</div>";
+  };
+  V.manual = function () {
+    var team = attendants.filter(function (a) { return a.active && (S.role !== "manager" || a.sector === "s1"); });
+    if (S.role === "attendant") {
+      var ack = manual.acks[ME];
+      return head("Manual de atendimento", "Versão " + manual.version + " · atualizado em " + fmtDate(manual.updated)) +
+        '<div class="card" style="display:grid;gap:16px;max-width:760px">' + manual.sections.map(function (x) { return "<div><h3>" + esc(x.title) + '</h3><p style="margin-top:6px">' + esc(x.body) + "</p></div>"; }).join("") + "</div>" +
+        (ack ? '<p class="up mt">✓ Você confirmou a leitura da versão ' + manual.version + " em " + fmtDT(ack) + "</p>" : '<div class="card mt reply" style="max-width:760px"><label class="check"><input type="checkbox" id="ck-manual"> Li e entendi o manual de atendimento (versão ' + manual.version + ')</label><div class="actions"><input type="text" id="sg-manual" placeholder="Digite seu nome completo para assinar" style="max-width:300px" aria-label="Nome completo"><button class="btn primary sm" data-sign="manual">Assinar</button></div></div>');
+    }
+    var signed = team.filter(function (a) { return manual.acks[a.id]; });
+    return head("Manual de atendimento", "Escreva o padrão de atendimento da empresa. Ao publicar uma versão nova, todos precisam assinar de novo.", '<button class="btn primary" data-act="publishmanual">Publicar versão ' + (manual.version + 1) + "</button>") +
+      '<div class="grid g32"><div class="grid">' + manual.sections.map(function (x, i) { return '<div class="card form" style="max-width:none"><label class="field">Título<input type="text" id="mt-' + i + '" value="' + esc(x.title) + '"></label><label class="field">Texto<textarea id="mb-' + i + '">' + esc(x.body) + "</textarea></label></div>"; }).join("") + '<div><button class="btn" data-act="addsection">+ Seção</button></div></div>' +
+      '<div class="card"><h3>Leitura da versão ' + manual.version + '</h3><p class="sub">' + signed.length + " de " + team.length + ' assinaram</p><div class="list">' + team.map(function (a) { return '<div class="small" style="display:flex;justify-content:space-between;gap:8px"><span>' + a.name + '</span><span class="' + (manual.acks[a.id] ? "up" : "muted") + '">' + (manual.acks[a.id] ? "✓ " + fmtDate(manual.acks[a.id]) : "Pendente") + "</span></div>"; }).join("") + '</div><div class="mt"><button class="btn sm" data-act="remind">Lembrar quem não assinou</button></div></div></div>';
+  };
+  V.meulink = function () {
+    var url = "https://avaliaja.com.br/r/PrmVnd3?p=" + ME;
+    return head("Meu link e QR code", "Use no dia a dia: mostre o QR code do crachá ou mande o link para o cliente depois do atendimento. A avaliação entra direto no seu perfil.") +
+      '<div class="grid g2"><div class="card" style="display:flex;gap:16px;flex-wrap:wrap;align-items:center"><div class="qr" data-url="' + url + '"></div><div style="display:grid;gap:8px;min-width:0;flex:1"><code class="f" id="my-link">' + url + '</code><div class="actions"><button class="btn sm" data-copy="my-link">Copiar link</button></div></div></div>' +
+      '<div class="card"><h3>Mensagem pronta para o WhatsApp</h3><code class="f mt" id="my-msg" style="white-space:pre-wrap">Olá! Aqui é o Rafael, da Prime Veículos. Obrigado pela visita! Pode avaliar meu atendimento? Leva 30 segundos: ' + url + '</code><div class="actions mt"><button class="btn sm" data-copy="my-msg">Copiar mensagem</button></div></div></div>' +
+      '<div class="card mt"><div class="insight"><span class="ib">' + ic("phone", 20) + '</span><div><h3>AvaliaJá no seu celular</h3><p class="sub">Instale como app: seu QR code a um toque e aviso na hora de cada elogio.</p><button class="btn sm" data-act="installapp">Instalar no celular</button></div></div></div>';
+  };
+
+  // ---------- Premiação (líder e admin) ----------
+  V.premiacao = function () {
+    if (S.role === "attendant") { var r0 = rank(), p0 = r0.findIndex(function (x) { return x[0].id === ME; }); return head("Premiação", "Como funciona a premiação deste mês.") + '<div style="max-width:520px">' + prizeCard(p0, r0[p0][1]) + "</div>"; }
+    var r = rank(), total = r.reduce(function (t, x, i) { return t + prizeFor(i, x[1]); }, 0);
+    return head("Premiação", "Defina os valores do mês, ligue ou desligue a premiação e crie campanhas. A equipe vê a regra e quanto está ganhando.") +
+      '<div class="grid g32"><form class="card form" id="rwform" style="max-width:none">' +
+      '<label class="check"><input type="checkbox" id="rw-on"' + (reward.enabled ? " checked" : "") + '> <span><strong>Premiação deste mês ligada</strong><br><span class="small muted">Desligada, a equipe vê “Sem premiação neste mês”.</span></span></label>' +
+      '<div class="chips" role="group" aria-label="Tipo"><button type="button" class="chip" data-rwmode="0" aria-pressed="' + !reward.campaign + '">Sem campanha</button><button type="button" class="chip" data-rwmode="1" aria-pressed="' + reward.campaign + '">Com campanha</button></div>' +
+      (reward.campaign ? '<div class="two"><label class="field">Nome da campanha<input type="text" id="rw-cname" value="' + esc(reward.campaignName) + '"></label><label class="field">Termina em<input type="date" id="rw-cend" value="' + reward.campaignEnd + '"></label></div><label class="field">Bônus extra para o 1º lugar (R$)<input type="number" id="rw-cbonus" min="0" value="' + reward.campaignBonus + '"></label>' : "") +
+      '<div class="two"><label class="field">1º lugar (R$)<input type="number" id="rw-p0" min="0" value="' + reward.prizes[0] + '"></label><label class="field">2º lugar (R$)<input type="number" id="rw-p1" min="0" value="' + reward.prizes[1] + '"></label></div><div class="two"><label class="field">3º lugar (R$)<input type="number" id="rw-p2" min="0" value="' + reward.prizes[2] + '"></label><label class="field">Mínimo de avaliações no mês<input type="number" id="rw-min" min="0" value="' + reward.minResponses + '"></label></div>' +
+      '<div class="two"><label class="field">Bônus por meta de NPS (R$)<input type="number" id="rw-mv" min="0" value="' + reward.metaValue + '"></label><label class="field">Meta de NPS para o bônus<input type="number" id="rw-mn" min="-100" max="100" value="' + reward.metaNps + '"></label></div>' +
+      '<label class="field">Bônus por cliente salvo (R$)<input type="number" id="rw-sv" min="0" value="' + reward.saveBonus + '"><span class="hint">Quem liga para um cliente insatisfeito e ele depois dá nota alta. Premia resolver o problema, não pedir nota.</span></label>' +
+      '<div><button class="btn primary" type="submit">Salvar premiação</button></div></form>' +
+      '<div class="card"><h3>Se o mês fechasse hoje</h3><p class="sub">' + (S.role === "manager" ? "Vendas" : "Vendas (exemplo)") + " · total " + money(total) + '</p><div class="scroll-x"><table class="data"><thead><tr><th>Colaborador</th><th>NPS</th><th>Aval.</th><th>Prêmio</th></tr></thead><tbody>' + r.map(function (x, i) { return "<tr><td>" + (i + 1) + "º " + x[0].name + "</td><td>" + (x[1].nps == null ? "—" : x[1].nps) + "</td><td>" + x[1].n + "</td><td><strong>" + money(prizeFor(i, x[1])) + "</strong></td></tr>"; }).join("") + "</tbody></table></div>" + (reward.enabled ? "" : '<p class="small muted mt">Premiação desligada: ninguém recebe neste mês.</p>') + "</div></div>";
+  };
+
+
+  // ---------- Melhorias: TV, mural, filiais, treinos, totem ----------
+  V.tv = function () {
+    var r = attendants.filter(function (a) { return a.active && (S.role !== "manager" || a.sector === "s1"); }).map(function (a) { return [a, attStats(a, 30)]; }).sort(function (x, y) { return (y[1].nps || -999) - (x[1].nps || -999); }).slice(0, 5);
+    var today = between(1, 0).length ? between(1, 0) : between(3, 0);
+    var praise = responses.filter(function (x) { return x.score >= 9 && x.comment; }).slice(0, 8);
+    var q = praise[(S.tvIdx || 0) % praise.length];
+    return '<div class="tv"><div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap"><div><span class="mut">' + company.name + (S.role === "manager" ? " · Vendas" : "") + '</span><h1 style="font-size:clamp(24px,3vw,40px)">Como estamos hoje</h1></div><button class="btn" data-act="exittv">Sair da TV</button></div>' +
+      '<div class="grid g3"><div class="tvc"><span class="mut">NPS de hoje</span><div class="big">' + (nps(today) == null ? "—" : nps(today)) + '</div><span class="mut">' + today.length + ' avaliações</span></div><div class="tvc"><span class="mut">Promotores no mês</span><div class="big">' + between(30, 0).filter(function (x) { return x.score >= 9; }).length + '</div><span class="mut">meta: ' + company.goal + ' de NPS</span></div><div class="tvc"><span class="mut">Avaliações no Google</span><div class="big">4,4 ★</div><span class="mut">312 avaliações</span></div></div>' +
+      '<div class="grid g2"><div class="tvc"><span class="mut">Ranking do mês</span><div class="rk mt">' + r.map(function (x, i) { return "<div><span>" + ["🥇", "🥈", "🥉", "4º", "5º"][i] + " " + x[0].name + "</span><strong>" + (x[1].nps == null ? "—" : x[1].nps) + "</strong></div>"; }).join("") + '</div></div><div class="tvc" style="display:grid;align-content:space-between;gap:16px"><span class="mut">O que os clientes estão dizendo</span>' + (q ? '<p class="quote">“' + esc(q.comment) + '”</p><span class="mut">' + esc(q.name.split(" ")[0]) + " · nota " + q.score + " · atendido por " + attName(q.attendant) + "</span>" : "") + "</div></div>" +
+      '<p class="mut small">Deixe aberto numa TV da loja. Atualiza sozinho a cada minuto e troca o elogio a cada 6 segundos.</p></div>';
+  };
+  V.mural = function () {
+    var praise = responses.filter(function (x) { return x.score >= 9 && x.comment; }).slice(0, 6);
+    var sel = S.postIdx || 0, q = praise[sel];
+    return head("Mural de elogios", "Os melhores comentários viram post para o Instagram e um selo para o site. Só aparecem clientes que autorizaram mostrar o comentário.") +
+      '<div class="grid g32"><div class="card"><h3>Escolha o elogio</h3><div class="list mt">' + praise.map(function (x, i) { return '<button class="row click" data-post="' + i + '" style="' + (i === sel ? "border-color:var(--accent)" : "") + '"><span class="score promoter">' + x.score + '</span><span class="grow"><span>“' + esc(x.comment) + '”</span><span class="meta">' + esc(x.name.split(" ")[0]) + " · " + fmtDate(x.at) + "</span></span></button>"; }).join("") + "</div></div>" +
+      '<div class="card" style="display:grid;gap:12px;justify-items:start"><h3>Post pronto</h3><div class="post"><span style="opacity:.8">' + company.name + "</span><q>" + esc(q.comment) + '</q><div><div style="color:#fbbf24;font-size:20px">★★★★★</div><span style="opacity:.85">' + esc(q.name.split(" ")[0]) + ', cliente</span></div></div><div class="actions"><button class="btn primary sm" data-act="downloadpost">Baixar imagem</button><button class="btn sm" data-copy="post-text">Copiar legenda</button></div><code class="f" id="post-text">Quem atende bem, recebe elogio assim 💙 “' + esc(q.comment) + '” Obrigado, ' + esc(q.name.split(" ")[0]) + "! #PrimeVeiculos</code></div></div>" +
+      '<div class="card mt"><h3>Selo para o site</h3><p class="sub">Mostra a nota real dos clientes e leva para a página pública da empresa</p><div class="seal">' + ic("star", 26) + '<div><strong>9,2</strong> <span class="small muted">de 10</span><div class="small">Nota dos clientes · 312 avaliações · AvaliaJá</div></div></div><code class="f mt" id="seal-code">&lt;script src="https://avaliaja.com.br/selo.js" data-empresa="prime-veiculos" async&gt;&lt;/script&gt;</code><div class="actions mt"><button class="btn sm" data-copy="seal-code">Copiar código</button><button class="btn sm" data-act="publicpage">Ver página pública</button></div></div>';
+  };
+  V.filiais = function () {
+    var best = branches.slice().sort(function (a, b) { return b.nps - a.nps; })[0];
+    return head("Filiais", "Compare as lojas da rede e veja onde agir primeiro.") +
+      '<div class="card" style="margin-bottom:16px"><div class="insight"><span class="ib" style="background:var(--promoter-bg);color:var(--promoter)">' + ic("trophy", 20) + '</span><div><span class="small muted">Melhor loja do mês</span><p class="verdict">' + best.name + " lidera com NPS " + best.nps + ".</p></div></div></div>" +
+      '<div class="grid g3">' + branches.map(function (b) { return '<div class="card" style="display:grid;gap:8px"><div style="display:flex;justify-content:space-between;gap:8px"><strong>' + b.name + '</strong><span class="muted small">' + b.city + '</span></div><div class="stat"><div class="value">' + b.nps + ' <span class="small muted">NPS</span></div></div><div class="small muted">' + b.resp + " respostas · Google " + num(b.google, 1) + " ★ · " + b.waiting + ' aguardando contato</div><div class="progress"><div style="width:' + (b.nps + 100) / 2 + '%"></div></div></div>'; }).join("") + "</div>" +
+      '<p class="small muted mt">Para redes e franquias: cada loja tem os seus setores, líderes e premiação, e a matriz vê tudo junto.</p>';
+  };
+  V.treinos = function () {
+    return head("Meus treinos", "Dicas curtas montadas pela IA a partir das suas avaliações. Leva 2 minutos cada.") + '<div class="grid">' + trainings.map(function (t) {
+      return '<div class="card" style="display:grid;gap:10px' + (t.done ? "" : ";border-color:var(--accent)") + '"><div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><span class="badge accent">' + ic("grad", 14) + ' Treino</span><strong>' + esc(t.title) + '</strong></div><p class="small muted">Por que para você: ' + esc(t.why) + '</p><ol style="margin:0;padding-left:20px;display:grid;gap:4px">' + t.tips.map(function (x) { return "<li>" + esc(x) + "</li>"; }).join("") + "</ol>" + (t.done ? '<p class="small up">✓ Concluído em ' + fmtDT(t.done) + "</p>" : '<div><button class="btn primary sm" data-train="' + t.id + '">Concluí o treino</button></div>') + "</div>";
+    }).join("") + "</div>";
+  };
+  V.totem = function () {
+    var k = S.kiosk || { score: null, reasons: [], done: false };
+    var color = function (n) { return n >= 9 ? "#15803d" : n >= 7 ? "#b45309" : "#b91c1c"; };
+    var body;
+    if (k.done) body = '<div style="display:grid;gap:16px"><div style="font-size:64px">🙏</div><h1 style="font-size:clamp(28px,4vw,48px)">Obrigado pela avaliação!</h1><p style="opacity:.8">Voltando para o início…</p></div>';
+    else body = '<div style="display:grid;gap:22px;justify-items:center;width:100%"><span style="opacity:.8">' + company.name + '</span><h1 style="font-size:clamp(26px,4vw,46px);max-width:900px">De 0 a 10, quanto você recomendaria a gente para um amigo?</h1><div class="scale">' + [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(function (n) { return '<button data-tscore="' + n + '" style="background:' + color(n) + ";" + (k.score === n ? "outline:4px solid #ffffff;outline-offset:2px" : "") + '">' + n + "</button>"; }).join("") + "</div>" +
+      (k.score != null ? '<div class="chips" style="justify-content:center">' + (k.score <= 6 ? reasonsNeg : reasonsPos).map(function (o) { return '<button class="chip" data-treason="' + o + '" aria-pressed="' + (k.reasons.indexOf(o) >= 0) + '">' + o + "</button>"; }).join("") + '</div><button class="btn" data-act="tsend" style="font-size:20px;padding:14px 30px;background:#ffffff;color:#0f4c81;border:0">Enviar</button>' : "") + "</div>";
+    return '<div class="kiosk"><div style="display:grid;gap:24px;justify-items:center;width:100%">' + body + '<button class="btn sm" data-act="exittotem" style="background:transparent;color:#ffffff;border-color:rgb(255 255 255 / 40%)">Sair do modo totem</button></div></div>';
+  };
+
+  // ---------- Admin geral da Stack (link separado) ----------
+  V.stack = function () {
+    var t = S.stackTab || "empresas";
+    var tabs = [["empresas", "Empresas"], ["pagamentos", "Pagamentos"], ["saude", "Saúde do sistema"]];
+    var body;
+    if (t === "empresas") body = '<div class="grid g4">' + stat("Empresas", adminCompanies.length) + stat("Pagantes", adminCompanies.filter(function (c) { return c.status === "Ativa"; }).length) + stat("Em teste", 1) + stat("Respostas no mês", num(8013)) + '</div><div class="card mt"><div class="scroll-x"><table class="data"><thead><tr><th>Empresa</th><th>Plano</th><th>Situação</th><th>Respostas</th><th>Usuários</th><th>Último acesso</th></tr></thead><tbody>' + adminCompanies.map(function (c, i) { return "<tr><td>" + c.name + "</td><td>" + c.plan + '</td><td><span class="badge ' + (c.status === "Ativa" ? "promoter" : c.status === "Teste grátis" ? "passive" : "detractor") + '">' + c.status + "</span></td><td>" + num(c.responses) + "</td><td>" + c.users + "</td><td>" + ["hoje", "hoje", "ontem", "hoje", "há 6 dias"][i] + "</td></tr>"; }).join("") + "</tbody></table></div></div>";
+    else if (t === "pagamentos") {
+      var mrr = stackPayments.filter(function (p) { return p.status !== "Atrasado"; }).reduce(function (s, p) { return s + p.value; }, 0);
+      body = '<div class="grid g4">' + stat("Receita mensal (MRR)", money(mrr + 4200)) + stat("Recebido no mês", money(stackPayments.filter(function (p) { return p.status === "Pago"; }).reduce(function (s, p) { return s + p.value; }, 0))) + stat("Em atraso", money(199), "1 empresa", "down") + stat("A vencer", money(199)) + '</div><div class="card mt"><div class="scroll-x"><table class="data"><thead><tr><th>Empresa</th><th>Plano</th><th>Valor</th><th>Vencimento</th><th>Forma</th><th>Situação</th><th></th></tr></thead><tbody>' + stackPayments.map(function (p) { return "<tr><td>" + p.co + "</td><td>" + p.plan + "</td><td>" + money(p.value) + "</td><td>" + fmtDate(p.due) + "</td><td>" + p.method + '</td><td><span class="badge ' + (p.status === "Pago" ? "promoter" : p.status === "Atrasado" ? "detractor" : "passive") + '">' + p.status + "</span></td><td>" + (p.status === "Atrasado" ? '<button class="btn sm" data-act="charge">Cobrar</button>' : "") + "</td></tr>"; }).join("") + "</tbody></table></div></div>";
+    } else {
+      var lat = []; for (var h = 23; h >= 0; h--) lat.push({ label: (new Date(NOW - h * 3600000).getHours()) + "h", v: 120 + Math.round(Math.sin(h / 3) * 30 + (h === 7 ? 260 : 0) + rnd() * 25) });
+      var Q = [["E-mails", 0, "ok"], ["WhatsApp", 2, "ok"], ["Webhooks", 0, "ok"], ["IA", 1, "ok"], ["Convites", 14, "ok"], ["RD Station / HubSpot", 0, "ok"], ["Google", 0, "ok"]];
+      body = '<div class="notice" style="margin-bottom:16px;background:var(--promoter-bg)"><strong class="up">● Sistema funcionando normalmente.</strong> Sem travamentos nas últimas 24 horas. Um pico de lentidão às ' + new Date(NOW - 7 * 3600000).getHours() + 'h (resolvido sozinho em 4 minutos).</div>' +
+        '<div class="grid g4">' + stat("Disponibilidade (30 dias)", "99,98%", "", "up") + stat("Tempo de resposta (p95)", "182 ms") + stat("Erros nas últimas 24 h", "3", "0,01% das requisições") + stat("Banco de dados", "OK", "CPU 18% · 42 conexões", "up") + "</div>" +
+        '<div class="card mt"><h3>Tempo de resposta</h3><p class="sub">Milissegundos, últimas 24 horas</p>' + chart({ type: "line", points: lat, min: 0, max: 500, ticks: [0, 100, 200, 300, 400, 500], label: "Tempo de resposta", table: ["Hora", "ms"] }) + "</div>" +
+        '<div class="grid g2 mt"><div class="card"><h3>Filas</h3><p class="sub">Itens esperando para sair</p><div class="list">' + Q.map(function (q) { return '<div class="small" style="display:flex;justify-content:space-between"><span>' + q[0] + '</span><span><span class="up">●</span> ' + q[1] + (q[1] === 1 ? " pendente" : " pendentes") + "</span></div>"; }).join("") + '</div></div><div class="card"><h3>Rotinas automáticas</h3><p class="sub">Última execução</p><div class="list">' + [["Envio de e-mails", "há 1 min"], ["Alertas e escalonamento", "há 3 min"], ["Sincronização do Google", "há 12 min"], ["Comparação com o mercado", "hoje às 6h23"], ["Resumo semanal", "segunda às 8h"], ["Backup do banco", "hoje às 3h"]].map(function (c) { return '<div class="small" style="display:flex;justify-content:space-between"><span>' + c[0] + '</span><span class="muted"><span class="up">✓</span> ' + c[1] + "</span></div>"; }).join("") + "</div></div></div>";
+    }
+    return '<div class="shell" style="grid-template-columns:minmax(0,1fr)"><main><div class="page-head"><div><span class="badge detractor">Uso interno · Stack Solution</span><h1 style="margin-top:6px">Admin geral</h1><p>Área só da Stack, em link separado. Não aparece no menu das empresas.</p></div><div class="actions"><button class="btn sm" data-act="leavestack">Voltar para a demonstração</button></div></div><div class="tabs">' + tabs.map(function (x) { return '<button data-stacktab="' + x[0] + '" aria-current="' + (t === x[0] ? "page" : "false") + '">' + x[1] + "</button>"; }).join("") + "</div>" + body + "</main></div>";
+  };
+
+  // ---------- Escolha do perfil ----------
+  V.perfil = function () {
+    var P = [
+      ["owner", "shield", "Admin da empresa", "Para o dono e a diretoria", ["Visão geral e comparação entre setores e filiais", "Quanto as notas baixas custam em dinheiro", "Reputação no Google, Reclame Aqui e Instagram", "Relatórios, planos e configurações"]],
+      ["manager", "flag", "Líder", "Para quem cuida de uma equipe", ["Cadastra o colaborador e gera o link na hora", "Premiação do mês, com ou sem campanha", "Feedbacks com assinatura de leitura", "Monta a pesquisa NPS e o manual"]],
+      ["attendant", "user", "Colaborador", "Para quem atende o cliente", ["Minhas notas, medalhas e ranking", "Quanto vou ganhar de premiação", "Feedbacks e treinos para assinar", "Meu link e QR code do dia a dia"]]
+    ];
+    return '<div class="auth"><div style="width:100%;max-width:1060px;display:grid;gap:22px"><div style="display:grid;gap:8px;justify-items:center;text-align:center"><div class="logo" style="padding:0;font-size:22px"><span class="mark" aria-hidden="true">✓</span>Avalia<em>Já</em></div><h1 style="font-size:clamp(24px,3vw,32px)">Como você quer entrar?</h1><p class="muted">Cada pessoa vê só o que precisa. Dá para trocar depois no topo da tela.</p></div><div class="roles">' +
+      P.map(function (p) { return '<button class="role-card ' + p[0] + '" data-pick="' + p[0] + '"><span class="icon">' + ic(p[1], 28) + '</span><div><h2>' + p[2] + '</h2><p class="small muted" style="margin-top:2px">' + p[3] + "</p></div><ul>" + p[4].map(function (x) { return "<li>" + x + "</li>"; }).join("") + '</ul><span class="go">Entrar como ' + p[2].toLowerCase() + " " + ic("arrow", 16) + "</span></button>"; }).join("") +
+      '</div><p class="small muted" style="text-align:center">O admin geral da Stack fica num link separado, que não aparece aqui.</p></div></div>';
+  };
+
+  // ================= Navegação =================
+  var NAVS = {
+    owner: [
+      ["Acompanhar", [["painel", "Visão geral", "home"], ["filiais", "Filiais", "pin"], ["respostas", "Respostas", "inbox"], ["clientes", "Clientes", "user"], ["google", "Reputação online", "star"]]],
+      ["Melhorar", [["planos", "Planos de ação", "target"], ["equipe", "Equipe", "users"], ["premiacao", "Premiação", "trophy"], ["feedbacks", "Feedbacks", "message"], ["manual", "Manual de atendimento", "book"]]],
+      ["Coletar e divulgar", [["pesquisas", "Pesquisas", "clipboard"], ["mural", "Mural de elogios", "heart"], ["tv", "TV da loja", "tv"]]],
+      ["Empresa", [["relatorios", "Relatórios", "file"], ["config", "Configurações", "settings"]]]
+    ],
+    manager: [
+      ["Meu setor", [["painel", "Painel do setor", "home"], ["respostas", "Respostas", "inbox"], ["planos", "Planos de ação", "target"]]],
+      ["Minha equipe", [["equipe", "Equipe", "users"], ["premiacao", "Premiação", "trophy"], ["feedbacks", "Feedbacks", "message"], ["manual", "Manual de atendimento", "book"]]],
+      ["Pesquisa", [["pesquisas", "Pesquisa NPS", "clipboard"], ["config", "Motivos e alertas", "settings"], ["tv", "TV do setor", "tv"]]]
+    ],
+    attendant: [
+      ["Meu desempenho", [["minha", "Minhas notas", "chart"], ["avaliacoes", "Minhas avaliações", "star"], ["premiacao", "Premiação", "trophy"]]],
+      ["Para mim", [["feedbacks", "Feedbacks", "message"], ["treinos", "Meus treinos", "grad"], ["manual", "Manual de atendimento", "book"]]],
+      ["No dia a dia", [["meulink", "Meu link e QR code", "qr"]]]
+    ]
+  };
+  function navFlat(role) { var out = []; NAVS[role].forEach(function (g) { g[1].forEach(function (n) { out.push(n); }); }); return out; }
+  var EXTRA = { owner: ["totem"], manager: ["totem", "resposta", "atendente", "pesquisa", "pesquisa-nova", "compartilhar", "crachas", "enviar", "plano", "plano-novo"], attendant: ["crachas"] };
+  function allowed(v) {
+    if (["publica", "conta"].indexOf(v) >= 0) return true;
+    if (S.role === "owner") return v !== "stack";
+    return navFlat(S.role).some(function (n) { return n[0] === v; }) || EXTRA[S.role].indexOf(v) >= 0;
+  }
+  var PARENT = { resposta: "respostas", cliente: "clientes", plano: "planos", "plano-novo": "planos", atendente: "equipe", "pesquisa-nova": "pesquisas", pesquisa: "pesquisas", compartilhar: "pesquisas", crachas: "pesquisas", enviar: "pesquisas" };
+  var HOME = { owner: "painel", manager: "painel", attendant: "minha" };
+
+  function render() {
+    charts = [];
+    if (tvTimer) { clearInterval(tvTimer); tvTimer = null; }
+    var app = document.getElementById("app");
+    if (S.view === "stack") { app.innerHTML = V.stack(); drawCharts(); return; }
+    if (!S.logged) { app.innerHTML = V.entrar(); return; }
+    if (S.onboard) { app.innerHTML = V.onboarding(); return; }
+    if (S.view === "stack") { app.innerHTML = V.stack(); drawCharts(); return; }
+    if (!S.picked) { app.innerHTML = V.perfil(); return; }
+    if (!allowed(S.view)) S.view = HOME[S.role];
+    if (S.view === "tv" || S.view === "totem") { app.innerHTML = V[S.view](); if (S.view === "tv") tvTimer = setInterval(function () { S.tvIdx = (S.tvIdx || 0) + 1; if (S.view === "tv") render(); }, 6000); return; }
+    if (S.view === "config" && S.role === "manager" && ["motivos", "alertas"].indexOf(S.tab) < 0) S.tab = "motivos";
+    var active = PARENT[S.view] || S.view, w = waitingCount(), pf = pendingFb();
+    var tr = trainings.filter(function (t) { return !t.done; }).length;
+    var RL = { owner: ["Admin da empresa", "shield"], manager: ["Líder · Vendas", "flag"], attendant: ["Colaborador", "user"] };
+    var nav = '<span class="role-pill" style="background:var(--c-' + S.role + '-bg);color:var(--c-' + S.role + ');margin:0 10px 8px;width:fit-content"><span class="ic" style="display:grid;place-items:center">' + ic(RL[S.role][1], 14) + "</span>" + RL[S.role][0] + "</span>" + NAVS[S.role].map(function (g) {
+      return '<div class="nav-label">' + g[0] + "</div>" + g[1].map(function (n) {
+        var badge = n[0] === "respostas" && w ? w : n[0] === "feedbacks" && S.role === "attendant" && pf ? pf : n[0] === "manual" && S.role === "attendant" && !manual.acks[ME] ? "!" : n[0] === "treinos" && tr ? tr : 0;
+        return '<button class="nav-btn" data-nav="' + n[0] + '" aria-current="' + (active === n[0] ? "page" : "false") + '">' + ic(n[2]) + n[1] + (badge ? '<span class="count">' + badge + "</span>" : "") + "</button>";
+      }).join("");
+    }).join("");
+    app.innerHTML = '<div class="shell"><nav class="side" aria-label="Menu"><div class="logo"><span class="mark" aria-hidden="true">✓</span>Avalia<em>Já</em></div>' + nav +
+      '<div class="nav-sep" role="presentation"></div><div class="nav-label">Mais</div>' +
+      '<button class="nav-btn" data-nav="publica" aria-current="' + (S.view === "publica" ? "page" : "false") + '">' + ic("phone") + 'Pesquisa do cliente</button>' +
+      '<button class="nav-btn" data-nav="conta" aria-current="' + (S.view === "conta" ? "page" : "false") + '">' + ic("user") + 'Minha conta</button>' +
+      '<button class="nav-btn" data-act="logout">' + ic("logout") + 'Sair</button></nav><main id="main" tabindex="-1">' + V[S.view]() + "</main></div>";
+    drawCharts();
+    drawQR();
+  }
+  function drawQR() {
+    document.querySelectorAll(".qr[data-url]").forEach(function (el) {
+      if (window.QRCode) { try { new window.QRCode(el, { text: el.dataset.url, width: 132, height: 132, colorDark: "#13151d", colorLight: "#ffffff" }); return; } catch (e) { /* segue para o texto */ } }
+      el.innerHTML = '<span style="color:#13151d;font-size:11px;text-align:center">QR code<br>(precisa de internet)</span>';
+    });
+  }
+  function go(view, id) { S.view = view; S.id = id == null ? null : id; render(); var m = document.getElementById("main"); if (m) m.focus({ preventScroll: true }); window.scrollTo(0, 0); }
+
+  // ================= Eventos =================
+  document.addEventListener("click", function (e) {
+    var b = e.target.closest("button, a, tr[data-nav]"); if (!b) return;
+    var d = b.dataset;
+    if (d.nav) { if (d.filter) S.rFilter = d.filter; return go(d.nav, d.id); }
+    if (d.tab) { S.view = "config"; S.tab = d.tab; return render(); }
+    if (d.period) { S.period = d.period; return render(); }
+    if (d.rfilter) { S.rFilter = d.rfilter; return render(); }
+    if (d.gfilter) { S.gFilter = d.gfilter; return render(); }
+    if (d.newplan) { S.prefill = d.newplan; return go("plano-novo"); }
+    if (d.suggest) { var rv = byId(reviews, d.suggest); document.getElementById("rp-" + rv.id).value = suggestion(rv); return; }
+    if (d.reply) { var t = document.getElementById("rp-" + d.reply).value.trim(); if (t.length < 2) return toast("Escreva a resposta antes de publicar."); byId(reviews, d.reply).reply = t; toast("Resposta publicada no Google."); return render(); }
+    if (d.unreply) { byId(reviews, d.unreply).reply = null; toast("Resposta apagada."); return render(); }
+    if (d.copy) { var el = document.getElementById(d.copy); try { navigator.clipboard.writeText(el.textContent).then(function () { toast("Copiado!"); }, function () { selectText(el); }); } catch (err) { selectText(el); } return; }
+    if (d.crm) { var v = document.getElementById("crm-" + d.crm).value.trim(); if (v.length < 10 || /\s/.test(v)) return toast("Chave inválida: cole a chave completa, sem espaços."); settings.crm[d.crm] = v.slice(-4); toast("Integração conectada."); return render(); }
+    if (d.crmoff) { settings.crm[d.crmoff] = null; toast("Integração removida."); return render(); }
+    if (d.toggleatt) { var at = byId(attendants, d.toggleatt); at.active = !at.active; toast(at.active ? "Consultor ativado." : "Consultor desativado."); return render(); }
+    if (d.delreason) { var p = d.delreason.split(":"); (p[0] === "neg" ? reasonsNeg : reasonsPos).splice(Number(p[1]), 1); toast("Motivo removido."); return render(); }
+    if (d.addreason) { var inp = document.getElementById("nr-" + d.addreason), val = inp.value.trim(); if (!val) return toast("Escreva o motivo."); (d.addreason === "neg" ? reasonsNeg : reasonsPos).push(val); toast("Motivo adicionado."); return render(); }
+    if (d.delq) { var sv = byId(surveys, S.id) || surveys[0]; sv.questions.splice(Number(d.delq), 1); return render(); }
+    if (d.score) { S.survey.score = Number(d.score); S.survey.reasons = []; keepPub(); return render(); }
+    if (d.reason) { keepPub(); var ix = S.survey.reasons.indexOf(d.reason); if (ix >= 0) S.survey.reasons.splice(ix, 1); else S.survey.reasons.push(d.reason); return render(); }
+    if (d.reptab) { S.repTab = d.reptab; return render(); }
+    if (d.post) { S.postIdx = Number(d.post); return render(); }
+    if (d.train) { byId(trainings, d.train).done = Date.now(); toast("Treino concluído. Sua líder vê que você fez."); return render(); }
+    if (d.msuggest) { var all = mentions.reclame.concat(mentions.instagram), mm = byId(all, d.msuggest); document.getElementById("mr-" + mm.id).value = mm.text.indexOf("Amei") >= 0 ? "Que alegria, Carol! Vamos passar o recado para a Juliana. Obrigado pela indicação! 💙" : mm.text.indexOf("Demora") >= 0 || mm.text.indexOf("Demora muito") >= 0 ? "Oi, João! Agendando pelo nosso WhatsApp, a revisão sai no mesmo dia e você recebe aviso de cada etapa. Te esperamos!" : "Olá, " + mm.who.split(" ")[0] + ". Sentimos muito pelo atraso e pela falta de aviso. Já falamos com a equipe da oficina e vamos te ligar hoje para resolver."; return; }
+    if (d.mreply) { var all2 = mentions.reclame.concat(mentions.instagram), m2 = byId(all2, d.mreply), tx = document.getElementById("mr-" + m2.id).value.trim(); if (tx.length < 2) return toast("Escreva a resposta."); m2.reply = tx; toast("Resposta publicada."); return render(); }
+    if (d.tscore) { S.kiosk = S.kiosk || { reasons: [] }; S.kiosk.score = Number(d.tscore); S.kiosk.reasons = []; S.kiosk.done = false; return render(); }
+    if (d.treason) { var kr = S.kiosk.reasons, ix2 = kr.indexOf(d.treason); if (ix2 >= 0) kr.splice(ix2, 1); else kr.push(d.treason); return render(); }
+    if (d.pick) { S.role = d.pick; S.picked = true; document.getElementById("role").value = d.pick; return go(HOME[S.role]); }
+    if (d.sector) { S.sectorF = d.sector; render(); return window.scrollTo(0, 0); }
+    if (d.stacktab) { S.stackTab = d.stacktab; return render(); }
+    if (d.rwmode) { readReward(); reward.campaign = d.rwmode === "1"; return render(); }
+    if (d.sign) {
+      var ck = document.getElementById("ck-" + d.sign), nm = document.getElementById("sg-" + d.sign).value.trim();
+      if (!ck.checked) return toast("Marque que leu e está ciente.");
+      if (nm.toLowerCase() !== "rafael costa") return toast("Digite seu nome completo (Rafael Costa) para assinar.");
+      if (d.sign === "manual") manual.acks[ME] = Date.now(); else byId(feedbacks, d.sign).acks[ME] = Date.now();
+      toast("Assinado. A liderança já vê que você leu."); return render();
+    }
+    if (d.act) return act(d.act, b);
+  });
+  document.addEventListener("change", function (e) {
+    if (e.target.id === "role") { S.role = e.target.value; S.picked = true; S.view = HOME[S.role]; S.showNew = false; S.newColab = null; return render(); }
+    if (e.target.id === "sector-filter") { S.sectorF = e.target.value; return render(); }
+    if (e.target.id === "ticket") { ticket = Number(e.target.value) || 0; return render(); }
+    if (e.target.id === "daily-wa") { dailyWa = e.target.checked; return toast(dailyWa ? "Resumo diário ligado." : "Resumo diário desligado."); }
+    if (e.target.id === "auto-sorry") { autoSorry = e.target.checked; return toast(autoSorry ? "Recuperação automática ligada." : "Recuperação automática desligada."); }
+  });
+  document.addEventListener("input", function (e) {
+    if (e.target.id === "cq") { S.cq = e.target.value; var pos = e.target.selectionStart; render(); var el = document.getElementById("cq"); el.focus(); el.setSelectionRange(pos, pos); }
+  });
+  document.addEventListener("submit", function (e) {
+    e.preventDefault();
+    if (e.target.id === "colabform") {
+      var nm = document.getElementById("nc-name").value.trim(); if (nm.length < 3) return toast("Informe o nome completo.");
+      var id = "a" + Date.now(); attendants.push({ id: id, name: nm, sector: document.getElementById("nc-sector").value, active: true });
+      S.newColab = { name: nm, url: "https://avaliaja.com.br/r/PrmVnd3?p=" + id.slice(-6) }; S.showNew = false; toast("Perfil criado e link gerado."); return render();
+    }
+    if (e.target.id === "fbform") {
+      var tx = document.getElementById("fb-text").value.trim(); if (tx.length < 5) return toast("Escreva a mensagem do feedback.");
+      feedbacks.unshift({ id: "f" + Date.now(), to: document.getElementById("fb-to").value, from: (S.role === "manager" ? "Carla Nunes (líder)" : "Wendell (admin)"), type: document.getElementById("fb-type").value, text: tx, at: Date.now(), acks: {} });
+      toast("Feedback enviado. Você vê aqui quem assinar."); return render();
+    }
+    if (e.target.id === "rwform") { readReward(); toast(reward.enabled ? "Premiação salva." : "Premiação desligada neste mês."); return render(); }
+    if (e.target.id === "loginform") { S.logged = true; toast("Bem-vindo de volta!"); return render(); }
+    if (e.target.id === "planform") {
+      var title = document.getElementById("np-title").value.trim(), theme = document.getElementById("np-theme").value.trim();
+      if (title.length < 3 || !theme) return toast("Preencha o que vamos fazer e o tema.");
+      var p = { id: "p" + Date.now(), title: title, theme: theme, kind: "Motivo marcado pelos clientes", owner: document.getElementById("np-owner").value, due: document.getElementById("np-due").value, status: "A fazer", start: Date.now(), notes: document.getElementById("np-notes").value };
+      plans.unshift(p); toast("Plano criado. O antes e depois começa a contar hoje."); return go("plano", p.id);
+    }
+  });
+  function readReward() {
+    var g = function (id) { var el = document.getElementById(id); return el ? el.value : null; };
+    var on = document.getElementById("rw-on"); if (on) reward.enabled = on.checked;
+    ["p0", "p1", "p2"].forEach(function (k, i) { if (g("rw-" + k) != null) reward.prizes[i] = Number(g("rw-" + k)) || 0; });
+    if (g("rw-min") != null) reward.minResponses = Number(g("rw-min")) || 0;
+    if (g("rw-mv") != null) reward.metaValue = Number(g("rw-mv")) || 0;
+    if (g("rw-mn") != null) reward.metaNps = Number(g("rw-mn")) || 0;
+    if (g("rw-sv") != null) reward.saveBonus = Number(g("rw-sv")) || 0;
+    if (g("rw-cname") != null) { reward.campaignName = g("rw-cname"); reward.campaignEnd = g("rw-cend") || reward.campaignEnd; reward.campaignBonus = Number(g("rw-cbonus")) || 0; }
+  }
+  function keepPub() { var c = document.getElementById("pub-comment"), n = document.getElementById("pub-name"), a = document.getElementById("pub-att"); if (c) S.survey.comment = c.value; if (n) S.survey.name = n.value; if (a) S.survey.att = a.value; }
+  function selectText(el) { var r = document.createRange(); r.selectNodeContents(el); var s = window.getSelection(); s.removeAllRanges(); s.addRange(r); toast("Selecionado: use Ctrl+C para copiar."); }
+
+  function act(a) {
+    var r, p;
+    switch (a) {
+      case "login": case "magic": S.logged = true; toast(a === "magic" ? "Link enviado (demonstração): você já entrou." : "Entrou com o Google."); return render();
+      case "forgot": return toast("Enviamos um link para redefinir a senha.");
+      case "signup": S.logged = true; S.onboard = true; S.obStep = 1; return render();
+      case "obnext": if ((S.obStep || 1) < 3) { S.obStep++; return render(); } S.onboard = false; S.picked = true; S.role = "owner"; toast("Tudo pronto! Sua pesquisa está ativa."); return go("painel");
+      case "obback": S.obStep--; return render();
+      case "logout": S.logged = false; S.picked = false; return render();
+      case "hidesteps": S.onboardDone = true; return render();
+      case "saveresp": r = byId(responses, S.id); r.assigned = document.getElementById("rs-owner").value; var ns = document.getElementById("rs-status").value; if (ns !== r.status) r.events.push({ at: Date.now(), text: "Status mudou para " + STATUS[ns][0] }); r.status = ns; r.note = document.getElementById("rs-note").value; toast("Tratativa salva."); return render();
+      case "contactnow": r = byId(responses, S.id); r.status = "contacted"; r.events.push({ at: Date.now(), text: "Contato registrado por Wendell" }); toast("Contato registrado."); return render();
+      case "wa": r = byId(responses, S.id); r.events.push({ at: Date.now(), text: "Mensagem enviada pelo WhatsApp oficial" }); r.status = "contacted"; toast("Mensagem enviada pelo WhatsApp."); return render();
+      case "suggestmsg": r = byId(responses, S.id); document.getElementById("sugg").innerHTML = '<div class="reply">Olá, ' + esc(r.name.split(" ")[0]) + "! Aqui é da Prime Veículos. Vimos sua avaliação e sentimos muito pela " + (r.reasons[0] ? r.reasons[0].toLowerCase() : "experiência") + ". Podemos conversar para resolver? Queremos fazer melhor da próxima vez.</div>"; return;
+      case "anon": r = byId(responses, S.id); r.name = "Cliente anônimo"; r.contact = null; r.phone = null; r.comment = ""; toast("Resposta anonimizada."); return render();
+      case "delcustomer": responses.forEach(function (x) { if (x.name === S.id) { x.name = "Cliente anônimo"; x.contact = null; x.phone = null; } }); toast("Dados do cliente apagados."); return go("clientes");
+      case "saveplan": p = byId(plans, S.id); p.status = document.getElementById("pl-status").value; p.owner = document.getElementById("pl-owner").value; p.due = document.getElementById("pl-due").value; p.notes = document.getElementById("pl-notes").value; toast("Plano salvo."); return render();
+      case "delplan": plans = plans.filter(function (x) { return x.id !== S.id; }); toast("Plano excluído."); return go("planos");
+      case "gsync": return toast("Avaliações atualizadas.");
+      case "gdisc": return toast("Na versão real, isso desconecta o Google. Aqui mantivemos para você explorar.");
+      case "profile": return toast("Perfil público: avaliaja.com.br/a/prime-veiculos/rafael");
+      case "newsurvey": var nm = arguments[1] ? arguments[1].dataset.name : "Nova pesquisa"; var sv = { id: "v" + Date.now(), name: nm, slug: "PrmNov" + Math.floor(rnd() * 9), status: "Ativa", template: nm, sector: null, askAttendant: true, googleMin: 9, questions: ["De 0 a 10, quanto você recomendaria a Prime Veículos para um amigo?", "O que mais pesou na sua nota?"] }; surveys.unshift(sv); toast("Pesquisa criada a partir do modelo."); return go("pesquisa", sv.id);
+      case "savesurvey": sv = byId(surveys, S.id) || surveys[0]; sv.name = document.getElementById("sv-name").value; sv.status = document.getElementById("sv-status").value; toast("Pesquisa salva."); return render();
+      case "addq": sv = byId(surveys, S.id) || surveys[0]; sv.questions.push("Nova pergunta"); return render();
+      case "pdf": return toast("Na versão real, o PDF é baixado aqui.");
+      case "csv": return toast("Na versão real, a planilha CSV é baixada aqui.");
+      case "sendinv":
+        var lines = document.getElementById("inv-text").value.split("\n").slice(1).filter(function (l) { return l.trim(); });
+        lines.forEach(function (l) { var c = l.split(","); invitations.unshift({ name: c[0], contact: c[1] || c[2] || "—", channel: c[1] ? "WhatsApp" : "E-mail", status: document.getElementById("inv-when").value === "0" ? "Enviado" : "Agendado", at: Date.now() }); });
+        toast(lines.length + (lines.length === 1 ? " convite criado." : " convites criados.")); return render();
+      case "savedays": settings.inviteDays = Number(document.getElementById("inv-days").value); return toast("Frequência salva.");
+      case "saved": return toast("Salvo.");
+      case "nope": return toast("Ação desativada na demonstração.");
+      case "addsector": sectors.push({ id: "s" + Date.now(), name: "Novo setor", goal: 50, active: true }); toast("Setor criado."); return render();
+      case "addatt": attendants.push({ id: "a" + Date.now(), name: "Novo consultor", sector: "s1", active: true }); toast("Consultor criado."); return render();
+      case "push": return toast("Notificações ligadas neste aparelho (demonstração).");
+      case "wadisc": settings.whatsapp.connected = false; toast("WhatsApp desconectado."); return render();
+      case "waconn": settings.whatsapp.connected = true; toast("Número conectado."); return render();
+      case "invite": var em = document.getElementById("inv-email").value.trim(); if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(em)) return toast("Informe um e-mail válido."); members.push({ id: "u" + Date.now(), name: em.split("@")[0] + " (convite enviado)", email: em, role: document.getElementById("inv-role").value, sectors: "Todos" }); toast("Convite enviado para " + em + "."); return render();
+      case "saveterms": terms.sector = document.getElementById("tm-s").value || terms.sector; terms.sectors = document.getElementById("tm-ss").value || terms.sectors; terms.attendant = document.getElementById("tm-a").value || terms.attendant; terms.attendants = document.getElementById("tm-as").value || terms.attendants; CFG[2][1] = terms.attendants; toast("Terminologia salva."); return render();
+      case "plan": return toast("Pedido de mudança de plano registrado.");
+      case "pay": return toast("Na versão real, abre a cobrança do Asaas (Pix, boleto ou cartão).");
+      case "feed": settings.feed = true; toast("Link da planilha criado."); return render();
+      case "newkey": var kn = document.getElementById("key-name").value.trim() || "Nova chave"; apiKeys.push({ name: kn, prefix: "avj_live_" + Math.random().toString(36).slice(2, 6), created: Date.now(), used: Date.now() }); toast("Chave criada. Copie agora: ela aparece uma única vez."); return render();
+      case "newhook": var hu = document.getElementById("hook-url").value.trim(); if (!/^https:\/\//.test(hu)) return toast("Use um endereço https://"); webhooks.push({ url: hu, active: true, last: Date.now() }); toast("Webhook adicionado."); return render();
+      case "hooktest": return toast("Evento de teste enviado.");
+      case "switchco": return toast("Na versão real, troca para a outra empresa.");
+      case "admincompany": return toast("Na versão real, abre a ficha da empresa com plano, limites e cobrança.");
+      case "pubsend":
+        keepPub();
+        var s = S.survey;
+        var rr = { id: "n" + Date.now(), name: s.name || "Cliente (teste)", score: s.score, reasons: s.reasons.slice(), comment: s.comment, at: Date.now(), sector: s.att ? byId(attendants, s.att).sector : "s1", attendant: s.att || "a1", survey: "v1", channel: "QR code", status: s.score <= 6 ? "new" : "ok", contact: null, phone: null, assigned: s.score <= 6 ? "Marcos Vieira" : null, note: "", events: [{ at: Date.now(), text: "Resposta recebida pelo canal QR code" }] };
+        if (s.score <= 6) rr.events.push({ at: Date.now(), text: "Alerta enviado por e-mail e no celular para Marcos Vieira" });
+        if (s.score <= 6 && autoSorry) rr.events.push({ at: Date.now() + 1000, text: "Mensagem automática de desculpas enviada pelo WhatsApp oficial" });
+        if (s.audio) { rr.audio = "0:12"; rr.transcript = "(transcrição do áudio gravado na demonstração)"; }
+        responses.unshift(rr); s.done = true; toast("Avaliação recebida. Veja no Painel e em Respostas."); return render();
+      case "pubcontact": return toast("Contato registrado. A equipe vai falar com você.");
+      case "exittv": return go(HOME[S.role] === "minha" ? "minha" : "painel");
+      case "exittotem": S.kiosk = null; return go("pesquisas");
+      case "tsend":
+        responses.unshift({ id: "k" + Date.now(), name: "Cliente (totem)", score: S.kiosk.score, reasons: S.kiosk.reasons.slice(), comment: "", at: Date.now(), sector: "s1", attendant: "a1", survey: "v2", channel: "Totem", status: S.kiosk.score <= 6 ? "new" : "ok", contact: null, phone: null, assigned: null, note: "", events: [{ at: Date.now(), text: "Resposta recebida pelo totem" }] });
+        S.kiosk.done = true; render(); setTimeout(function () { if (S.view === "totem") { S.kiosk = null; render(); } }, 3500); return;
+      case "playaudio": return toast("Tocando o áudio do cliente (demonstração).");
+      case "recaudio": keepPub(); S.survey.audio = true; toast("Áudio gravado (demonstração: o microfone não é usado aqui)."); return render();
+      case "callclient": return toast("Pedido de contato criado para o gestor do setor.");
+      case "downloadpost": return toast("Na versão real, a imagem do post é baixada aqui.");
+      case "publicpage": return toast("Página pública: avaliaja.com.br/e/prime-veiculos");
+      case "installapp": return toast("No celular, o navegador oferece “Adicionar à tela inicial”.");
+      case "togglenew": S.showNew = !S.showNew; S.newColab = null; return render();
+      case "sendaccess": return toast("Acesso enviado por WhatsApp (demonstração).");
+      case "publishmanual":
+        manual.sections.forEach(function (x, i) { x.title = document.getElementById("mt-" + i).value; x.body = document.getElementById("mb-" + i).value; });
+        manual.version++; manual.updated = Date.now(); manual.acks = {}; toast("Versão " + manual.version + " publicada. Todos precisam assinar de novo."); return render();
+      case "addsection": manual.sections.forEach(function (x, i) { x.title = document.getElementById("mt-" + i).value; x.body = document.getElementById("mb-" + i).value; }); manual.sections.push({ title: (manual.sections.length + 1) + ". Nova seção", body: "" }); return render();
+      case "remind": return toast("Lembrete enviado no WhatsApp de quem não assinou.");
+      case "charge": return toast("Cobrança reenviada pelo Asaas (demonstração).");
+      case "leavestack": S.view = HOME[S.role]; try { history.replaceState(null, "", location.pathname + location.search); } catch (e) { /* sem histórico */ } return render();
+      case "again": S.survey = { score: null, reasons: [], comment: "", done: false, att: "" }; return render();
+    }
+  }
+
+  function currentTheme() { return document.documentElement.dataset.theme || (window.matchMedia && matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"); }
+  function paintThemeBtn() { var b = document.getElementById("theme-btn"), t = currentTheme(); b.innerHTML = ic(t === "dark" ? "sun" : "moon", 14) + (t === "dark" ? "Modo claro" : "Modo escuro"); b.setAttribute("aria-label", t === "dark" ? "Mudar para o modo claro" : "Mudar para o modo escuro"); }
+  try { var saved = localStorage.getItem("avaliaja-tema"); if (saved === "dark" || saved === "light") document.documentElement.dataset.theme = saved; } catch (e) { /* sem armazenamento */ }
+  document.getElementById("theme-btn").addEventListener("click", function () { var next = currentTheme() === "dark" ? "light" : "dark"; document.documentElement.dataset.theme = next; try { localStorage.setItem("avaliaja-tema", next); } catch (e) { /* sem armazenamento */ } paintThemeBtn(); drawCharts(); });
+  paintThemeBtn();
+  var initial = (location.hash || "").slice(1);
+  if (initial === "stack") S.view = "stack";
+  window.addEventListener("hashchange", function () { if (location.hash === "#stack") { S.view = "stack"; render(); window.scrollTo(0, 0); } });
+  render();
+})();
+</script>
+
+</body>
+</html>
