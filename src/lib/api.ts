@@ -135,9 +135,15 @@ export function publicRoute<P extends RouteParams = RouteParams>(opts: { rate: n
   };
 }
 
+/** Teto do corpo JSON: barra payloads gigantes antes do zod validar (GHSA-mrhx-c7xc-m3w5). Uploads usam formData e não passam aqui. */
+export const MAX_JSON_BYTES = 1_000_000;
+
 export async function body<T = unknown>(req: NextRequest): Promise<T> {
+  if (Number(req.headers.get('content-length') ?? 0) > MAX_JSON_BYTES) throw new AppError(413, 'PAYLOAD_TOO_LARGE', 'Dados grandes demais.');
+  const text = await req.text();
+  if (text.length > MAX_JSON_BYTES) throw new AppError(413, 'PAYLOAD_TOO_LARGE', 'Dados grandes demais.');
   try {
-    return (await req.json()) as T;
+    return JSON.parse(text) as T;
   } catch {
     throw new AppError(400, 'BAD_JSON', 'JSON inválido.');
   }
