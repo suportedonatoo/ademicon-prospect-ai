@@ -1314,8 +1314,7 @@
      {
       "t": "legend",
       "items": [
-       "**Simular apenas**: vê a simulação sem deixar dados.",
-       "**Simulação com interesse**: já deixa o contato."
+       "**Simular**: o único botão. O cliente escolhe o tipo de consórcio e o valor e clica aqui."
       ]
      }
     ]
@@ -1325,13 +1324,14 @@
     "src": "c16-4.webp",
     "w": 1440,
     "h": 900,
-    "title": "2º: resultado e dúvidas",
+    "title": "2º: cadastro rápido",
     "body": [
      {
       "t": "legend",
       "items": [
-       "O cliente pode perguntar ao **assistente** ali mesmo.",
-       "**Tenho interesse**: abre o formulário de contato."
+       "**WhatsApp** e nome do cliente (o e-mail é opcional).",
+       "**Autorização** para você chamar o cliente no WhatsApp.",
+       "**Ver minha simulação**: envia o cadastro. Nesse momento o lead já é **seu** e você é **avisado na hora**."
       ]
      }
     ]
@@ -1341,12 +1341,15 @@
     "src": "c16-5.webp",
     "w": 1440,
     "h": 900,
-    "title": "3º: contato recebido",
+    "title": "3º: resultado e WhatsApp",
     "body": [
      {
       "t": "legend",
       "items": [
-       "**Continuar no WhatsApp**: o cliente manda a primeira mensagem e o assistente responde na hora. A conversa aparece no seu Inbox."
+       "O cliente vê que você **já foi avisado** e recebe um protocolo.",
+       "A **parcela** da simulação.",
+       "**Continuar no WhatsApp**: o cliente manda a primeira mensagem e a conversa aparece no seu Inbox.",
+       "O **assistente virtual** adianta as perguntas; você recebe tudo no lead."
       ]
      }
     ]
@@ -1355,7 +1358,7 @@
   "learned": [
    "Link próprio = lead seu.",
    "A página não mostra o seu nome.",
-   "Contato recebido → WhatsApp → Inbox."
+   "Um clique em Simular → cadastro → você é avisado na hora."
   ]
  },
  {
