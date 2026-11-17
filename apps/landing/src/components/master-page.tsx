@@ -232,7 +232,7 @@ export function MasterPage({ site, initialProduct, keepQuery = '' }: { site: Sit
             <p className="text-sm font-bold uppercase tracking-wider text-brand-500">{pj ? 'Sua unidade' : 'Atendimento'}</p>
             <h2 className="mt-2 text-3xl font-bold tracking-tight">{pj ? pj.name : 'Um consultor fala com você'}</h2>
             <p className="mt-2 text-muted">
-              {pj ? `Atendimento em ${pj.citiesServed.join(', ') || pj.city}.` : 'Depois da simulação com interesse, um consultor de uma das nossas unidades chama você no WhatsApp — esteja no Brasil ou no exterior.'}
+              {pj ? `Atendimento em ${pj.citiesServed.join(', ') || pj.city}.` : 'Depois da simulação, um consultor de uma das nossas unidades chama você no WhatsApp — esteja no Brasil ou no exterior.'}
             </p>
             {!pj && (
               <a href="/unidades" className="mt-3 inline-block text-sm font-semibold text-brand-600 hover:underline">

@@ -32,8 +32,7 @@ interface SimResult {
   };
 }
 
-type Step = 'simular' | 'resultado' | 'contato' | 'enviado';
-type Heat = 'MORNO' | 'QUENTE';
+type Step = 'simular' | 'resultado' | 'contato';
 
 const brl0 = (n: number) => n.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 });
 const brl2 = (n: number) => n.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
@@ -92,17 +91,12 @@ export function SimulatorFlow({
   const [mode, setMode] = useState<Mode>(start?.plan ? 'CREDITO' : 'PARCELA');
   const [amount, setAmount] = useState<number>(() => (start ? suggested(start, start.plan ? 'CREDITO' : 'PARCELA') : 0));
   const [sim, setSim] = useState<SimResult | null>(null);
-  const [heat, setHeat] = useState<Heat>('MORNO');
-  const [contact, setContact] = useState({ name: '', whatsapp: '', email: '', bestTime: '', consent: false, website: '' });
+  const [contact, setContact] = useState({ name: '', whatsapp: '', email: '', consent: false, website: '' });
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const [protocol, setProtocol] = useState('');
-  // Dois caminhos: 'APENAS' (só simular → FRIO, bot do visitante) · 'INTERESSE' (deixa contato → MORNO/QUENTE, bot de qualificação)
-  const [path, setPath] = useState<'APENAS' | 'INTERESSE'>('APENAS');
   const [chatToken, setChatToken] = useState('');
   const [whatsappUrl, setWhatsappUrl] = useState<string | null>(null);
-  // "Simular apenas" também passa pelo cadastro: toda simulação vira lead antes de mostrar o valor.
-  const [quickSaved, setQuickSaved] = useState(false);
 
   if (!product) return <div className="rounded-3xl bg-white border border-line p-6">Simulador indisponível no momento.</div>;
 
@@ -129,9 +123,9 @@ export function SimulatorFlow({
     setAmount(mode === 'PARCELA' ? Number(d || 0) / 100 : Number(d || 0));
   }
 
-  async function simulate(e: React.FormEvent, which: 'APENAS' | 'INTERESSE' = 'APENAS') {
+  // Um clique só: simula → cadastro → o consultor é avisado na hora (lead QUENTE) e o cliente vê o resultado.
+  async function simulate(e: React.FormEvent) {
     e.preventDefault();
-    setPath(which);
     if (!amount || outOfRange) return setError(`Escolha um valor entre ${brl2(range.min)} e ${brl2(range.max)}.`);
     setBusy(true);
     setError('');
@@ -152,12 +146,6 @@ export function SimulatorFlow({
     }
   }
 
-  function goInterest() {
-    setPath('INTERESSE');
-    setError('');
-    setStep('contato');
-  }
-
   async function sendInterest(e: React.FormEvent) {
     e.preventDefault();
     if (!sim) return;
@@ -172,8 +160,7 @@ export function SimulatorFlow({
         name: contact.name,
         whatsapp: contact.whatsapp,
         email: contact.email || undefined,
-        bestTime: path === 'INTERESSE' && heat === 'MORNO' ? contact.bestTime || undefined : undefined,
-        callNow: path === 'INTERESSE' && heat === 'QUENTE',
+        callNow: true,
         consentWhatsapp: contact.consent,
         consentText: CONSENT_TEXT(pjName),
         website: contact.website,
@@ -181,8 +168,7 @@ export function SimulatorFlow({
       setProtocol(data.protocol);
       setChatToken(data.chatToken);
       setWhatsappUrl(data.whatsappUrl ?? null);
-      if (path === 'APENAS') setQuickSaved(true);
-      setStep(path === 'APENAS' ? 'resultado' : 'enviado');
+      setStep('resultado');
     } catch (err) {
       setError((err as Error).message);
     } finally {
@@ -264,31 +250,19 @@ export function SimulatorFlow({
               {error}
             </p>
           )}
-          <div className="grid grid-cols-2 gap-2">
-            <button type="button" disabled={busy} onClick={(e) => simulate(e, 'APENAS')} className="rounded-full border border-brand-500 text-brand-600 hover:bg-brand-50 disabled:opacity-60 font-bold py-3.5 text-[14.5px]">
-              {busy && path === 'APENAS' ? 'Calculando…' : 'Simular apenas'}
-            </button>
-            <button type="button" disabled={busy} onClick={(e) => simulate(e, 'INTERESSE')} className="rounded-full bg-brand-500 hover:bg-brand-600 disabled:opacity-60 text-white font-bold py-3.5 text-[14.5px]">
-              {busy && path === 'INTERESSE' ? 'Calculando…' : 'Simulação com interesse'}
-            </button>
-          </div>
-          <p className="text-[11.5px] text-muted text-center -mt-2">Para ver o resultado, você preenche um cadastro rápido. Com interesse, um consultor te atende.</p>
+          <button type="button" disabled={busy} onClick={(e) => simulate(e)} className="w-full rounded-full bg-brand-500 hover:bg-brand-600 disabled:opacity-60 text-white font-bold py-3.5 text-[15px]">
+            {busy ? 'Calculando…' : 'Simular'}
+          </button>
+          <p className="text-[11.5px] text-muted text-center -mt-2">Para ver o resultado, você preenche um cadastro rápido e um consultor já te atende pelo WhatsApp.</p>
           {product.plan && disclaimer && <p className="text-[11px] leading-snug text-muted">{disclaimer}</p>}
         </form>
       )}
 
       {step === 'resultado' && sim && (
         <div className="space-y-4">
-          {quickSaved && (
-            <div className="rounded-xl bg-brand-50/70 px-4 py-3 text-sm">
-              <b>Pronto!</b> Um consultor vai falar com você pelo WhatsApp.
-              {whatsappUrl && (
-                <a href={whatsappUrl} target="_blank" rel="noreferrer" className="ml-1 font-semibold text-brand-600 underline">
-                  Falar agora no WhatsApp
-                </a>
-              )}
-            </div>
-          )}
+          <div className="rounded-xl bg-brand-50/70 px-4 py-3 text-sm">
+            <b>Pronto! A {pjName} já foi avisada.</b> Um consultor te chama no WhatsApp em instantes (horário comercial). Protocolo <b>{protocol}</b>.
+          </div>
           <div>
             <p className="text-sm text-muted">{productName(product)}</p>
             {sim.result.options.length === 1 && !sim.result.officialRange ? (
@@ -357,10 +331,23 @@ export function SimulatorFlow({
             {sim.result.options[0]?.basis === 'DIVISAO_SIMPLES' ? 'Base: crédito ÷ prazo, sem taxas. ' : ''}
             {sim.result.disclaimer}
           </p>
-          <ChatBox mode="visitor" site={site} product={product.key} pjName={pjName} onInterest={goInterest} />
-          <button onClick={goInterest} className="w-full rounded-full bg-brand-500 hover:bg-brand-600 text-white font-bold py-3">
-            Tenho interesse — falar com a unidade
-          </button>
+          {whatsappUrl && (
+            <a
+              href={whatsappUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => trackContactClick(site, 'WHATSAPP_CLICK')}
+              className="flex items-center justify-center gap-2 w-full rounded-xl bg-[#25D366] hover:brightness-95 text-white font-bold py-3 text-sm"
+            >
+              Continuar no WhatsApp
+            </a>
+          )}
+          {chatToken && (
+            <>
+              <p className="text-[13px] text-ink-2">{whatsappUrl ? 'Ou adiante sua conversa por aqui mesmo' : 'Enquanto isso, adiante sua conversa por aqui'} — o consultor recebe tudo:</p>
+              <ChatBox mode="lead" site={site} token={chatToken} pjName={pjName} />
+            </>
+          )}
           <button onClick={() => setStep('simular')} className="w-full text-sm text-muted underline">
             Refazer simulação
           </button>
@@ -370,9 +357,9 @@ export function SimulatorFlow({
       {step === 'contato' && (
         <form onSubmit={sendInterest} className="space-y-4" noValidate>
           <div>
-            <h2 className="text-[19px] font-bold text-brand-500">{path === 'APENAS' ? 'Complete seu cadastro para ver a simulação' : heat === 'QUENTE' ? 'Um consultor vai te chamar agora' : 'Deixe seu contato'}</h2>
+            <h2 className="text-[19px] font-bold text-brand-500">Complete seu cadastro para ver a simulação</h2>
             <p className="text-sm text-muted mt-1">
-              {path === 'APENAS' ? 'O valor aparece logo em seguida.' : heat === 'QUENTE' ? `A ${pjName} é avisada na hora para te chamar no WhatsApp.` : `Um consultor da ${pjName} te chama no WhatsApp.`}
+              {`O valor aparece logo em seguida e um consultor da ${pjName} te chama no WhatsApp.`}
             </p>
           </div>
           {sim && (
@@ -380,18 +367,6 @@ export function SimulatorFlow({
               Sua simulação: <b>{productName(product)}</b> ·{' '}
               {sim.result.mode === 'PARCELA' ? <>parcela de <b>{brl2(sim.result.installmentTarget ?? 0)}</b></> : <>crédito de <b>{brl0(sim.result.value)}</b></>}
             </p>
-          )}
-          {path === 'INTERESSE' && (
-          <fieldset>
-            <legend className="block text-sm font-semibold mb-1.5">Como prefere ser atendido?</legend>
-            <div className="grid grid-cols-2 gap-1 rounded-xl bg-canvas p-1" role="radiogroup">
-              {([['MORNO', 'Quero receber contato'], ['QUENTE', 'Quero ser chamado agora']] as [Heat, string][]).map(([h, l]) => (
-                <button key={h} type="button" role="radio" aria-checked={heat === h} onClick={() => setHeat(h)} className={`rounded-lg py-2 px-2 text-[13px] font-semibold transition ${heat === h ? 'bg-brand-500 text-white shadow-sm' : 'text-ink-2 hover:bg-white'}`}>
-                  {l}
-                </button>
-              ))}
-            </div>
-          </fieldset>
           )}
           <div>
             <label htmlFor="whats" className="block text-sm font-semibold mb-1.5">
@@ -421,19 +396,6 @@ export function SimulatorFlow({
             </label>
             <input id="email" type="email" autoComplete="email" className={field} value={contact.email} onChange={(e) => setContact({ ...contact, email: e.target.value })} />
           </div>
-          {path === 'INTERESSE' && heat === 'MORNO' && (
-            <div>
-              <label htmlFor="horario" className="block text-sm font-semibold mb-1.5">
-                Melhor horário <span className="text-muted font-normal">(opcional)</span>
-              </label>
-              <select id="horario" className={field} value={contact.bestTime} onChange={(e) => setContact({ ...contact, bestTime: e.target.value })}>
-                <option value="">Qualquer horário comercial</option>
-                <option>Manhã</option>
-                <option>Tarde</option>
-                <option>Início da noite (até 20h)</option>
-              </select>
-            </div>
-          )}
           {/* honeypot anti-bot: invisível para pessoas */}
           <input tabIndex={-1} autoComplete="off" aria-hidden className="hidden" value={contact.website} onChange={(e) => setContact({ ...contact, website: e.target.value })} />
           <label className="flex gap-2.5 items-start text-[13px] text-ink-2 cursor-pointer">
@@ -457,66 +419,14 @@ export function SimulatorFlow({
             </p>
           )}
           <button disabled={busy} className="w-full rounded-full bg-brand-500 hover:bg-brand-600 disabled:opacity-60 text-white font-bold py-3.5">
-            {busy ? 'Enviando…' : path === 'APENAS' ? 'Ver minha simulação' : heat === 'QUENTE' ? 'Quero ser chamado agora' : 'Enviar meu contato'}
+            {busy ? 'Enviando…' : 'Ver minha simulação'}
           </button>
-          <button type="button" onClick={() => setStep('resultado')} className="w-full text-sm text-muted underline">
+          <button type="button" onClick={() => setStep('simular')} className="w-full text-sm text-muted underline">
             Voltar
           </button>
         </form>
       )}
 
-      {step === 'enviado' && (
-        <div className="space-y-3">
-          <div className="flex items-center gap-3">
-            <div className="grid place-items-center size-10 shrink-0 rounded-full bg-ok-50 text-ok text-lg" aria-hidden>
-              ✓
-            </div>
-            <div>
-              <h2 className="text-lg font-bold leading-tight">{heat === 'QUENTE' ? 'Pronto! A unidade já foi avisada.' : 'Contato recebido!'}</h2>
-              <p className="text-xs text-muted">
-                Protocolo <b className="text-ink">{protocol}</b> · {heat === 'QUENTE' ? 'um consultor te chama em instantes (horário comercial)' : 'um consultor te chama no WhatsApp'}
-              </p>
-            </div>
-          </div>
-          {sim && sim.result.options.length === 1 && !sim.result.officialRange && (
-            <div className="rounded-xl bg-brand-50/60 px-4 py-3">
-              <p className="text-sm text-ink-2">
-                {productName(product)} · {sim.result.mode === 'CREDITO' ? `sua parcela em ${sim.result.options[0].termMonths} meses` : `crédito em ${sim.result.options[0].termMonths} meses`}
-              </p>
-              <p className="text-2xl font-bold text-brand-600 tabular-nums">
-                {sim.result.mode === 'CREDITO' ? (
-                  <>
-                    {brl2(sim.result.options[0].installment)}
-                    <span className="text-sm font-medium text-muted">/mês</span>
-                  </>
-                ) : (
-                  brl0(sim.result.options[0].credit)
-                )}
-              </p>
-              {sim.result.mode === 'CREDITO' && sim.result.options[0].installmentWithInsurance != null && (
-                <p className="text-xs text-muted tabular-nums">Com seguro prestamista: {brl2(sim.result.options[0].installmentWithInsurance)}/mês</p>
-              )}
-            </div>
-          )}
-          {whatsappUrl && (
-            <a
-              href={whatsappUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={() => trackContactClick(site, 'WHATSAPP_CLICK')}
-              className="flex items-center justify-center gap-2 w-full rounded-xl bg-[#25D366] hover:brightness-95 text-white font-bold py-3 text-sm"
-            >
-              Continuar no WhatsApp
-            </a>
-          )}
-          {chatToken ? (
-            <>
-              <p className="text-[13px] text-ink-2">{whatsappUrl ? 'Ou adiante sua conversa por aqui mesmo' : 'Enquanto isso, adiante sua conversa por aqui'} — o consultor recebe tudo:</p>
-              <ChatBox mode="lead" site={site} token={chatToken} pjName={pjName} />
-            </>
-          ) : null}
-        </div>
-      )}
     </div>
   );
 }
