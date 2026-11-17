@@ -10,7 +10,7 @@
 <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
 <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
 <link rel="manifest" href="site.webmanifest">
-<meta name="theme-color" content="#ffffff">
+<meta name="theme-color" content="#f2f0ef">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -19,14 +19,14 @@
 <style>
 /* Radius rule: cards 24px, inputs 12px, buttons/pills full. */
 :root{
-  --blue:#1800ad; --blue-2:#2a14d6; --night:#0a0a0a; --white:#fff;
+  --blue:#1800ad; --blue-2:#2a14d6; --night:#0a0a0a; --white:#fff; --off:#f2f0ef;
   --ink:#0a0a0a; --ink-2:#4b4b57; --line:rgba(10,10,10,.1);
   --ease:cubic-bezier(.16,1,.3,1);
 }
 *{box-sizing:border-box;margin:0;padding:0}
 html{font-size:106.25%}
 html{scroll-behavior:smooth}
-body{font-family:Sora,system-ui,sans-serif;background:var(--white);color:var(--ink);line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+body{font-family:Sora,system-ui,sans-serif;background:var(--off);color:var(--ink);line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden}
 a{color:inherit;text-decoration:none}
 img{max-width:100%;display:block}
 .wrap{width:100%;max-width:1240px;margin:0 auto;padding:0 24px}
@@ -50,8 +50,8 @@ h2{font-size:clamp(2.2rem,4.6vw,3.6rem)}
 .btn-ghost:hover{background:rgba(255,255,255,.12)}
 
 /* Nav (port of dropdown-navigation: sliding hover pill + dropdown panels) */
-.nav{position:fixed;top:0;left:0;right:0;z-index:50;background:rgba(255,255,255,.72);backdrop-filter:blur(14px) saturate(140%);-webkit-backdrop-filter:blur(14px) saturate(140%);border-bottom:3px solid var(--blue)}
-@supports not (backdrop-filter:blur(1px)){.nav{background:rgba(255,255,255,.95)}}
+.nav{position:fixed;top:0;left:0;right:0;z-index:50;background:rgba(242,240,239,.75);backdrop-filter:blur(14px) saturate(140%);-webkit-backdrop-filter:blur(14px) saturate(140%);border-bottom:3px solid var(--blue)}
+@supports not (backdrop-filter:blur(1px)){.nav{background:rgba(242,240,239,.96)}}
 /* Liquid glass (port of liquid-glass.tsx): distorted blur + white tint + inner highlights + springy hover */
 .nav-in{position:relative;isolation:isolate;display:flex;align-items:center;justify-content:space-between;gap:16px;height:84px}
 .nav-in>*{position:relative;z-index:3}
@@ -75,7 +75,7 @@ h2{font-size:clamp(2.2rem,4.6vw,3.6rem)}
 .dd small{font-size:.78rem;color:var(--ink-2);transition:color .3s}
 .dd a:hover small{color:var(--ink)}
 .nav .btn{padding:15px 26px;font-size:.95rem}
-.trust{padding:56px 0;background:var(--white);border-bottom:1px solid var(--line);text-align:center}
+.trust{padding:56px 0;background:var(--off);border-bottom:1px solid var(--line);text-align:center}
 .trust p{font-size:.8rem;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:rgba(10,10,10,.5);margin-bottom:28px}
 .trust ul{list-style:none;display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:40px 72px}
 .trust img{display:block;height:44px;width:auto;opacity:.75;transition:opacity .3s}
@@ -83,7 +83,7 @@ h2{font-size:clamp(2.2rem,4.6vw,3.6rem)}
 .burger{display:none;background:none;border:0;color:var(--ink);font-size:1.6rem;cursor:pointer;padding:8px}
 
 /* Hero (port of minimalist-hero: text | image in circle | big headline) */
-.hero{position:relative;min-height:100dvh;background:var(--white);display:flex;flex-direction:column;padding:104px 0 28px;overflow:hidden}
+.hero{position:relative;min-height:100dvh;background:var(--off);display:flex;flex-direction:column;padding:104px 0 28px;overflow:hidden}
 .hero-grid{flex:1;display:grid;grid-template-columns:.85fr 1.1fr 1.15fr;align-items:center;gap:32px;text-align:center}
 .hero-copy{order:1;position:relative;z-index:2}
 .hero-copy p{color:var(--ink-2);font-size:1.08rem;max-width:34ch;margin:0 auto}
@@ -108,7 +108,7 @@ h2{font-size:clamp(2.2rem,4.6vw,3.6rem)}
 @keyframes up{to{opacity:1;transform:none;filter:none}}
 
 /* Preloader (port of text-loop) */
-.loader{display:none;position:fixed;inset:0;z-index:100;place-items:center;padding:0 16px;background:var(--white);transition:opacity .6s var(--ease),visibility .6s}
+.loader{display:none;position:fixed;inset:0;z-index:100;place-items:center;padding:0 16px;background:var(--off);transition:opacity .6s var(--ease),visibility .6s}
 .loading .loader,.loader.out{display:grid}
 .loader.out{opacity:0;visibility:hidden}
 .loading{overflow:hidden}
@@ -127,7 +127,7 @@ h2{font-size:clamp(2.2rem,4.6vw,3.6rem)}
 .rv.in{opacity:1;transform:none}
 
 /* About */
-.about{padding:140px 0 110px;background:var(--white)}
+.about{padding:140px 0 110px;background:var(--off)}
 .about-grid{display:grid;gap:56px;text-align:center}
 .about-grid .lead{margin-left:auto;margin-right:auto}
 .about h2{max-width:16ch;margin:0 auto}
@@ -230,7 +230,7 @@ h2{font-size:clamp(2.2rem,4.6vw,3.6rem)}
 .pf-meta span{color:var(--ink-2);font-size:.88rem}
 
 /* Testimonials (port of unique-testimonial) */
-.testi{padding:110px 0;background:var(--white);color:var(--ink);text-align:center;border-top:1px solid var(--line)}
+.testi{padding:110px 0;background:var(--off);color:var(--ink);text-align:center;border-top:1px solid var(--line)}
 .testi h2{margin-bottom:56px}
 .t-quote{position:relative;max-width:640px;margin:0 auto;padding:0 32px}
 .t-quote .mark{position:absolute;font:7rem/1 Georgia,serif;color:rgba(10,10,10,.07);pointer-events:none;user-select:none}
@@ -251,7 +251,7 @@ h2{font-size:clamp(2.2rem,4.6vw,3.6rem)}
 .person[aria-selected=true] img{box-shadow:0 0 0 2px rgba(255,255,255,.3)}
 
 /* FAQ */
-.faq{padding:120px 0;background:var(--white)}
+.faq{padding:120px 0;background:var(--off)}
 .faq-grid{display:grid;gap:48px;justify-items:center;text-align:center}
 .faq-grid .lead{margin:18px auto 0}
 .faq-list{display:grid;gap:12px;width:min(100%,820px);text-align:left}
@@ -264,7 +264,7 @@ details[open] .pm{transform:rotate(45deg);background:var(--blue);color:#fff}
 details p{padding:0 26px 24px;color:var(--ink-2);max-width:62ch}
 
 /* Contact */
-.contact{padding:120px 0;background:var(--white);border-top:1px solid var(--line)}
+.contact{padding:120px 0;background:var(--off);border-top:1px solid var(--line)}
 .c-grid{display:grid;gap:48px;justify-items:center;text-align:center}
 .c-grid .lead{margin-left:auto;margin-right:auto}
 .contact h2{font-size:clamp(2.4rem,5vw,4rem)}
@@ -539,6 +539,15 @@ footer{margin:0 16px 16px;border-radius:32px;border-top:0}
 .person img{box-shadow:0 0 0 2px rgba(255,255,255,.15)}
 .person[aria-selected=true]{box-shadow:0 10px 24px -10px rgba(42,20,214,.8)}
 @media (max-width:640px){.testi{padding:0 0 64px}.testi>.wrap{padding:52px 18px 44px;border-radius:24px;width:calc(100% - 20px)}}
+
+/* Botão de idioma PT/EN no menu */
+.nav-links{margin-left:auto}
+.lang{display:flex;margin-left:auto;padding:3px;border-radius:999px;border:1px solid var(--line);background:rgba(255,255,255,.6)}
+.lang button{border:0;background:none;cursor:pointer;font:600 .78rem/1 "Geist Mono",ui-monospace,monospace;letter-spacing:.06em;color:var(--ink-2);padding:8px 11px;border-radius:999px;transition:background .25s,color .25s}
+.lang button[aria-pressed=true]{background:var(--ink);color:#fff}
+.lang button:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+@media (max-width:820px){.nav-in{gap:8px}.lang button{padding:7px 9px}}
+.eco-bar em{white-space:nowrap}
 </style>
 </head>
 <body>
@@ -582,6 +591,7 @@ footer{margin:0 16px 16px;border-radius:32px;border-top:0}
         <li><a class="nav-item" href="#faq">FAQ</a></li>
         <li><a class="nav-item" href="#contato">Contato</a></li>
       </ul>
+      <div class="lang" role="group" aria-label="Idioma"><button type="button" data-l="pt" aria-pressed="true">PT</button><button type="button" data-l="en" aria-pressed="false">EN</button></div>
       <a class="btn btn-blue nav-cta wa-link" href="#contato">Falar no WhatsApp <i class="ph ph-whatsapp-logo"></i></a>
       <button class="burger" aria-label="Abrir menu" aria-expanded="false"><i class="ph ph-list"></i></button>
     </div>
@@ -777,7 +787,7 @@ footer{margin:0 16px 16px;border-radius:32px;border-top:0}
         <label class="eco-label" for="eco-range">Quanto você paga hoje por mês em sistemas</label>
         <div class="eco-money"><span id="eco-cur">R$ 2.500</span><small>/mês</small></div>
         <input id="eco-range" type="range" min="500" max="15000" step="100" value="2500" aria-describedby="eco-hint">
-        <div class="eco-scale"><span>R$ 500</span><span>R$ 15.000</span></div>
+        <div class="eco-scale"><span id="eco-min">R$ 500</span><span id="eco-max">R$ 15.000</span></div>
         <p class="eco-hint" id="eco-hint">Some todas as assinaturas: gestão, CRM, agenda, estoque, financeiro e os acessos extras por usuário.</p>
         <span class="eco-label" style="margin-top:22px">Comparar em</span>
         <div class="eco-periods" role="group" aria-label="Período">
@@ -797,7 +807,7 @@ footer{margin:0 16px 16px;border-radius:32px;border-top:0}
         <a class="btn btn-white" id="eco-cta" href="#contato">Quero meu sistema <i class="ph ph-arrow-right"></i></a>
       </div>
     </div>
-    <p class="eco-note">Simulação com base em R$ 3.000 de investimento inicial e R$ 1.380/mês de suporte. O valor final depende do escopo de cada projeto.</p>
+    <p class="eco-note" id="eco-note">Simulação com base em R$ 3.000 de investimento inicial e R$ 1.380/mês de suporte. O valor final depende do escopo de cada projeto.</p>
   </div>
 </section>
 
@@ -885,6 +895,13 @@ footer{margin:0 16px 16px;border-radius:32px;border-top:0}
 <a class="wa wa-link" href="#" aria-label="Falar no WhatsApp"><i class="ph ph-whatsapp-logo"></i></a>
 
 <script>
+// Idioma: ?lang=en ou a última escolha do visitante
+let lang = "pt";
+try { lang = new URLSearchParams(location.search).get("lang") || localStorage.getItem("stack-lang") || "pt"; } catch (e) {}
+if (lang !== "en") lang = "pt";
+const L = (pt, en) => lang === "en" ? en : pt;
+</script>
+<script>
 // Troque pelo número real (DDI + DDD + número, só dígitos).
 const WHATSAPP = "551151043609"; // +55 11 5104-3609
 const wa = msg => `https://wa.me/${WHATSAPP}?text=${encodeURIComponent(msg)}`;
@@ -895,6 +912,9 @@ const ECO_STAT = { clientes: null, economia: null }; // ex.: { clientes: 12, eco
 {
   const SETUP = 3000, SUPPORT = 1380;
   const brl = v => 'R$ ' + Math.round(v).toLocaleString('pt-BR');
+  // Em inglês os valores aparecem em dólar. ponytail: cotação fixa, atualizar USD_BRL quando o câmbio mudar muito
+  const USD_BRL = 5.4;
+  const money = v => lang === 'en' ? '$' + Math.round(v / USD_BRL).toLocaleString('en-US') : brl(v);
   const $ = id => document.getElementById(id);
   const range = $('eco-range'); let months = 24;
   if (ECO_STAT.clientes && ECO_STAT.economia) {
@@ -903,21 +923,24 @@ const ECO_STAT = { clientes: null, economia: null }; // ex.: { clientes: 12, eco
   }
   const calc = () => {
     const m = +range.value, now = m * months, stk = SETUP + SUPPORT * months, save = now - stk;
-    $('eco-cur').textContent = brl(m);
-    $('eco-now').textContent = brl(now); $('eco-stk').textContent = brl(stk);
+    $('eco-cur').textContent = money(m);
+    $('eco-now').textContent = money(now); $('eco-stk').textContent = money(stk);
+    $('eco-min').textContent = money(+range.min); $('eco-max').textContent = money(+range.max);
+    $('eco-note').textContent = L(`Simulação com base em ${money(SETUP)} de investimento inicial e ${money(SUPPORT)}/mês de suporte. O valor final depende do escopo de cada projeto.`,
+      `Simulation based on an initial investment of ${money(SETUP)} and ${money(SUPPORT)}/month for support (US$ 1 = R$ ${USD_BRL.toFixed(2)}). The final price depends on each project's scope.`);
     const max = Math.max(now, stk);
     $('eco-now-bar').style.width = (now / max * 100) + '%'; $('eco-stk-bar').style.width = (stk / max * 100) + '%';
-    $('eco-top').textContent = `Economia em ${months} meses`;
+    $('eco-top').textContent = L(`Economia em ${months} meses`, `Savings over ${months} months`);
     const big = $('eco-big');
     if (save > 0) {
-      big.classList.remove('neg'); big.textContent = brl(save);
+      big.classList.remove('neg'); big.textContent = money(save);
       const pay = Math.ceil(SETUP / (m - SUPPORT));
-      $('eco-sub').textContent = pay <= months ? `O investimento se paga em ${pay} ${pay === 1 ? 'mês' : 'meses'}.` : 'O investimento se paga depois desse período.';
+      $('eco-sub').textContent = pay <= months ? L(`O investimento se paga em ${pay} ${pay === 1 ? 'mês' : 'meses'}.`, `The investment pays for itself in ${pay} ${pay === 1 ? 'month' : 'months'}.`) : L('O investimento se paga depois desse período.', 'The investment pays for itself after this period.');
     } else {
-      big.classList.add('neg'); big.textContent = 'Com esse gasto, a economia não é financeira.';
-      $('eco-sub').textContent = 'Mesmo assim, um sistema feito para a sua rotina pode valer a pena. Vamos conversar?';
+      big.classList.add('neg'); big.textContent = L('Com esse gasto, a economia não é financeira.', 'At this spend, the savings are not financial.');
+      $('eco-sub').textContent = L('Mesmo assim, um sistema feito para a sua rotina pode valer a pena. Vamos conversar?', 'Even so, a system built for your routine can be worth it. Shall we talk?');
     }
-    $('eco-cta').href = wa(`Olá! Fiz a simulação no site: gasto ${brl(m)}/mês com sistemas. Quero saber mais sobre ter um sistema próprio.`);
+    $('eco-cta').href = wa(L(`Olá! Fiz a simulação no site: gasto ${money(m)}/mês com sistemas. Quero saber mais sobre ter um sistema próprio.`, `Hi! I ran the simulation on your website: I spend ${money(m)}/month on software. I'd like to know more about having my own system.`));
     $('eco-cta').target = '_blank'; $('eco-cta').rel = 'noopener';
   };
   range.addEventListener('input', calc);
@@ -927,11 +950,15 @@ const ECO_STAT = { clientes: null, economia: null }; // ex.: { clientes: 12, eco
     calc();
   });
   calc();
+  window.ecoCalc = calc;
 }
-document.querySelectorAll(".wa-link").forEach(a => { a.href = wa("Olá! Vim pelo site da Stack Solution."); a.target = "_blank"; a.rel = "noopener"; });
+const setWaLinks = () => document.querySelectorAll(".wa-link").forEach(a => { a.href = wa(L("Olá! Vim pelo site da Stack Solution.", "Hi! I found you through the Stack Solution website.")); a.target = "_blank"; a.rel = "noopener"; });
+setWaLinks();
 
 // Hero: split headline into words for staggered reveal
-const h1 = document.getElementById("h1"); let i = 0;
+const h1 = document.getElementById("h1");
+const H1 = { pt: 'Software sob medida pro seu negócio <span class="hl">crescer.</span>', en: 'Custom software built to help your business <span class="hl">grow.</span>' };
+function splitH1() { let i = 0; h1.innerHTML = H1[lang];
 h1.childNodes.forEach(n => {
   if (n.nodeType === 3) n.replaceWith(...n.textContent.split(/(\s+)/).map(t => {
     if (!t.trim()) return document.createTextNode(t);
@@ -939,6 +966,8 @@ h1.childNodes.forEach(n => {
   }));
   else if (n.tagName !== "BR") { n.classList.add("w"); n.style.setProperty("--i", i++); }
 });
+}
+splitH1();
 
 // Mobile menu
 const nav = document.getElementById("nav"), burger = nav.querySelector(".burger");
@@ -976,7 +1005,8 @@ const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
 // Preloader: rotates Stack phrases, then reveals the page (min 4.2s, or instant with reduced motion)
 const loader = document.getElementById("loader");
 {
-  const words = ["sob medida", "sem enrolação", "pra crescer"];
+  const words = L(["sob medida", "sem enrolação", "pra crescer"], ["made to fit", "no fluff", "to grow"]);
+  loader.querySelector(".tl-txt").textContent = words[0];
   const rot = loader.querySelector(".tl-rot"), txt = loader.querySelector(".tl-txt");
   let k = 0;
   const show = () => { rot.style.width = txt.offsetWidth + "px"; rot.style.opacity = 1; };
@@ -1000,19 +1030,24 @@ const io = new IntersectionObserver(es => es.forEach(e => {
 document.querySelectorAll(".rv").forEach(el => io.observe(el));
 
 // Testimonials (Rafael e Camila: textos provisórios, substituir pelos reais)
-const T = [
+const T_PT = [
   ["Chegamos com uma ideia meio confusa e saímos com um sistema que a equipe usa todo dia sem reclamar. Isso pra mim já vale o investimento.", "Marina Alves", "Dona de clínica"],
   ["O atendimento é direto com quem programa. Pedi um ajuste de manhã e à tarde já estava funcionando.", "Rafael Souza", "Gestor comercial"],
   ["O treinamento fez toda a diferença. Em uma semana a equipe inteira já estava usando o app sem ajuda.", "Camila Torres", "Sócia de loja"],
 ];
+const T_EN = [
+  ["We came in with a somewhat confused idea and left with a system the team uses every day without complaining. That alone is worth the investment.", "Marina Alves", "Clinic owner"],
+  ["You talk directly to the developers. I asked for a tweak in the morning and it was live by the afternoon.", "Rafael Souza", "Sales manager"],
+  ["The training made all the difference. Within a week the whole team was using the app on their own.", "Camila Torres", "Store co-owner"],
+];
+const showT = i => { const [txt, name, role] = L(T_PT, T_EN)[i]; q.textContent = txt; qa.textContent = `${name}, ${role.toLowerCase()}`; };
 const q = document.getElementById("q"), qa = document.getElementById("qa"), testi = document.getElementById("depoimentos");
 let busy = false;
 document.querySelectorAll(".person").forEach(b => b.onclick = () => {
   if (busy || b.getAttribute("aria-selected") === "true") return;
   busy = true; testi.classList.add("swap");
   setTimeout(() => {
-    const [txt, name, role] = T[b.dataset.i];
-    q.textContent = txt; qa.textContent = `${name}, ${role.toLowerCase()}`;
+    showT(b.dataset.i);
     document.querySelectorAll(".person").forEach(x => x.setAttribute("aria-selected", x === b));
     testi.classList.remove("swap");
     setTimeout(() => busy = false, 400);
@@ -1030,17 +1065,17 @@ tel.addEventListener("input", () => {
 
 // Form -> WhatsApp
 const form = document.getElementById("form");
-const msgs = { valueMissing: "Preencha este campo.", typeMismatch: "E-mail inválido.", patternMismatch: "Use o formato (00) 00000-0000." };
+const msgs = () => L({ valueMissing: "Preencha este campo.", typeMismatch: "E-mail inválido.", patternMismatch: "Use o formato (00) 00000-0000." }, { valueMissing: "Please fill in this field.", typeMismatch: "Invalid email.", patternMismatch: "Use the format (00) 00000-0000." });
 form.addEventListener("submit", e => {
   e.preventDefault(); let ok = true;
   form.querySelectorAll("input").forEach(inp => {
-    const k = Object.keys(msgs).find(k => inp.validity[k]);
-    inp.nextElementSibling.textContent = k ? msgs[k] : "";
+    const m = msgs(), k = Object.keys(m).find(k => inp.validity[k]);
+    inp.nextElementSibling.textContent = k ? m[k] : "";
     if (k && ok) { inp.focus(); ok = false; }
   });
   if (!ok) return;
   const f = Object.fromEntries(new FormData(form));
-  const url = wa([
+  const url = wa(L([
     "Olá! Vim pelo site da Stack Solution e quero agendar uma conversa.",
     "",
     `*Nome:* ${f.nome.trim()}`,
@@ -1048,7 +1083,15 @@ form.addEventListener("submit", e => {
     `*E-mail:* ${f.email.trim()}`,
     `*Cidade:* ${f.cidade.trim()}`,
     `*Motivo do contato:* ${f.motivo}`
-  ].join("\n"));
+  ], [
+    "Hi! I found you through the Stack Solution website and I'd like to book a call.",
+    "",
+    `*Name:* ${f.nome.trim()}`,
+    `*WhatsApp:* ${f.tel}`,
+    `*Email:* ${f.email.trim()}`,
+    `*City:* ${f.cidade.trim()}`,
+    `*Reason:* ${f.motivo}`
+  ]).join("\n"));
   // New tab on desktop; if the browser blocks it (common on phones), open in the same tab.
   const w = window.open(url, "_blank");
   if (w) w.opener = null; else location.href = url;
@@ -1061,6 +1104,37 @@ document.querySelectorAll(".pf-dlg").forEach(d=>{
   d.querySelector(".pf-close").addEventListener("click",()=>d.close());
   d.addEventListener("click",e=>{const r=d.getBoundingClientRect();if(e.target===d&&(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom))d.close()});
 });
+</script>
+<script>
+// Tradução PT/EN: troca textos e atributos pelo dicionário; o original fica guardado pra voltar
+const EN = {"Stack Solution | Software sob medida": "Stack Solution | Custom software", "Sistemas e aplicativos sob medida para pequenas e médias empresas, com treinamento e suporte inclusos.": "Custom systems and apps for small and mid-sized businesses, with training and support included.", "Stack Solution, início": "Stack Solution, home", "Serviços": "Services", "O que fazemos": "What we do", "Sistemas web": "Web systems", "Feitos do zero pra sua operação": "Built from scratch for your operation", "Aplicativos mobile": "Mobile apps", "Android e iOS pro dia a dia": "Android and iOS for everyday use", "Treinamento e suporte": "Training and support", "Sua equipe usando de verdade": "Your team actually using it", "Como trabalhamos": "How we work", "Suporte direto": "Direct support", "Você fala com quem programa": "You talk to the developers", "Treinamento incluso": "Training included", "Capacitação em todo projeto": "Team training in every project", "Sob medida": "Tailor-made", "Nada de sistema genérico": "No generic software", "Empresa": "Company", "Conheça a Stack": "Meet Stack", "Sobre nós": "About us", "Quem somos e como pensamos": "Who we are and how we think", "Sistemas próprios": "Our products", "Produtos criados pela Stack": "Products built by Stack", "Portfólio": "Portfolio", "Projetos que entregamos": "Projects we delivered", "Depoimentos": "Testimonials", "O que os clientes dizem": "What clients say", "Contato": "Contact", "Falar no WhatsApp": "Chat on WhatsApp", "Abrir menu": "Open menu", "Desenvolvemos sistemas e aplicativos sob medida pra pequenas e médias empresas, e treinamos sua equipe pra usar tudo sem depender de ninguém.": "We build custom systems and apps for small and mid-sized businesses, and train your team to use them without depending on anyone.", "Ver serviços": "See services", "Software house para PMEs": "Software house for SMBs", "Negócios que confiam na Stack": "Businesses that trust Stack", "Sistemas criados": "Systems built", "pela Stack": "by Stack", "Produtos próprios, prontos pra usar na sua empresa. Teste a demonstração de cada um direto no navegador.": "Our own products, ready to use in your company. Try each demo right in your browser.", "Abrir demonstração do FlowHub": "Open the FlowHub demo", "Página do FlowHub": "FlowHub page", "Central de trabalho com IA": "AI-powered work hub", "Tarefas, mensagens, agenda, documentos e CRM das ferramentas que sua equipe já usa, numa central só.": "Tasks, messages, calendar, documents and CRM from the tools your team already uses, in one place.", "80 integrações oficiais": "80 official integrations", "IA que mostra a fonte e só age com o seu “Confirmar”": "AI that shows its sources and only acts when you hit “Confirm”", "No navegador, no computador e no celular": "In the browser, on desktop and on mobile", "Conhecer": "Learn more", "Testar demonstração": "Try the demo", "Abrir demonstração do Prospect AI": "Open the Prospect AI demo", "Painel do Prospect AI": "Prospect AI dashboard", "Prospecção comercial com IA": "AI-powered sales prospecting", "Encontra empresas, organiza os leads e acompanha a equipe comercial do primeiro contato ao fechamento.": "Finds companies, organizes leads and tracks your sales team from first contact to closing.", "Busca de empresas por região e segmento": "Company search by region and industry", "Leads e conversas do WhatsApp num lugar só": "Leads and WhatsApp conversations in one place", "IA que ajuda a qualificar e priorizar": "AI that helps qualify and prioritize", "Abrir demonstração do AvaliaJá": "Open the AvaliaJá demo", "Painel do AvaliaJá": "AvaliaJá dashboard", "Satisfação e reputação": "Satisfaction and reputation", "Mede a satisfação de cada atendimento, avisa quando um cliente sai insatisfeito e mostra quem da equipe faz a diferença.": "Measures satisfaction for every service, alerts you when a customer leaves unhappy and shows who on your team makes the difference.", "Pesquisa NPS por link e QR code": "NPS surveys via link and QR code", "Reputação no Google, Reclame Aqui e Instagram": "Reputation on Google, Reclame Aqui and Instagram", "Ranking, premiação e feedback da equipe": "Team rankings, rewards and feedback", "Tecnologia sob medida,": "Tailor-made technology,", "sem enrolação.": "no fluff.", "Somos uma software house focada em pequenos e médios negócios. Em vez de sistemas genéricos, construímos exatamente o que a sua operação precisa, e ficamos junto até sua equipe dominar a ferramenta.": "We are a software house focused on small and mid-sized businesses. Instead of generic software, we build exactly what your operation needs, and we stay with you until your team masters the tool.", "Você fala com quem programa, sem intermediários.": "You talk directly to the developers, no middlemen.", "Todo projeto entregue já vem com capacitação da equipe.": "Every project we deliver includes team training.", "Cada sistema nasce da sua rotina, não de um template.": "Each system is born from your routine, not from a template.", "O que nós": "What we", "entregamos": "deliver", "Do zero à entrega, e do treinamento ao suporte, sem deixar sua equipe na mão.": "From scratch to delivery, and from training to support, without leaving your team behind.", "Desenvolvimento sob medida": "Custom development", "Sistemas web feitos do zero pra necessidade real do seu negócio, sem módulo que você nunca vai usar.": "Web systems built from scratch for your business's real needs, with no modules you'll never use.", "Apps Android e iOS pensados pra sua equipe e seus clientes usarem no dia a dia, sem complicação.": "Android and iOS apps designed for your team and customers to use every day, hassle-free.", "Sua equipe aprende a usar o sistema de verdade, com suporte direto depois da entrega.": "Your team really learns to use the system, with direct support after delivery.", "Tem uma ideia? A gente tira do papel.": "Got an idea? We'll make it real.", "Agendar conversa": "Book a call", "Alguns de nossos": "Some of our", "trabalhos realizados": "recent work", "Escolha uma categoria e veja os projetos. As demonstrações abrem direto no navegador.": "Pick a category to see the projects. Demos open right in your browser.", "2 projetos": "2 projects", "3 projetos": "3 projects", "1 projeto": "1 project", "Landing pages": "Landing pages", "Escolher site": "Choose a site", "Sites de uma página feitos pra converter": "One-page sites built to convert", "Softwares prontos Stack": "Stack ready-made software", "Escolher sistema": "Choose a system", "Produtos próprios pra usar na sua empresa": "Our own products for your company", "Aplicativo mobile": "Mobile app", "Escolher app": "Choose an app", "Apps Android e iOS": "Android and iOS apps", "Sistemas sob demanda": "Custom-built systems", "Feitos do zero pra rotina de cada cliente": "Built from scratch for each client's routine", "Fechar": "Close", "Escolha qual você quer ver.": "Choose which one you want to see.", "Abrir site": "Open site", "Imobiliária com busca de imóveis": "Real estate agency with property search", "Clínica odontológica premium": "Premium dental clinic", "Abrir demo": "Open demo", "Tarefas, projetos, CRM e agenda": "Tasks, projects, CRM and calendar", "Satisfação de clientes e reputação": "Customer satisfaction and reputation", "Abrir app": "Open app", "Pet shops e serviços perto de você": "Pet shops and services near you", "Plataforma web": "Web platform", "Estoque, balcão e assistência técnica": "Inventory, front desk and repair service", "Quanto sua empresa economiza": "How much your company saves", "com um sistema próprio": "with its own system", "Some as mensalidades que você paga hoje em sistemas e compare com ter um sistema feito pela Stack.": "Add up the monthly fees you pay for software today and compare them with having a system built by Stack.", "Quanto você paga hoje por mês em sistemas": "How much you pay per month for software today", "/mês": "/month", "Some todas as assinaturas: gestão, CRM, agenda, estoque, financeiro e os acessos extras por usuário.": "Add up every subscription: management, CRM, scheduling, inventory, finance and extra per-user seats.", "Comparar em": "Compare over", "Período": "Period", "12 meses": "12 months", "24 meses": "24 months", "36 meses": "36 months", "Mantendo os sistemas atuais": "Keeping your current software", "Sistema próprio Stack": "Your own Stack system", "Quero meu sistema": "I want my system", "Simulação com base em R$ 3.000 de investimento inicial e R$ 1.380/mês de suporte. O valor final depende do escopo de cada projeto.": "Simulation based on an initial investment of R$ 3,000 and R$ 1,380/month for support. The final price depends on each project's scope.", "O que os clientes": "What our clients", "dizem": "say", "Perguntas": "Frequently asked", "frequentes": "questions", "Não achou sua dúvida? Chama a gente no WhatsApp.": "Didn't find your question? Message us on WhatsApp.", "Quanto tempo leva pra desenvolver um sistema?": "How long does it take to build a system?", "Depende do escopo, mas a maioria dos nossos projetos sai em algumas semanas. A gente define um prazo claro já na proposta, antes de começar.": "It depends on the scope, but most of our projects ship in a few weeks. We set a clear deadline in the proposal, before we start.", "Preciso saber programar pra usar?": "Do I need to know how to code to use it?", "Não. O sistema é pensado pra rotina da sua equipe, e todo projeto inclui treinamento pra que todo mundo use com segurança desde o primeiro dia.": "No. The system is designed around your team's routine, and every project includes training so everyone can use it confidently from day one.", "Depois de pronto, tenho suporte?": "Do I get support after it's done?", "Sim. Depois da entrega você continua falando direto com quem desenvolveu, pra tirar dúvidas, corrigir e evoluir o sistema.": "Yes. After delivery you keep talking directly to the people who built it, to answer questions, fix issues and evolve the system.", "O sistema é meu, ou fico pagando mensalidade pra sempre?": "Do I own the system, or do I pay a monthly fee forever?", "O sistema é feito pro seu negócio. Custos de hospedagem e plano de suporte, quando houver, ficam claros na proposta antes de qualquer contrato.": "The system is built for your business. Hosting costs and any support plan are spelled out in the proposal before any contract.", "Atendem empresas de qualquer segmento?": "Do you work with companies in any industry?", "Sim. Como cada sistema é sob medida, a gente começa entendendo a sua operação, seja clínica, loja, serviço ou indústria.": "Yes. Since every system is custom-made, we start by understanding your operation, whether it's a clinic, a store, a service or a factory.", "Vamos construir": "Let's build", "o seu sistema.": "your system.", "Conta pra gente o que sua empresa precisa. A gente responde rápido, sem enrolação.": "Tell us what your company needs. We reply fast, no fluff.", "Agende sua conversa": "Book your call", "Nome completo": "Full name", "Seu nome": "Your name", "Celular / WhatsApp": "Phone / WhatsApp", "voce@email.com": "you@email.com", "Cidade": "City", "Sua cidade": "Your city", "Motivo do contato": "Reason for contact", "Sistema web personalizado": "Custom web system", "Outro assunto": "Something else", "Enviar e falar no WhatsApp": "Send and chat on WhatsApp", "Seus dados são tratados com confidencialidade, conforme a LGPD.": "Your data is handled confidentially, in line with Brazil's LGPD.", "Software e aplicativos sob medida para pequenas e médias empresas, com treinamento e suporte inclusos.": "Custom software and apps for small and mid-sized businesses, with training and support included.", "Sobre": "About", "© 2026 Stack Solution. Todos os direitos reservados.": "© 2026 Stack Solution. All rights reserved.", "Idioma": "Language"};
+{
+  const norm = t => t.replace(/\s+/g, " ").trim();
+  const txt = new Map(), atr = new Map();
+  const walk = () => {
+    const w = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, { acceptNode: n => n.parentElement.closest("script,style,#h1") ? 2 : 1 });
+    for (let n; (n = w.nextNode());) { const k = norm(n.nodeValue); if (EN[k] && !txt.has(n)) txt.set(n, n.nodeValue); }
+    document.querySelectorAll("[alt],[placeholder],[aria-label],[title]").forEach(el => ["alt", "placeholder", "aria-label", "title"].forEach(a => {
+      const v = el.getAttribute(a); if (v && EN[v]) { const m = atr.get(el) || {}; if (!(a in m)) m[a] = v; atr.set(el, m); }
+    }));
+  };
+  const meta = document.querySelector('meta[name="description"]'), PT_DESC = meta && meta.content, PT_TITLE = document.title;
+  window.setLang = l => {
+    lang = l; walk();
+    txt.forEach((pt, n) => { n.nodeValue = l === "en" ? pt.replace(norm(pt), EN[norm(pt)]) : pt; });
+    atr.forEach((m, el) => Object.entries(m).forEach(([a, pt]) => el.setAttribute(a, l === "en" ? EN[pt] : pt)));
+    document.documentElement.lang = L("pt-BR", "en");
+    document.title = L(PT_TITLE, EN[PT_TITLE]); if (meta) meta.content = L(PT_DESC, EN[PT_DESC]);
+    document.querySelectorAll(".lang button").forEach(b => b.setAttribute("aria-pressed", b.dataset.l === l));
+    // A landing page da Alvéa tem versão em inglês: abre no mesmo idioma
+    document.querySelectorAll('a[href*="lp-alvea/"]').forEach(a => { a.href = "demo/lp-alvea/index.html" + (l === "en" ? "?lang=en" : ""); });
+    splitH1(); window.ecoCalc && ecoCalc(); setWaLinks();
+    const sel = document.querySelector('.person[aria-selected="true"]'); if (sel) showT(sel.dataset.i);
+    try { localStorage.setItem("stack-lang", l); } catch (e) {}
+  };
+  document.querySelectorAll(".lang button").forEach(b => b.addEventListener("click", () => b.dataset.l !== lang && setLang(b.dataset.l)));
+  if (lang === "en") setLang("en");
+}
 </script>
 </body>
 </html>
