@@ -70,3 +70,24 @@ describe('Busca na Knowledge Base: bônus pelo título', () => {
     expect(titleBonus('E se eu atrasar a parcela?', titles[0], titles)).toBeGreaterThan(titleBonus('E se eu atrasar a parcela?', titles[1], titles));
   });
 });
+
+describe('Resposta curta à pergunta da cidade (conversa real de 17/11)', () => {
+  const bot = new MockAIProvider();
+  const askedCity = [{ role: 'assistant', content: 'Atendemos online, no Brasil e no exterior. Em qual cidade (ou país) você está hoje?' }] as AgentTurnInput['history'];
+
+  it('"jundiai" sozinho vira a cidade e não repete a pergunta', async () => {
+    const r = await bot.generateTurn(base({ agentKey: 'QUALIFICATION', missingSlots: ['city', 'value'], history: askedCity, userMessage: 'jundiai' }));
+    expect(r.extracted.city).toBe('Jundiai');
+    expect(r.reply).not.toMatch(/cidade/i);
+  });
+
+  it('não repete a pergunta da cidade mesmo se a resposta não for uma cidade', async () => {
+    const r = await bot.generateTurn(base({ agentKey: 'QUALIFICATION', missingSlots: ['city', 'value'], history: askedCity, userMessage: 'depois te falo isso, quanto fica a parcela de 200 mil?' }));
+    expect(r.reply).not.toMatch(/Em qual cidade/);
+  });
+
+  it('sem a pergunta da cidade antes, uma palavra solta não vira cidade', async () => {
+    const r = await bot.generateTurn(base({ agentKey: 'QUALIFICATION', missingSlots: ['city'], userMessage: 'beleza' }));
+    expect(r.extracted.city).toBeUndefined();
+  });
+});

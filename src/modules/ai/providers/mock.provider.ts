@@ -3,7 +3,7 @@ import { productLabel, sourceLabel } from '@/modules/leads/catalog';
 import { asksIfBot, detectIntent, extractSlots, isOptOut, isQuestion, wantsHuman } from '../nlu';
 import type { AgentTurnInput, AgentTurnOutput, AIProvider, KnowledgeSnippet, IdeasInput, SummaryInput } from './types';
 import { templateIdeas } from './ideas';
-import { firstName } from '@/lib/normalize';
+import { firstName, splitCityUf } from '@/lib/normalize';
 
 // MockAIProvider — sem LLM. Conversa natural baseada em regras + Knowledge Base.
 // Nunca inventa números: respostas factuais vêm SOMENTE de trechos da Knowledge Base.
@@ -19,6 +19,22 @@ const SLOT_QUESTIONS: Record<string, (i: AgentTurnInput) => string> = {
   term: () => 'Para quando você imagina usar esse crédito: nos próximos meses ou é um plano de prazo mais longo?',
   preferredChannel: () => 'Por onde prefere que o consultor continue com você: WhatsApp, ligação ou e-mail?',
 };
+
+/** Reconhece qual dado a pergunta anterior pediu, mesmo com outra redação (a da IA real é diferente da nossa). */
+const SLOT_ASKED: Record<string, RegExp> = {
+  product: /im[óo]vel, ve[íi]culo|qual bem/i,
+  objective: /objetivo/i,
+  value: /valor/i,
+  city: /cidade/i,
+  term: /para quando|prazo/i,
+  preferredChannel: /por onde prefere/i,
+};
+
+/** Última pergunta da mensagem anterior do assistente ("…? " → só a frase com interrogação). */
+const lastQuestion = (msg: string) => msg.split(/(?<=[.!?])\s+/).filter((s) => s.includes('?')).pop() ?? '';
+
+/** Resposta curta de nome de lugar ("jundiai", "Campinas SP", "Lisboa"): sem número, sem pergunta, até 4 palavras. */
+const SHORT_PLACE = /^[A-Za-zÀ-ú' .-]+(?:\s*[/,-]\s*[A-Za-z]{2})?$/;
 
 const STOP = new Set(['de', 'da', 'do', 'das', 'dos', 'a', 'o', 'e', 'é', 'um', 'uma', 'que', 'como', 'para', 'por', 'com', 'no', 'na', 'em', 'os', 'as', 'se', 'eu', 'meu', 'minha', 'qual', 'quais', 'quanto', 'tem', 'ter', 'pode', 'posso', 'funciona', 'sobre']);
 
@@ -73,6 +89,14 @@ export class MockAIProvider implements AIProvider {
   async generateTurn(i: AgentTurnInput): Promise<AgentTurnOutput> {
     const text = i.userMessage ?? '';
     const extracted = text ? extractSlots(text) : {};
+    const lastBot = [...i.history].reverse().find((h) => h.role === 'assistant')?.content ?? '';
+    const asked = lastQuestion(lastBot);
+    // Respondeu só o nome da cidade à pergunta da cidade ("jundiai"): é a cidade, mesmo sem "moro em" nem maiúscula.
+    const t = text.trim();
+    if (!extracted.city && SLOT_ASKED.city.test(asked) && t.split(/\s+/).length <= 4 && SHORT_PLACE.test(t) && !GREETING.test(t)) {
+      const parsed = splitCityUf(t);
+      if (parsed.city) Object.assign(extracted, { city: parsed.city }, parsed.uf ? { uf: parsed.uf } : {});
+    }
     const intent = text ? detectIntent(text) : 'LOW';
     const human = text ? wantsHuman(text) : false;
     const optOut = text ? isOptOut(text) : false;
@@ -145,13 +169,9 @@ export class MockAIProvider implements AIProvider {
       if (human) parts.push('Claro! Vou chamar um consultor para continuar com você.');
     }
 
-    // Nunca repetir a MESMA pergunta da mensagem anterior: se o cliente respondeu outra coisa,
-    // segue para o próximo dado que falta (a pergunta pendente volta mais tarde, se ainda faltar).
-    const lastBot = [...i.history].reverse().find((h) => h.role === 'assistant')?.content ?? '';
-    const nextSlot = missing.find((s) => {
-      const q = SLOT_QUESTIONS[s]?.(i);
-      return q && !lastBot.includes(q);
-    });
+    // Nunca repetir a pergunta da mensagem anterior (mesmo com outra redação): se o cliente respondeu
+    // outra coisa, segue para o próximo dado que falta (a pergunta pendente volta mais tarde, se ainda faltar).
+    const nextSlot = missing.find((s) => SLOT_QUESTIONS[s] && !SLOT_ASKED[s]?.test(asked));
 
     // O cliente já informou o que quer? (produto ou valor, nesta mensagem ou antes)
     const knowsSomething = !!(i.lead.product || i.lead.value || extracted.product || extracted.value);
