@@ -119,6 +119,17 @@ export const CREDENTIAL_GROUPS: CredentialGroup[] = [
     ],
   },
   {
+    id: 'push',
+    title: 'Avisos no celular e no computador (Web Push)',
+    description: 'Sem estas chaves, os avisos (lead quente, mensagem nova) só aparecem com o sistema aberto. Depois de salvar, cada consultor ativa em Configurações → Notificações → Ativar push aqui. Não troque as chaves depois: quem já ativou deixa de receber.',
+    docs: 'https://web.dev/articles/push-notifications-web-push-protocol',
+    fields: [
+      { key: 'VAPID_PUBLIC_KEY', label: 'Chave pública (VAPID)', secret: false, hint: 'Gere com: npx web-push generate-vapid-keys' },
+      { key: 'VAPID_PRIVATE_KEY', label: 'Chave privada (VAPID)', secret: true },
+      { key: 'VAPID_SUBJECT', label: 'Contato do remetente', secret: false, hint: 'Ex.: https://stacksolution.com.br (a Apple recusa endereço de exemplo)' },
+    ],
+  },
+  {
     // Fica na aba própria do Super Admin (/superadmin/cnpj-ai), não na lista de Configurar APIs.
     id: 'cnpj_ai',
     title: 'cnpj.ai — consulta de CNPJ',

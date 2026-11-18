@@ -12,12 +12,14 @@ import { audit } from '../audit/audit.service';
 export const pushConfigured = () => !!(env.VAPID_PUBLIC_KEY && env.VAPID_PRIVATE_KEY);
 export const pushPublicKey = () => env.VAPID_PUBLIC_KEY ?? null;
 
-let configured = false;
+// Chaves salvas no painel do Super Admin chegam sem reiniciar: reaplica quando mudam.
+let configuredWith = '';
 function ensureVapid() {
   if (!pushConfigured()) return false;
-  if (!configured) {
+  const sig = `${env.VAPID_SUBJECT}|${env.VAPID_PUBLIC_KEY}|${env.VAPID_PRIVATE_KEY}`;
+  if (sig !== configuredWith) {
     webpush.setVapidDetails(env.VAPID_SUBJECT, env.VAPID_PUBLIC_KEY!, env.VAPID_PRIVATE_KEY!);
-    configured = true;
+    configuredWith = sig;
   }
   return true;
 }
@@ -46,7 +48,7 @@ export interface PushPayload {
 async function sendToDevice(device: { id: string; pushEndpoint: string | null; pushP256dh: string | null; pushAuth: string | null }, payload: PushPayload) {
   if (!device.pushEndpoint || !device.pushP256dh || !device.pushAuth) return { ok: false, error: 'sem inscrição' };
   try {
-    const res = await webpush.sendNotification({ endpoint: device.pushEndpoint, keys: { p256dh: device.pushP256dh, auth: device.pushAuth } }, JSON.stringify(payload), { TTL: 3600, urgency: payload.priority === 'CRITICAL' ? 'high' : 'normal', topic: payload.tag.slice(0, 32).replace(/[^A-Za-z0-9_-]/g, '') });
+    const res = await webpush.sendNotification({ endpoint: device.pushEndpoint, keys: { p256dh: device.pushP256dh, auth: device.pushAuth } }, JSON.stringify(payload), { TTL: 3600, urgency: payload.priority === 'CRITICAL' || payload.priority === 'HIGH' ? 'high' : 'normal', topic: payload.tag.slice(0, 32).replace(/[^A-Za-z0-9_-]/g, '') });
     return { ok: true, status: res.statusCode };
   } catch (e) {
     const status = (e as { statusCode?: number }).statusCode;

@@ -24,7 +24,7 @@ export type NotificationCategory = 'LEAD' | 'CONVERSATION' | 'OPPORTUNITY' | 'TA
 /** Chaves de preferência (tela Preferências). O `type` da notificação é mapeado para uma delas. */
 export const PREFERENCE_KEYS = {
   'lead.hot': { label: 'Lead quente', group: 'Leads', defaults: ['IN_APP', 'DESKTOP', 'PUSH', 'EXTENSION'] },
-  'lead.qualified': { label: 'Lead qualificado / distribuído para mim', group: 'Leads', defaults: ['IN_APP', 'DESKTOP', 'EXTENSION'] },
+  'lead.qualified': { label: 'Lead qualificado / distribuído para mim', group: 'Leads', defaults: ['IN_APP', 'DESKTOP', 'PUSH', 'EXTENSION'] },
   'lead.warm': { label: 'Lead morno', group: 'Leads', defaults: ['IN_APP'] },
   'lead.cold': { label: 'Lead frio / novo lead', group: 'Leads', defaults: [] },
   'conversation.message': { label: 'Nova mensagem de cliente', group: 'Conversas', defaults: ['IN_APP', 'DESKTOP', 'PUSH', 'EXTENSION'] },
