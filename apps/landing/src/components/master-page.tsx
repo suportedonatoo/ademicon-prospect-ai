@@ -92,7 +92,7 @@ export function MasterPage({ site, initialProduct, keepQuery = '' }: { site: Sit
           )}
         </section>
         <div id="simular" className="scroll-mt-24">
-          <SimulatorFlow site={site.subdomain} products={products} pjName={unitName} privacyUrl={brand.privacyUrl} initialProduct={initialProduct} disclaimer={site.simulator.disclaimer} />
+          <SimulatorFlow site={site.subdomain} products={products} pjName={unitName} privacyUrl={brand.privacyUrl} initialProduct={initialProduct} />
         </div>
       </div>
 
@@ -266,7 +266,6 @@ export function MasterPage({ site, initialProduct, keepQuery = '' }: { site: Sit
           <div className="space-y-3">
             <BrandLogo name={brand.name} inverted previa={previa} />
             <p>{pj ? `${pj.name} · ${pj.city}/${pj.uf}` : brand.tagline}</p>
-            <p className="text-xs text-white/55 max-w-2xl">{site.simulator.disclaimer}</p>
             <p className="text-xs text-white/55 max-w-2xl">
               Seus dados são usados apenas para o atendimento que você pedir (LGPD). O atendimento inicial pode ser feito por um assistente virtual, identificado como tal; um consultor
               humano assume quando você quiser.

@@ -72,14 +72,12 @@ export function SimulatorFlow({
   pjName,
   privacyUrl,
   initialProduct,
-  disclaimer,
 }: {
   site: string;
   products: Product[];
   pjName: string;
   privacyUrl: string | null;
   initialProduct?: string;
-  disclaimer?: string;
 }) {
   const products = useMemo(() => sortProducts(rawProducts), [rawProducts]);
   const start = products.find((p) => p.key === initialProduct) ?? products[0];
@@ -254,7 +252,6 @@ export function SimulatorFlow({
             {busy ? 'Calculando…' : 'Simular'}
           </button>
           <p className="text-[11.5px] text-muted text-center -mt-2">Para ver o resultado, você preenche um cadastro rápido e um consultor já te atende pelo WhatsApp.</p>
-          {product.plan && disclaimer && <p className="text-[11px] leading-snug text-muted">{disclaimer}</p>}
         </form>
       )}
 
@@ -327,10 +324,7 @@ export function SimulatorFlow({
             ))}
           </ul>
           ))}
-          <p className="text-[11px] leading-snug text-muted">
-            {sim.result.options[0]?.basis === 'DIVISAO_SIMPLES' ? 'Base: crédito ÷ prazo, sem taxas. ' : ''}
-            {sim.result.disclaimer}
-          </p>
+          {sim.result.options[0]?.basis === 'DIVISAO_SIMPLES' && <p className="text-[11px] leading-snug text-muted">Base: crédito ÷ prazo, sem taxas.</p>}
           {whatsappUrl && (
             <a
               href={whatsappUrl}
