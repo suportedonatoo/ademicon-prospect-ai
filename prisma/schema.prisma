@@ -611,6 +611,7 @@ model Simulation {
   uf                   String?
   result               Json     @default("{}")
   pjId                 String? // landing da PJ que gerou a simulação
+  consultantId         String? // link próprio do consultor (/c/<slug>) onde a simulação foi feita
   heat                 String? // FRIO (só simulou) | MORNO | QUENTE
   channel              String? // canal de origem (GOOGLE_ADS, GOOGLE_ORGANIC, META, ...)
   createdAt            DateTime @default(now())
@@ -621,6 +622,7 @@ model Simulation {
 
   @@index([organizationId, createdAt])
   @@index([organizationId, pjId, createdAt])
+  @@index([consultantId, createdAt])
 }
 
 // ───────────────────────── CRM / Oportunidades ─────────────────────────
@@ -1153,6 +1155,7 @@ model AttributionSession {
   fbclid         String?
   channel        String? // GOOGLE_ADS (pago) | GOOGLE_ORGANIC | META | INSTAGRAM | WHATSAPP | LANDING (direto/outros)
   pjId           String?
+  consultantId   String? // link próprio do consultor (/c/<slug>) que trouxe a visita
   leadId         String?
   firstSeenAt    DateTime           @default(now())
   lastSeenAt     DateTime           @default(now())
@@ -1160,6 +1163,7 @@ model AttributionSession {
 
   @@index([organizationId, firstSeenAt])
   @@index([leadId])
+  @@index([consultantId, lastSeenAt])
 }
 
 model AttributionEvent {

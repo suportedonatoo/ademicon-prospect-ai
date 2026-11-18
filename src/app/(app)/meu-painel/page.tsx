@@ -1,11 +1,12 @@
 import Link from 'next/link';
 import { requireCtx } from '@/modules/auth/session';
-import { consultantDashboard } from '@/modules/management/dashboards.service';
+import { consultantDashboard, myLinkStats } from '@/modules/management/dashboards.service';
 import { listSponsoredAds } from '@/modules/management/sponsored-ads.service';
 import { productLabel, sourceLabel } from '@/modules/leads/catalog';
 import { Card, Notice, PageHeader, Stat, cx } from '@/components/ui';
 import { AutoRefresh } from '@/components/v2-client';
-import { brl, minutes, num, pct, timeAgo } from '@/lib/format';
+import { brl, dateTime, minutes, num, pct, timeAgo } from '@/lib/format';
+import { formatPhone } from '@/lib/normalize';
 import { PeriodTabs, parsePeriod } from '../gestao/period-tabs';
 import { PublishLinks } from '@/components/publish-links';
 import { db } from '@/lib/db';
@@ -54,8 +55,9 @@ export default async function MyDashboard({ searchParams }: { searchParams: Prom
       </>
     );
   }
-  const [d, ads, me] = await Promise.all([
+  const [d, link, ads, me] = await Promise.all([
     consultantDashboard(ctx, period),
+    myLinkStats(ctx, period),
     listSponsoredAds(ctx),
     db.consultant.findUnique({ where: { id: ctx.consultantId }, select: { landingSlug: true } }),
   ]);
@@ -73,6 +75,36 @@ export default async function MyDashboard({ searchParams }: { searchParams: Prom
       </div>
 
       <PublishLinks slug={me?.landingSlug ?? null} own showMaster={ctx.roleKey !== 'CONSULTANT'} className="mt-4" />
+
+      {me?.landingSlug && (
+        <Card title="Meu link" subtitle="Quem abriu o seu link, quantos simularam e quem deixou nome e WhatsApp, no período escolhido acima." className="mt-4">
+          <div className="grid grid-cols-3 gap-3">
+            <Stat label="Acessos" value={num(link.visits)} hint="pessoas que abriram o link" />
+            <Stat label="Simulações" value={num(link.simulations)} hint={link.visits && link.simulations <= link.visits ? `${pct((link.simulations / link.visits) * 100, 0)} de quem abriu` : 'cliques em Simular'} />
+            <Stat label="Cadastros" value={num(link.signups.length)} hint={link.simulations && link.signups.length <= link.simulations ? `${pct((link.signups.length / link.simulations) * 100, 0)} de quem simulou` : 'deixaram nome e WhatsApp'} />
+          </div>
+          {link.signups.length ? (
+            <ul className="mt-4 divide-y divide-line border-t border-line max-h-[360px] overflow-y-auto scroll-thin">
+              {link.signups.map((s) => (
+                <li key={s.lead.id + s.createdAt.toISOString()} className="py-2.5 flex flex-wrap items-center justify-between gap-x-4 gap-y-1 text-sm">
+                  <span className="min-w-0">
+                    <Link href={`/leads/${s.lead.id}`} className="font-medium hover:text-brand-600">
+                      {s.lead.name}
+                    </Link>
+                    <span className="text-muted"> · {s.lead.phone ? formatPhone(s.lead.phone) : 'sem telefone'}</span>
+                  </span>
+                  <span className="text-xs text-muted tabular">
+                    {productLabel(s.product)}
+                    {s.value ? ` · ${brl(s.value)}` : ''} · {dateTime(s.createdAt)}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="mt-4 text-sm text-muted">Ninguém deixou o contato pelo seu link neste período.</p>
+          )}
+        </Card>
+      )}
 
       <div className="grid gap-4 lg:grid-cols-3 mt-4">
         <Column title="Quentes" tone="bg-bad" leads={d.hot} empty="Nenhum lead quente agora." />

@@ -2,7 +2,8 @@ import { beforeAll, describe, expect, it } from 'vitest';
 import { db } from '@/lib/db';
 import { createOrg, resetDb, uniquePhone } from '../helpers';
 import { createApiKey, ctxFromApiKey } from '@/modules/auth/auth.service';
-import { getSite, registerInterest, simulateCold } from '@/modules/landing-service/landing-service.service';
+import { getSite, registerInterest, simulateCold, trackSiteVisit } from '@/modules/landing-service/landing-service.service';
+import { myLinkStats } from '@/modules/management/dashboards.service';
 import { ensureLandingSlug, freeSlug, setLandingSlug, slugify } from '@/modules/consultants/landing-link';
 import { ORGANIC_ONLY } from '@/modules/lead-routing/equal-split';
 import type { Ctx } from '@/modules/auth/context';
@@ -72,5 +73,31 @@ describe('Link próprio do consultor (página idêntica à mestre)', () => {
     expect(await setLandingSlug(A.consultants[0].id, 'consultor-um-novo')).toBe('consultor-um-novo');
     await db.consultant.update({ where: { id: A.consultants[0].id }, data: { active: false } });
     await expect(getSite(svc, 'consultor-um-novo')).rejects.toThrow(/não encontrad/);
+  });
+});
+
+describe('Quadro "Meu link" do consultor', () => {
+  it('conta acessos e simulações do link e lista quem deixou o contato', async () => {
+    await db.consultant.update({ where: { id: A.consultants[0].id }, data: { active: true } }); // o teste anterior desativa
+    const own = await ensureLandingSlug(A.consultants[0].id);
+    const me = await A.ctx(A.users.consultant);
+    const before = await myLinkStats(me, 'hoje');
+    // 4 pessoas abrem o link, 2 simulam, 1 deixa o contato; acesso à central não conta para ele.
+    const v1 = await trackSiteVisit(svc, own, { event: 'PAGE_VIEW' });
+    const v2 = await trackSiteVisit(svc, own, { event: 'PAGE_VIEW' });
+    await trackSiteVisit(svc, own, { event: 'PAGE_VIEW' });
+    await trackSiteVisit(svc, 'central', { event: 'PAGE_VIEW' });
+    // Quem já tinha visitado a central e depois abre o link do consultor passa a contar para ele.
+    const antes = await trackSiteVisit(svc, 'central', { event: 'PAGE_VIEW' });
+    await trackSiteVisit(svc, own, { sessionKey: antes.sessionKey, event: 'PAGE_VIEW' });
+    await simulateCold(svc, own, { sessionKey: v1.sessionKey, product: 'IMOVEL', value: 300000 });
+    const sim = await simulateCold(svc, own, { sessionKey: v2.sessionKey, product: 'IMOVEL', value: 180000 });
+    await registerInterest(svc, own, { simulationId: sim.simulationId, name: 'Cliente do Meu Link', whatsapp: uniquePhone(), consentWhatsapp: true, callNow: true });
+
+    const after = await myLinkStats(me, 'hoje');
+    expect(after.visits - before.visits).toBe(4);
+    expect(after.simulations - before.simulations).toBe(2);
+    expect(after.signups.map((s) => s.lead.name)).toContain('Cliente do Meu Link');
+    expect(after.signups.find((s) => s.lead.name === 'Cliente do Meu Link')).toMatchObject({ product: 'IMOVEL', value: 180000 });
   });
 });

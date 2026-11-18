@@ -35,7 +35,7 @@ export type VisitInput = Omit<z.infer<typeof trackInput>, 'slug'>;
  * classificado — Google pago x orgânico etc.) e grava o evento. Usado pelas landings do builder
  * e pelo serviço de landing das PJs.
  */
-export async function recordVisit(orgId: string, t: VisitInput, where: { landingPageId?: string | null; pjId?: string | null }) {
+export async function recordVisit(orgId: string, t: VisitInput, where: { landingPageId?: string | null; pjId?: string | null; consultantId?: string | null }) {
   let session = t.sessionKey ? await db.attributionSession.findUnique({ where: { sessionKey: t.sessionKey } }) : null;
   if (session && session.organizationId !== orgId) session = null;
   const adClick = t.gclid ?? t.gbraid ?? t.wbraid ?? null;
@@ -47,6 +47,7 @@ export async function recordVisit(orgId: string, t: VisitInput, where: { landing
         sessionKey: t.sessionKey && t.sessionKey.length >= 16 ? t.sessionKey : crypto.randomUUID(),
         landingPageId: where.landingPageId ?? null,
         pjId: where.pjId ?? null,
+        consultantId: where.consultantId ?? null,
         source: t.utm_source ?? (adClick ? 'google' : t.fbclid ? 'meta' : channel === 'GOOGLE_ORGANIC' ? 'google' : null),
         medium: t.utm_medium ?? (adClick || t.fbclid ? 'cpc' : channel === 'GOOGLE_ORGANIC' ? 'organic' : null),
         campaign: t.utm_campaign,
@@ -59,7 +60,10 @@ export async function recordVisit(orgId: string, t: VisitInput, where: { landing
       },
     });
   } else {
-    await db.attributionSession.update({ where: { id: session.id }, data: { lastSeenAt: new Date() } });
+    // Visitante que já tinha sessão (veio antes pela central, por exemplo) e agora abriu o link de um consultor:
+    // a visita passa a contar para o link dele. Quem já é de um link continua com o primeiro.
+    const claim = where.consultantId && !session.consultantId ? { consultantId: where.consultantId } : {};
+    session = await db.attributionSession.update({ where: { id: session.id }, data: { lastSeenAt: new Date(), ...claim } });
   }
   const campaign = session.campaign ? await db.campaign.findFirst({ where: { organizationId: orgId, utmCampaign: session.campaign }, select: { id: true } }) : null;
   const previousViews = session.leadId && t.event === 'PAGE_VIEW' ? await db.attributionEvent.count({ where: { sessionId: session.id, type: 'PAGE_VIEW', createdAt: { lt: new Date(Date.now() - 30 * 60_000) } } }) : 0;

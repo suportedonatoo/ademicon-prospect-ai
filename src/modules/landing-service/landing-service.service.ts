@@ -151,12 +151,12 @@ export const serviceTrackInput = trackInput.omit({ slug: true }).extend({
 });
 
 export async function trackSiteVisit(ctx: Ctx, subdomain: string, raw: unknown) {
-  const { pj } = await loadSite(ctx, subdomain);
+  const { pj, consultant } = await loadSite(ctx, subdomain);
   const parsed = serviceTrackInput.parse(raw);
   // Link curto de divulgação (?c=) vira as UTMs equivalentes — UTMs explícitas têm prioridade.
   const short = parsed.utm_campaign ? null : utmFromShortCode(parsed.c);
   const t = short ? { ...parsed, ...short } : parsed;
-  const session = await recordVisit(ctx.orgId, t, { pjId: pj?.id ?? null });
+  const session = await recordVisit(ctx.orgId, t, { pjId: pj?.id ?? null, consultantId: consultant?.id ?? null });
   return { sessionKey: session.sessionKey, channel: session.channel };
 }
 
@@ -176,7 +176,7 @@ export const coldSimulationInput = z.object({
 
 /** FRIO: só a simulação. Não cria lead e não guarda dado pessoal. */
 export async function simulateCold(ctx: Ctx, subdomain: string, raw: unknown) {
-  const { pj, simulator } = await loadSite(ctx, subdomain);
+  const { pj, simulator, consultant } = await loadSite(ctx, subdomain);
   const input = coldSimulationInput.parse(raw);
   const cfg = (simulator.products as unknown as SimulatorProductConfig[]).find((p) => p.key === input.product);
   if (!cfg) throw BadRequest('Produto não disponível neste simulador.');
@@ -208,6 +208,7 @@ export async function simulateCold(ctx: Ctx, subdomain: string, raw: unknown) {
       uf: input.uf || pj?.uf || null,
       result: result as object,
       pjId: pj?.id ?? null,
+      consultantId: consultant?.id ?? null,
       heat: 'FRIO',
       channel: session?.channel ?? 'LANDING',
     },

@@ -164,3 +164,25 @@ export async function consultantDashboard(ctx: Ctx, period: Period) {
     cold: group('FRIO'),
   };
 }
+
+/**
+ * "Meu link": funil do link próprio do consultor (/c/<slug>) no período.
+ * Acessos = pessoas (sessões) que abriram o link; simulações = cliques em Simular; cadastros = quem deixou
+ * nome e WhatsApp. A lista só mostra leads que continuam com o consultor (cliente que já era de outro fica fora).
+ */
+export async function myLinkStats(ctx: Ctx, period: Period) {
+  if (!ctx.consultantId) throw Forbidden('Painel do consultor: seu usuário não está ligado a um consultor.');
+  const me = ctx.consultantId;
+  const since = periodStart(period);
+  const [visits, simulations, signups] = await Promise.all([
+    db.attributionSession.count({ where: { organizationId: ctx.orgId, consultantId: me, lastSeenAt: { gte: since } } }),
+    db.simulation.count({ where: { organizationId: ctx.orgId, consultantId: me, createdAt: { gte: since } } }),
+    db.simulation.findMany({
+      where: { organizationId: ctx.orgId, consultantId: me, createdAt: { gte: since }, lead: { consultantId: me, deletedAt: null } },
+      orderBy: { createdAt: 'desc' },
+      take: 100,
+      select: { createdAt: true, product: true, value: true, lead: { select: { id: true, name: true, phone: true } } },
+    }),
+  ]);
+  return { visits, simulations, signups: signups.filter((s) => s.lead).map((s) => ({ ...s, lead: s.lead! })) };
+}
